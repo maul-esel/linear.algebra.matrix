@@ -1,0 +1,249 @@
+grammar linear.algebra.matrix.Matrix
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+generate matrix "http://www.algebra.linear/matrix/Matrix"
+
+// I. General code structure
+Code hidden(WHITESPACE, NEWLINE, SL_COMMENT, ML_COMMENT) :
+	(lines+=Line)*
+;
+
+Line :
+	Action | FuncDeclaration | ProcDeclaration
+;
+
+Action :
+	VarDeclaration | (Assignment ';') | (FunctionCall ';') | ReturnStatement | IfElse | ProcCall // TODO: solve proc/func conflict without backtracking
+;
+
+VarDeclaration :
+	(const?=CONST)? type=Type name=ID (OP_ASSIGN value=Expression)? ';'
+;
+
+ReturnStatement :
+	RETURN value=Expression ';'
+;
+
+ProcRef hidden() :
+	ref=[ProcDeclaration] '('
+;
+
+ProcCall :
+	proc=ProcRef (params+=Expression (',' params+=Expression)*)? ')' ';'
+;
+
+Block: 
+	{Block} '{' (lines+=Action)* '}'
+;
+
+// I. a) conditionals
+IfBody :
+	Action | Block
+;
+
+IfElse :
+	IF '(' cond=Expression ')' ifTrue=IfBody
+	(=>ELSE else=IfBody)?
+;
+
+// I. b) Function and proc declarations
+FuncDeclaration :
+	DEF name=ID ':' params=ParameterList '->' returnType=FuncType body=Block
+;
+
+ProcDeclaration :
+	PROC name=ID ':' params=ParameterList body=Block
+;
+
+ParameterList :
+	{ParameterList} '(' (params+=ParameterDeclaration (',' params+=ParameterDeclaration)*)? ')'
+;
+
+FuncType :
+	Type //| GenericMatrixType
+;
+
+ParameterDeclaration : 
+	type=FuncType name=ID
+;
+
+// II. types
+SimpleType :
+	MathematicalType | {BooleanType} BOOL
+;
+
+MathematicalType :
+	{IntegerType} INT
+;
+
+MatrixType :
+	'(' height=POSITIVE_INTEGER '°' width=POSITIVE_INTEGER ')'
+;
+
+Type :
+	MatrixType | SimpleType
+;
+
+// III. Expressions
+// III. a) Literals
+BooleanLiteral :
+	value=('true'|'false')
+;
+
+IntLiteral :
+	value=(POSITIVE_INTEGER | ZERO | NEGATIVE_INTEGER)
+;
+
+MathematicalLiteral :
+	IntLiteral
+;
+
+SimpleLiteral :
+	MathematicalLiteral | BooleanLiteral
+;
+
+// III. a) (i) Matrix literals
+MultiLineMatrixLiteral hidden(WHITESPACE, SL_COMMENT, ML_COMMENT) :
+	type=MathematicalType? dot=Dotting?
+	'{' NEWLINE
+		(lines+=MatrixLiteralLine)+
+	'}'
+;
+
+PlaceholderEntry :
+	{PlaceholderEntry} '.'
+;
+
+MatrixEntry :
+	MathematicalLiteral | PlaceholderEntry
+;
+
+MatrixLiteralLine :
+	entries+=MatrixEntry (','? entries+=MatrixEntry)* NEWLINE
+;
+
+Dotting :
+	'(' DOT fill=Expression ')'
+;
+
+// III. b) simple expressions
+Variable :
+	ref=[VarDeclaration]
+;
+
+Function hidden() :
+	ref=[FuncDeclaration] '('
+;
+
+FunctionCall :
+	func=Function (params+=Expression (',' params+=Expression)*)? ')'
+;
+
+ParenthesizedExpression :
+	'(' inner=Expression ')'
+;
+
+AtomExpression returns Expression :
+	SimpleLiteral | MultiLineMatrixLiteral | Variable | ParenthesizedExpression | FunctionCall
+;
+
+// III. c) complex expressions
+Assignment :
+	var=Variable OP_ASSIGN value=Expression
+;
+
+EntryAccess returns Expression :
+	AtomExpression ({EntryAccess.matr=current} '[' line=Expression ',' column=Expression ']')*
+;
+
+Negation returns Expression :
+	EntryAccess | ({Negation} '!' expr=EntryAccess)
+;
+
+Exponentiation returns Expression :
+	Negation ({Exponentiation.base=current} '^' exp=Negation)*
+;
+
+Transposition returns Expression :
+	Exponentiation ({Transposition.base=current} '^' TRANSPOS)?
+;
+
+UnaryMinus returns Expression :
+	Transposition | {UnaryMinus} ('-' expr=Transposition)
+;
+
+Division returns Expression :
+	UnaryMinus ({Division.left=current} '/' right=UnaryMinus)*
+;
+
+Multiplication returns Expression :
+	Division ({Multiplication.left=current} '*' right=Division)*
+;
+
+Addition returns Expression :
+	Multiplication ({Addition.left=current} op=AdditionOp right=Multiplication)*
+;
+
+Equivalency returns Expression :
+	Addition ({Equivalency.left=current} '~' right=Addition)*
+;
+
+Comparison returns Expression :
+	Equivalency ({Comparison.left=current} op=ComparisonOp right=Equivalency)*
+;
+
+Equals returns Expression :
+	Comparison ({Equals.left=current} ('='|'==') right=Comparison)*
+;
+
+LogicalAndOr returns Expression:
+	Equals ({LogicalAndOr.left=current} op=LogicalOp right=Equals)*
+;
+
+Expression returns Expression :
+	LogicalAndOr | Assignment
+;
+
+// III. d) operator enums
+enum AdditionOp :
+	PLUS='+' | MINUS='-'
+;
+
+enum ComparisonOp :
+	LESS='<' | GREATER='>' | LESSOREQUAL='<=' | GREATEROREQUAL='>='
+;
+
+enum LogicalOp :
+	AND='&&' | AND='and' | OR='||' | OR='or'
+;
+
+// IV. terminals
+terminal OP_ASSIGN : ':=';
+
+// IV. a) keywords:
+terminal IF : 'if';
+terminal ELSE : 'else';
+terminal INT : 'int';
+terminal BOOL : 'bool' 'ean'?;
+terminal RETURN : 'return';
+terminal DEF : 'def';
+terminal PROC : 'proc';
+terminal DOT : 'dot';
+terminal CONST : 'const';
+terminal TRANSPOS : 'T';
+
+// IV. b) misc 
+terminal NEWLINE  : '\n';
+terminal WHITESPACE : (' '|'\t')+;
+terminal ID : (LETTER|'_')(LETTER|'_'|DIGIT_WITHOUT_ZERO|'0')*;
+
+terminal fragment DIGIT_WITHOUT_ZERO : '1'..'9';
+terminal fragment LETTER : ('a'..'z'|'A'..'Z');
+
+// IV. c) numbers
+terminal ZERO : '0';
+terminal POSITIVE_INTEGER : DIGIT_WITHOUT_ZERO (DIGIT_WITHOUT_ZERO|ZERO)*;
+terminal NEGATIVE_INTEGER : '-' POSITIVE_INTEGER;
+
+// IV. d) comments
+terminal SL_COMMENT : '§' !('§') !(NEWLINE)* NEWLINE?;
+terminal ML_COMMENT : '§§' -> '§§';

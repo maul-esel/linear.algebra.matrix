@@ -1,0 +1,8 @@
+.metadata
+*/src-gen
+*/xtend-gen
+*/xsemantics-gen
+*/bin
+*.jar
+.DS_Store
+plugin.xml_gen

@@ -1,0 +1,457 @@
+system linear.algebra.matrix.typing.XSemanticMatrix
+
+validatorExtends linear.algebra.matrix.validation.AbstractMatrixValidator
+
+import linear.algebra.matrix.matrix.*
+import linear.algebra.matrix.core.*
+import linear.algebra.matrix.SmartMatrixType
+
+auxiliary {
+	matrixDimensionsEqual(MatrixType left, MatrixType right) : boolean
+	matrixMultiplicationDefined(MatrixType left, MatrixType right) : boolean
+	multipliedMatrixDimensions(MatrixType left, MatrixType right) : MatrixType
+	isSquare(MatrixType type) : boolean
+	consistentLineWidth(MultiLineMatrixLiteral lit) : boolean
+	transpose(MatrixType type) : MatrixType
+	hasPlaceholders(MultiLineMatrixLiteral lit) : boolean
+}
+
+judgments {
+    type |- Expression expr : output Type
+    	error "Cannot type " + stringRep(expr)
+    	source expr
+   	subtype |- Type sub <: Type sup
+    vartype ||- VarDeclaration decl : output Type
+    interpretExpr |- Expression expr ~> output Object
+    //executeFunc |- FuncDeclaration func ~> output Object 
+}
+
+auxiliary matrixDimensionsEqual(MatrixType left, MatrixType right) {
+	Integer.valueOf(left.height) == Integer.valueOf(right.height)
+		&& Integer.valueOf(left.width) == Integer.valueOf(right.width)
+}
+
+auxiliary matrixMultiplicationDefined(MatrixType left, MatrixType right) {
+	Integer.valueOf(left.width) == Integer.valueOf(right.height)
+}
+
+auxiliary multipliedMatrixDimensions(MatrixType left, MatrixType right) {
+	if (matrixDimensionsEqual(left, right)) {
+		left
+	} else {
+		new SmartMatrixType(
+			Integer.parseInt(left.height),
+			Integer.parseInt(right.width)
+		)
+	}
+}
+
+auxiliary isSquare(MatrixType type) {
+	Integer.valueOf(type.height) == Integer.valueOf(type.width)
+}
+
+auxiliary consistentLineWidth(MultiLineMatrixLiteral lit) {
+	val width = lit.lines.get(0).getEntries().size()
+	var consistent = true
+	for (line : lit.lines) {
+		consistent = consistent && line.getEntries().size() == width
+	}
+	consistent
+}
+
+auxiliary transpose(MatrixType type) {
+	new SmartMatrixType(Integer.parseInt(type.width), Integer.parseInt(type.height))
+}
+
+auxiliary hasPlaceholders(MultiLineMatrixLiteral lit) {
+	var placeholders = false;
+	for (line : lit.lines) {
+		for (entry : line.entries) {
+			placeholders = placeholders || (entry instanceof PlaceholderEntry)
+		}
+	}
+	placeholders
+}
+
+/* SUBTYPING */
+rule SMatrixType
+	derives G |- MatrixType sub <: MatrixType sup
+from {
+	(matrixDimensionsEqual(sub, sup))
+}
+
+rule SDefault
+	G |- Type sub <: Type sup
+from {
+	sub.eClass == sup.eClass
+}
+
+/* TYPING */
+axiom TVarDecl
+	G ||- VarDeclaration variable : variable.type
+
+axiom TIntegerLiteral
+    G |- IntLiteral expr : MatrixFactory.eINSTANCE.createIntegerType()
+
+axiom TBooleanLiteral
+	G |- BooleanLiteral bool : MatrixFactory.eINSTANCE.createBooleanType()
+
+axiom TVariable
+	G |- Variable variable : variable.ref.type
+
+axiom TFunctionCall
+	G |- FunctionCall call : (call.func.ref.returnType as Type) // TODO
+
+rule TMultiLineMatrixLiteral
+	G |- MultiLineMatrixLiteral lit : MatrixType type
+from {
+	// TODO: take into account entry type	
+	(consistentLineWidth(lit))
+
+	val lines = lit.lines.size()
+	val columns = lit.lines.get(0).getEntries().size()
+	type = new SmartMatrixType(lines, columns)
+}
+
+rule TParenthesis
+	G |- ParenthesizedExpression expr : Type type
+from {
+	G |- expr.inner : type
+}
+
+rule TAssignment
+	G |- Assignment assign : Type vartype
+from {
+	G |- assign.getVar() : vartype
+	G |- assign.value : var Type valtype
+	G |- vartype <: valtype
+}
+
+rule TLogical
+	G |- LogicalAndOr log : BooleanType bool
+from {
+	G |- log.left : bool
+	G |- log.right : bool
+}
+
+rule TEquals
+	G |- Equals eq : MatrixFactory.eINSTANCE.createBooleanType()
+from {
+	G |- eq.left : var Type leftType
+	G |- eq.right : var Type rightType
+
+	{
+		(leftType instanceof MatrixType && rightType instanceof MatrixType)
+		(matrixDimensionsEqual(leftType as MatrixType, rightType as MatrixType))
+	} or {
+		(leftType instanceof BooleanType && rightType instanceof BooleanType)
+	} or {
+		(leftType instanceof IntegerType && rightType instanceof IntegerType)
+	}
+}
+
+rule TComparison
+	G |- Comparison comp : MatrixFactory.eINSTANCE.createBooleanType()
+from {
+	G |- comp.left : var Type leftType
+	G |- comp.right : var Type rightType
+	(leftType instanceof IntegerType) && (rightType instanceof IntegerType) // matrices and booleans cannot be compared
+}
+
+rule TEquivalency
+	G |- Equivalency eq : MatrixFactory.eINSTANCE.createBooleanType()
+from {
+	G |- eq.left : var Type leftType
+	G |- eq.right : var Type rightType
+	(leftType instanceof MatrixType && rightType instanceof MatrixType
+		&& matrixDimensionsEqual(leftType as MatrixType, rightType as MatrixType))
+}
+
+rule TAddition
+	G |- Addition add : Type type
+from  {
+	G |- add.left  : var Type leftType
+	G |- add.right : var Type rightType
+
+	(leftType instanceof IntegerType && rightType instanceof IntegerType)
+	|| (leftType instanceof MatrixType && rightType instanceof MatrixType
+		&& matrixDimensionsEqual(leftType as MatrixType, rightType as MatrixType)
+	)
+	// int + matrix: not defined
+
+	type = leftType
+}
+
+rule TDivision
+	G |- Division div : Type type
+from {
+	G |- div.left : var Type leftType
+	G |- div.right : var Type rightType
+
+	// TODO: use fraction
+	false
+}
+
+rule TMultiplication
+	G |- Multiplication mult : Type type
+from {
+	G |- mult.left  : var Type leftType
+	G |- mult.right : var Type rightType
+	
+	{
+		(leftType instanceof IntegerType && rightType instanceof IntegerType)
+		type = leftType
+	}
+	or {
+		(true && leftType instanceof IntegerType) // left scalar multiplication // change for other entry types
+		type = rightType
+	}
+	or {
+		(true && rightType instanceof IntegerType) // right scalar multiplication // change for other entry types
+		type = leftType
+	}
+	or { // matrix multiplication
+		(matrixMultiplicationDefined(leftType as MatrixType, rightType as MatrixType))
+		type = multipliedMatrixDimensions(leftType as MatrixType, rightType as MatrixType)
+	}
+}
+
+rule TUnaryMinus
+	G |- UnaryMinus un : Type type
+from {
+	G |- un.expr : type
+}
+
+rule TTransposition
+	G |- Transposition t : MatrixType type
+from {
+	G |- t.base : var MatrixType baseType
+	type = transpose(baseType)
+}
+
+rule TExponentiation
+	G |- Exponentiation exp : Type baseType
+from {
+	G |- exp.base : baseType
+
+	{ (baseType instanceof IntegerType) }
+	or { (baseType instanceof MatrixType && isSquare(baseType as MatrixType)) }
+
+	G |- exp.exp : var Type expType
+	(expType instanceof IntegerType)
+}
+
+rule TNegation
+	G |- Negation neg : BooleanType bool
+from {
+	G |- neg.expr : bool
+}
+
+rule TEntryAccess
+	G |- EntryAccess acc : MatrixFactory.eINSTANCE.createIntegerType() // change for other entry types
+from {
+	var IntegerType intType
+	G |- acc.matr : var MatrixType matrType
+	G |- acc.line : intType
+	G |- acc.column : intType
+}
+
+/* INTERPRETING */
+axiom IIntegerLiteral
+	G |- IntLiteral lit ~> Integer.parseInt(lit.value)
+
+axiom IBooleanLiteral
+	G |- BooleanLiteral lit ~> Boolean.parseBoolean(lit.value)
+
+rule IMultiLineMatrixLiteral
+	G |- MultiLineMatrixLiteral lit ~> Matrix m
+from {
+	G |- lit : var MatrixType matrType
+	var im = new IntegerMatrix(Integer.parseInt(matrType.height), Integer.parseInt(matrType.width)) // change for other entry types
+
+	var i = 1;
+	for (line : lit.lines) {
+		var j = 1;
+		for (entry : line.entries) {
+			G |- (entry as IntLiteral) ~> var Integer value // change for other entry types
+			im.setEntry(i, j, value)
+			j = j + 1
+		}
+		i = i + 1
+	}
+
+	m = im;
+}
+
+rule IParenthesis
+	G |- ParenthesizedExpression par ~> Object o
+from {
+	G |- par.inner ~> o
+}
+
+rule IEntryAccess
+	G |- EntryAccess acc ~> Integer entry  // change for other entry types
+from {
+	G |- acc.matr ~> var Matrix mat
+	G |- acc.line ~> var int line
+	G |- acc.column ~> var int column
+
+}
+
+rule INegation
+	G |- Negation neg ~> Boolean bool
+from {
+	G |- neg.expr ~> var boolean inner
+	bool = !inner
+}
+
+rule IExponentiation
+	G |- Exponentiation expr ~> Object result
+from {
+	G |- expr.base ~> var Object base
+	G |- expr.exp ~> var int exp
+	if (base instanceof Integer) {
+		result = Math.pow(base, exp)
+	} else {
+		if (exp == 1) {
+			result = base
+		} else if (exp == 0) {
+			fail error "identity not yet implemented"
+		} else if (exp <= -1) {
+			fail error "inverse not implemented" // TODO: (base^-1)^(|exp|)
+		} else {
+			fail error "matr exp not yet implemented"
+			// TODO : transform into multiplication / builtin function call and evaluate it
+		}
+		// TODO : do all these in one go : invert if < 0 (and exp := |exp|), set result = I, loop to exp 
+	}
+}
+
+rule IUnaryMinus
+	G |- UnaryMinus minus ~> Object result
+from {
+	G |- minus.expr ~> var Object obj
+	if (obj instanceof Integer) {
+		result = -obj
+	} else {
+		fail error "matr unary minus not implemented"
+	}
+}
+
+rule IMultiplication
+	G |- Multiplication mult ~> Object result
+from {
+	fail error "mult not implemented" // TODO
+}
+
+rule IFunctionCall
+	G |- FunctionCall call ~> Object result
+from {
+	for (i : 0..<call.params.size()) {
+		G |- call.params.get(i) ~> var Object param
+		// accumulate in var register
+	}
+	//G /* <- vars */ |- call.func.ref ~> result
+	fail error "func call not implemented"
+}
+
+/* CHECKING */
+checkrule CMatrixLiteral
+	for MultiLineMatrixLiteral lit
+from {
+	empty |- lit : var Type type
+	{ lit.dot != null || !hasPlaceholders(lit) }
+}
+
+checkrule CMultiplication
+	for Multiplication mult
+from {
+	empty |- mult : var Type type
+}
+
+checkrule CEquivalency
+	for Equivalency eq
+from {
+	empty |- eq : var Type type
+}
+
+checkrule CAddition
+	for Addition add
+from {
+	empty |- add : var Type type
+}
+
+checkrule CTransposition
+	for Transposition t
+from {
+	empty |- t : var Type type
+}
+
+checkrule CExponentiation
+	for Exponentiation exp
+from {
+	empty |- exp : var Type type
+}
+
+checkrule CNegation
+	for Negation neg
+from {
+	empty |- neg : var Type type
+}
+
+checkrule CEntryAccess
+	for EntryAccess acc
+from {
+	empty |- acc : var Type type
+}
+
+checkrule CNoConstAssign
+	for Assignment assign
+from {
+	(!assign.getVar.ref.const)
+	or fail
+		error "Cannot assign value to constant variable"
+		source assign
+}
+
+checkrule CAssignment
+	for Assignment assign
+from {
+	empty |- assign : var Type type
+}
+
+checkrule CVarDeclaration
+	for VarDeclaration variable
+from {
+	empty ||- variable : var Type vartype
+
+	{ (variable.value == null) }
+	or {
+		empty, 'expected' <- vartype |- variable.value : var Type valtype
+		empty |- vartype <: valtype
+	}
+
+	{ (!variable.const || variable.value != null) }
+}
+
+checkrule CIfCondition
+	for IfElse ifelse
+from {
+	empty |- ifelse.cond : var BooleanType type
+}
+
+checkrule CFunctionCall
+	for FunctionCall call
+from {
+	val callParams = call.params
+	val funcParams = call.func.ref.params.params;
+
+	{ (callParams.size() == funcParams.size) }
+	for (i : 0 ..< callParams.size) {
+		empty |- callParams.get(i) : var Type type
+		empty |- type <: (funcParams.get(i).type as Type)
+		or fail error "param type " + stringRep(type) + " does not match " + stringRep(funcParams.get(i).type)
+			source callParams.get(i)
+	}
+}
+
