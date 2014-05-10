@@ -5,11 +5,12 @@ package linear.algebra.matrix.ui.labeling
 
 import com.google.inject.Inject
 import linear.algebra.matrix.matrix.MultiLineMatrixLiteral
-import linear.algebra.matrix.matrix.MatrixType
 import linear.algebra.matrix.matrix.MatrixLiteralLine
 import linear.algebra.matrix.matrix.PlaceholderEntry
 import linear.algebra.matrix.matrix.IntLiteral
 import linear.algebra.matrix.matrix.Multiplication
+import linear.algebra.matrix.matrix.ExactMatrixType
+import linear.algebra.matrix.matrix.GenericMatrixType
 
 /**
  * Provides labels for a EObjects.
@@ -27,8 +28,12 @@ class MatrixLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabel
 		'[matrix literal]'
 	}
 
-	def text(MatrixType type) {
+	def text(ExactMatrixType type) {
 		'[matrix type] (' + type.height + ' ° ' + type.width ')'
+	}
+
+	def text(GenericMatrixType type) {
+		'[matrix type] (' + type.heightVar + ' ° ' + type.widthVar + ')'
 	}
 
 	def text(MatrixLiteralLine line) {

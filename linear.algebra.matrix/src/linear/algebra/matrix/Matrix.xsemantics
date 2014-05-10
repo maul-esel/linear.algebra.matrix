@@ -5,6 +5,7 @@ validatorExtends linear.algebra.matrix.validation.AbstractMatrixValidator
 import linear.algebra.matrix.matrix.*
 import linear.algebra.matrix.core.*
 import linear.algebra.matrix.SmartMatrixType
+import linear.algebra.matrix.SmartGenericMatrixType
 
 auxiliary {
 	matrixDimensionsEqual(MatrixType left, MatrixType right) : boolean
@@ -26,28 +27,33 @@ judgments {
     //executeFunc |- FuncDeclaration func ~> output Object 
 }
 
-auxiliary matrixDimensionsEqual(MatrixType left, MatrixType right) {
+auxiliary matrixDimensionsEqual(ExactMatrixType left, ExactMatrixType right) {
 	Integer.valueOf(left.height) == Integer.valueOf(right.height)
 		&& Integer.valueOf(left.width) == Integer.valueOf(right.width)
 }
+auxiliary matrixDimensionsEqual(GenericMatrixType left, GenericMatrixType right) {
+	left.heightVar == right.heightVar && left.widthVar == right.widthVar
+}
 
-auxiliary matrixMultiplicationDefined(MatrixType left, MatrixType right) {
+auxiliary matrixMultiplicationDefined(ExactMatrixType left, ExactMatrixType right) {
 	Integer.valueOf(left.width) == Integer.valueOf(right.height)
 }
-
-auxiliary multipliedMatrixDimensions(MatrixType left, MatrixType right) {
-	if (matrixDimensionsEqual(left, right)) {
-		left
-	} else {
-		new SmartMatrixType(
-			Integer.parseInt(left.height),
-			Integer.parseInt(right.width)
-		)
-	}
+auxiliary matrixMultiplicationDefined(GenericMatrixType left, GenericMatrixType right) {
+	left.widthVar == right.heightVar
 }
 
-auxiliary isSquare(MatrixType type) {
+auxiliary multipliedMatrixDimensions(ExactMatrixType left, ExactMatrixType right) {
+	new SmartMatrixType(Integer.parseInt(left.height), Integer.parseInt(right.width))
+}
+auxiliary multipliedMatrixDimensions(GenericMatrixType left, GenericMatrixType right) {
+	new SmartGenericMatrixType(left.heightVar, right.widthVar)
+}
+
+auxiliary isSquare(ExactMatrixType type) {
 	Integer.valueOf(type.height) == Integer.valueOf(type.width)
+}
+auxiliary isSquare(GenericMatrixType type) {
+	type.heightVar == type.widthVar
 }
 
 auxiliary consistentLineWidth(MultiLineMatrixLiteral lit) {
@@ -59,8 +65,11 @@ auxiliary consistentLineWidth(MultiLineMatrixLiteral lit) {
 	consistent
 }
 
-auxiliary transpose(MatrixType type) {
+auxiliary transpose(ExactMatrixType type) {
 	new SmartMatrixType(Integer.parseInt(type.width), Integer.parseInt(type.height))
+}
+auxiliary transpose(GenericMatrixType type) {
+	new SmartGenericMatrixType(type.widthVar, type.heightVar)
 }
 
 auxiliary hasPlaceholders(MultiLineMatrixLiteral lit) {
@@ -267,20 +276,22 @@ rule IMultiLineMatrixLiteral
 	G |- MultiLineMatrixLiteral lit ~> Matrix m
 from {
 	G |- lit : var MatrixType matrType
-	var im = new IntegerMatrix(Integer.parseInt(matrType.height), Integer.parseInt(matrType.width)) // change for other entry types
+	if (matrType instanceof ExactMatrixType) {
+		var im = new IntegerMatrix(Integer.parseInt(matrType.height), Integer.parseInt(matrType.width)) // change for other entry types
 
-	var i = 1;
-	for (line : lit.lines) {
-		var j = 1;
-		for (entry : line.entries) {
-			G |- (entry as IntLiteral) ~> var Integer value // change for other entry types
-			im.setEntry(i, j, value)
-			j = j + 1
+		var i = 1;
+		for (line : lit.lines) {
+			var j = 1;
+			for (entry : line.entries) {
+				G |- (entry as IntLiteral) ~> var Integer value // change for other entry types
+				im.setEntry(i, j, value)
+				j = j + 1
+			}
+			i = i + 1
 		}
-		i = i + 1
-	}
 
-	m = im;
+		m = im;
+	} else { fail error "generic matr interpretation not implemented" }
 }
 
 rule IParenthesis

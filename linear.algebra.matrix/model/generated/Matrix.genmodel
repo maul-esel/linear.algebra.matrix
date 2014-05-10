@@ -72,9 +72,14 @@
     </genClasses>
     <genClasses ecoreClass="Matrix.ecore#//SimpleType"/>
     <genClasses ecoreClass="Matrix.ecore#//MathematicalType"/>
-    <genClasses ecoreClass="Matrix.ecore#//MatrixType">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//MatrixType/height"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//MatrixType/width"/>
+    <genClasses ecoreClass="Matrix.ecore#//MatrixType"/>
+    <genClasses ecoreClass="Matrix.ecore#//GenericMatrixType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//GenericMatrixType/heightVar"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//GenericMatrixType/widthVar"/>
+    </genClasses>
+    <genClasses ecoreClass="Matrix.ecore#//ExactMatrixType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//ExactMatrixType/height"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//ExactMatrixType/width"/>
     </genClasses>
     <genClasses ecoreClass="Matrix.ecore#//Type"/>
     <genClasses ecoreClass="Matrix.ecore#//BooleanLiteral">

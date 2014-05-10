@@ -68,7 +68,12 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="SimpleType" eSuperTypes="#//Type"/>
   <eClassifiers xsi:type="ecore:EClass" name="MathematicalType" eSuperTypes="#//SimpleType"/>
-  <eClassifiers xsi:type="ecore:EClass" name="MatrixType" eSuperTypes="#//Type">
+  <eClassifiers xsi:type="ecore:EClass" name="MatrixType" eSuperTypes="#//Type"/>
+  <eClassifiers xsi:type="ecore:EClass" name="GenericMatrixType" eSuperTypes="#//MatrixType">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="heightVar" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="widthVar" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ExactMatrixType" eSuperTypes="#//MatrixType">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="height" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="width" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>

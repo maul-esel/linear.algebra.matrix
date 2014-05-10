@@ -1,9 +1,9 @@
 package linear.algebra.matrix;
 
-import linear.algebra.matrix.matrix.MatrixType;
-import linear.algebra.matrix.matrix.impl.MatrixTypeImpl;
+import linear.algebra.matrix.matrix.ExactMatrixType;
+import linear.algebra.matrix.matrix.impl.ExactMatrixTypeImpl;
 
-public class SmartMatrixType extends MatrixTypeImpl implements MatrixType {
+public class SmartMatrixType extends ExactMatrixTypeImpl {
 	private final int matrixHeight;
 	private final int matrixWidth;
 
@@ -13,7 +13,7 @@ public class SmartMatrixType extends MatrixTypeImpl implements MatrixType {
 		this.width = Integer.toString(matrixWidth = width);
 	}
 
-	public static SmartMatrixType fromMatrixType(MatrixType other) {
+	public static SmartMatrixType fromMatrixType(ExactMatrixType other) {
 		String height = other.getHeight(), width = other.getWidth();
 		if (height == null || width == null)
 			throw new IllegalArgumentException();
