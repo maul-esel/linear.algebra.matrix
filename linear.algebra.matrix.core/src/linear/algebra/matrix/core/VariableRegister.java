@@ -6,9 +6,9 @@ import java.util.HashSet;
 public class VariableRegister {
 	private static VariableRegister empty = new VariableRegister();
 
-	private VariableRegister superScope = empty;
+	private static Object undefined = new Object();
 
-	private Object undefined = new Object();
+	private VariableRegister superScope = empty;
 
 	private Hashtable<String, Object> variables = new Hashtable<>();
 
@@ -27,7 +27,7 @@ public class VariableRegister {
 	}
 
 	public void add(String name) {
-		if (exists(name))
+		if (existsLocally(name))
 			throw new IllegalStateException("Variable " + name + " already exists");
 		variables.put(name, undefined);
 	}
@@ -48,7 +48,11 @@ public class VariableRegister {
 			throw new IllegalStateException("Variable " + name + " does not exist");
 		if (!isDefined(name))
 			throw new IllegalStateException("Variable " + name + " does not yet have a defined value");
-		return variables.get(name);
+
+		if (existsLocally(name))
+			return variables.get(name);
+		else
+			return superScope.get(name);
 	}
 
 	public void set(String name, Object value) {
@@ -56,24 +60,36 @@ public class VariableRegister {
 			throw new IllegalStateException("Variable " + name + " does not exist");
 		if (isConstant(name))
 			throw new IllegalStateException("Variable " + name + " is constant and cannot be set");
-		variables.put(name,  value);
+
+		if (existsLocally(name))
+			variables.put(name,  value);
+		else
+			superScope.set(name, value);
 	}
 
 	public boolean exists(String name) {
+		return existsLocally(name) || superScope.exists(name);
+	}
+
+	private boolean existsLocally(String name) {
 		return variables.containsKey(name);
 	}
 
 	public boolean isDefined(String name) {
-		return exists(name) && !undefined.equals(variables.get(name));
+		return existsLocally(name) ? !undefined.equals(variables.get(name)) : superScope.isDefined(name);
 	}
 
 	public boolean isConstant(String name) {
-		return constants.contains(name);
+		return existsLocally(name) ? constants.contains(name) : superScope.isConstant(name);
 	}
 
 	public void makeConstant(String name) {
 		if (!isDefined(name))
 			throw new IllegalStateException("Variable " + name + " is not yet defined and thus can't be made constant");
-		constants.add(name);
+
+		if (existsLocally(name))
+			constants.add(name);
+		else
+			superScope.makeConstant(name);
 	}
 }
