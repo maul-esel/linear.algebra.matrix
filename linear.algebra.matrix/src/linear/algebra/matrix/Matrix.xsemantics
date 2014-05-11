@@ -438,8 +438,15 @@ from {
 
 	{ (!variable.const || variable.value != null) }
 
-	//{ !(vartype instanceof MatrixType) }
-	//or {}
+	{ !(vartype instanceof MatrixType) }
+	or { !((vartype as SmartMatrixType).isGeneric()) }
+	or {
+		var container = variable.eContainer;
+		while (container != null && !(container instanceof FuncDeclaration))
+			container = container.eContainer;
+		(container != null) // i.e. there was a func declaration
+		(isGenericInParamList(vartype as SmartMatrixType, (container as FuncDeclaration).params))
+	}
 }
 
 checkrule CIfCondition
