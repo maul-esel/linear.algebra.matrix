@@ -32,28 +32,28 @@ auxiliary matrixDimensionsEqual(ExactMatrixType left, ExactMatrixType right) {
 		&& Integer.valueOf(left.width) == Integer.valueOf(right.width)
 }
 auxiliary matrixDimensionsEqual(GenericMatrixType left, GenericMatrixType right) {
-	left.heightVar == right.heightVar && left.widthVar == right.widthVar
+	left.height == right.height && left.width == right.width
 }
 
 auxiliary matrixMultiplicationDefined(ExactMatrixType left, ExactMatrixType right) {
 	Integer.valueOf(left.width) == Integer.valueOf(right.height)
 }
 auxiliary matrixMultiplicationDefined(GenericMatrixType left, GenericMatrixType right) {
-	left.widthVar == right.heightVar
+	left.width == right.height
 }
 
 auxiliary multipliedMatrixDimensions(ExactMatrixType left, ExactMatrixType right) {
 	new SmartMatrixType(Integer.parseInt(left.height), Integer.parseInt(right.width))
 }
 auxiliary multipliedMatrixDimensions(GenericMatrixType left, GenericMatrixType right) {
-	new SmartGenericMatrixType(left.heightVar, right.widthVar)
+	new SmartGenericMatrixType(left.height, right.width)
 }
 
 auxiliary isSquare(ExactMatrixType type) {
 	Integer.valueOf(type.height) == Integer.valueOf(type.width)
 }
 auxiliary isSquare(GenericMatrixType type) {
-	type.heightVar == type.widthVar
+	type.height == type.width
 }
 
 auxiliary consistentLineWidth(MultiLineMatrixLiteral lit) {
@@ -69,7 +69,7 @@ auxiliary transpose(ExactMatrixType type) {
 	new SmartMatrixType(Integer.parseInt(type.width), Integer.parseInt(type.height))
 }
 auxiliary transpose(GenericMatrixType type) {
-	new SmartGenericMatrixType(type.widthVar, type.heightVar)
+	new SmartGenericMatrixType(type.width, type.height)
 }
 
 auxiliary hasPlaceholders(MultiLineMatrixLiteral lit) {

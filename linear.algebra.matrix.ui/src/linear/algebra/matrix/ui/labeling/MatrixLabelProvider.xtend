@@ -9,8 +9,7 @@ import linear.algebra.matrix.matrix.MatrixLiteralLine
 import linear.algebra.matrix.matrix.PlaceholderEntry
 import linear.algebra.matrix.matrix.IntLiteral
 import linear.algebra.matrix.matrix.Multiplication
-import linear.algebra.matrix.matrix.ExactMatrixType
-import linear.algebra.matrix.matrix.GenericMatrixType
+import linear.algebra.matrix.matrix.MatrixType
 
 /**
  * Provides labels for a EObjects.
@@ -28,12 +27,8 @@ class MatrixLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabel
 		'[matrix literal]'
 	}
 
-	def text(ExactMatrixType type) {
+	def text(MatrixType type) {
 		'[matrix type] (' + type.height + ' ° ' + type.width ')'
-	}
-
-	def text(GenericMatrixType type) {
-		'[matrix type] (' + type.heightVar + ' ° ' + type.widthVar + ')'
 	}
 
 	def text(MatrixLiteralLine line) {

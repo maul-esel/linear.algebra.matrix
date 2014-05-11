@@ -52,12 +52,14 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//IfElse/else"/>
     </genClasses>
     <genClasses ecoreClass="Matrix.ecore#//FuncDeclaration">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//FuncDeclaration/internal"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//FuncDeclaration/name"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//FuncDeclaration/params"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//FuncDeclaration/returnType"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//FuncDeclaration/body"/>
     </genClasses>
     <genClasses ecoreClass="Matrix.ecore#//ProcDeclaration">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//ProcDeclaration/internal"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//ProcDeclaration/name"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//ProcDeclaration/params"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//ProcDeclaration/body"/>
@@ -65,21 +67,15 @@
     <genClasses ecoreClass="Matrix.ecore#//ParameterList">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//ParameterList/params"/>
     </genClasses>
-    <genClasses ecoreClass="Matrix.ecore#//FuncType"/>
     <genClasses ecoreClass="Matrix.ecore#//ParameterDeclaration">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//ParameterDeclaration/type"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//ParameterDeclaration/name"/>
     </genClasses>
     <genClasses ecoreClass="Matrix.ecore#//SimpleType"/>
     <genClasses ecoreClass="Matrix.ecore#//MathematicalType"/>
-    <genClasses ecoreClass="Matrix.ecore#//MatrixType"/>
-    <genClasses ecoreClass="Matrix.ecore#//GenericMatrixType">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//GenericMatrixType/heightVar"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//GenericMatrixType/widthVar"/>
-    </genClasses>
-    <genClasses ecoreClass="Matrix.ecore#//ExactMatrixType">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//ExactMatrixType/height"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//ExactMatrixType/width"/>
+    <genClasses ecoreClass="Matrix.ecore#//MatrixType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//MatrixType/height"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//MatrixType/width"/>
     </genClasses>
     <genClasses ecoreClass="Matrix.ecore#//Type"/>
     <genClasses ecoreClass="Matrix.ecore#//BooleanLiteral">
@@ -123,6 +119,8 @@
     </genClasses>
     <genClasses ecoreClass="Matrix.ecore#//BooleanType"/>
     <genClasses ecoreClass="Matrix.ecore#//IntegerType"/>
+    <genClasses ecoreClass="Matrix.ecore#//GenericMatrixType"/>
+    <genClasses ecoreClass="Matrix.ecore#//ExactMatrixType"/>
     <genClasses ecoreClass="Matrix.ecore#//EntryAccess">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//EntryAccess/matr"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//EntryAccess/line"/>

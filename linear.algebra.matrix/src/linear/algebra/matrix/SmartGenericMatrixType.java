@@ -4,7 +4,7 @@ import linear.algebra.matrix.matrix.impl.GenericMatrixTypeImpl;
 
 public class SmartGenericMatrixType extends GenericMatrixTypeImpl {
 	public SmartGenericMatrixType(String height, String width) {
-		setHeightVar(height);
-		setWidthVar(width);
+		setHeight(height);
+		setWidth(width);
 	}
 }

@@ -41,15 +41,17 @@
         containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="FuncDeclaration" eSuperTypes="#//Line">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="internal" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="params" eType="#//ParameterList"
         containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="returnType" eType="#//FuncType"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="returnType" eType="#//Type"
         containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="body" eType="#//Block"
         containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="ProcDeclaration" eSuperTypes="#//Line">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="internal" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="params" eType="#//ParameterList"
         containment="true"/>
@@ -60,24 +62,17 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="params" upperBound="-1"
         eType="#//ParameterDeclaration" containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="FuncType"/>
   <eClassifiers xsi:type="ecore:EClass" name="ParameterDeclaration">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="type" eType="#//FuncType"
-        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="type" eType="#//Type" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="SimpleType" eSuperTypes="#//Type"/>
   <eClassifiers xsi:type="ecore:EClass" name="MathematicalType" eSuperTypes="#//SimpleType"/>
-  <eClassifiers xsi:type="ecore:EClass" name="MatrixType" eSuperTypes="#//Type"/>
-  <eClassifiers xsi:type="ecore:EClass" name="GenericMatrixType" eSuperTypes="#//MatrixType">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="heightVar" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="widthVar" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-  </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="ExactMatrixType" eSuperTypes="#//MatrixType">
+  <eClassifiers xsi:type="ecore:EClass" name="MatrixType" eSuperTypes="#//Type">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="height" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="width" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="Type" eSuperTypes="#//FuncType"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Type"/>
   <eClassifiers xsi:type="ecore:EClass" name="BooleanLiteral" eSuperTypes="#//SimpleLiteral">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
@@ -143,6 +138,8 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="BooleanType" eSuperTypes="#//SimpleType"/>
   <eClassifiers xsi:type="ecore:EClass" name="IntegerType" eSuperTypes="#//MathematicalType"/>
+  <eClassifiers xsi:type="ecore:EClass" name="GenericMatrixType" eSuperTypes="#//MatrixType"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ExactMatrixType" eSuperTypes="#//MatrixType"/>
   <eClassifiers xsi:type="ecore:EClass" name="EntryAccess" eSuperTypes="#//Expression">
     <eStructuralFeatures xsi:type="ecore:EReference" name="matr" eType="#//Expression"
         containment="true"/>

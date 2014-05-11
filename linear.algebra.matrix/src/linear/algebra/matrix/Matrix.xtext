@@ -75,12 +75,12 @@ MatrixType :
 	ExactMatrixType | GenericMatrixType
 ;
 
-GenericMatrixType :
-	'(' heightVar=GENERIC_VAR '°' widthVar=GENERIC_VAR ')'
+GenericMatrixType returns MatrixType :
+	{GenericMatrixType} '(' height=GENERIC_VAR '°' width=GENERIC_VAR ')'
 ;
 
-ExactMatrixType :
-	'(' height=POSITIVE_INTEGER '°' width=POSITIVE_INTEGER ')'
+ExactMatrixType returns MatrixType :
+	{ExactMatrixType} '(' height=POSITIVE_INTEGER '°' width=POSITIVE_INTEGER ')'
 ;
 
 Type :
