@@ -521,3 +521,12 @@ from {
 		}
 	}
 }
+
+checkrule CReturnStatement // only allowed in func declarations
+	for ReturnStatement ret
+from {
+	var container = ret.eContainer
+	while (container != null && !(container instanceof FuncDeclaration))
+		container = container.eContainer
+	{ (container != null) }
+}
