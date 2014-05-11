@@ -49,7 +49,7 @@ public class SmartMatrixType extends MatrixTypeImpl {
 			return false;
 
 		MatrixType otherType = (MatrixType)other;
-		return height == otherType.getHeight() && width == otherType.getWidth();
+		return height.contentEquals(otherType.getHeight()) && width.contentEquals(otherType.getWidth());
 	}
 
 	@Override
