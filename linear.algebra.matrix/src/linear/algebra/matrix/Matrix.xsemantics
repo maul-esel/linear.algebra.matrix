@@ -19,6 +19,7 @@ auxiliary {
 	hasPlaceholders(MultiLineMatrixLiteral lit) : boolean
 	isGenericInParamList(SmartMatrixType type, ParameterList list) : boolean
 	isGeneric(String size) : boolean
+	genericVarMatches(VariableRegister genReg, String variable, String value) : boolean
 }
 
 judgments {
@@ -78,6 +79,15 @@ auxiliary isGenericInParamList(SmartMatrixType type, ParameterList list) {
 auxiliary isGeneric(String size) {
 	size.charAt(0).toString() == '$'
 }
+auxiliary genericVarMatches(VariableRegister genReg, String variable, String value) {
+	if (isGeneric(variable)) {
+		if (!genReg.exists(variable)) {
+			genReg.add(variable, value, true)
+			true
+		} else
+			(genReg.get(variable) == value)
+	} else true
+}
 
 /* SUBTYPING */
 rule SMatrixType
@@ -116,9 +126,40 @@ from {
 rule TFunctionCall
 	G |- FunctionCall call : Type type
 from {
-	if (call.func.ref.returnType instanceof MatrixType)
-		type = SmartMatrixType.copy(call.func.ref.returnType as MatrixType)
-	else type = call.func.ref.returnType;
+	if (!(call.func.ref.returnType instanceof MatrixType)) {
+		type = call.func.ref.returnType;
+	} else {
+		val retType = SmartMatrixType.copy(call.func.ref.returnType as MatrixType)
+		type = retType
+
+		val callParams = call.params
+		val funcParams = call.func.ref.params.params;
+		{ (callParams.size() == funcParams.size) }
+
+		val genericRegister = new VariableRegister();
+		for (i : 0 ..< callParams.size) {
+			empty |- callParams.get(i) : var Type valueType
+			val Type paramType = funcParams.get(i).type;
+
+			var SmartMatrixType generic;
+			if (valueType instanceof MatrixType && paramType instanceof MatrixType && (generic = SmartMatrixType.copy(paramType as MatrixType)).isGeneric()) {
+				val exactType = valueType as MatrixType;
+				(genericVarMatches(genericRegister, generic.height, exactType.height)
+					&& (genericVarMatches(genericRegister, generic.width, exactType.width)))
+				 or fail error "generic param type does not match" source callParams.get(i)
+			} else {
+				empty |- valueType <: paramType
+				or fail error "param type " + stringRep(valueType) + " does not match " + stringRep(paramType)
+					source callParams.get(i)
+			}
+		}
+
+		if (retType.isGeneric())
+			type = new SmartMatrixType(
+				if (isGeneric(retType.height)) genericRegister.get(retType.height).toString() else retType.height,
+				if (isGeneric(retType.width))  genericRegister.get(retType.width).toString()  else retType.width
+			);
+	}
 }
 
 rule TMultiLineMatrixLiteral
@@ -462,16 +503,7 @@ from {
 checkrule CFunctionCall
 	for FunctionCall call
 from {
-	val callParams = call.params
-	val funcParams = call.func.ref.params.params;
-
-	{ (callParams.size() == funcParams.size) }
-	for (i : 0 ..< callParams.size) {
-		empty |- callParams.get(i) : var Type type
-		empty |- type <: funcParams.get(i).type
-		or fail error "param type " + stringRep(type) + " does not match " + stringRep(funcParams.get(i).type)
-			source callParams.get(i)
-	}
+	empty |- call : var Type type
 }
 
 checkrule CFuncDeclaration
