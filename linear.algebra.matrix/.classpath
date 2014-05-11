@@ -6,6 +6,5 @@
 	<classpathentry kind="src" path="xsemantics-gen"/>
 	<classpathentry kind="src" path="src-gen"/>
 	<classpathentry kind="src" path="xtend-gen"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/linear.algebra.matrix.core"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

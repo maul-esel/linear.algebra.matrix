@@ -4,7 +4,11 @@ validatorExtends linear.algebra.matrix.validation.AbstractMatrixValidator
 
 import org.eclipse.emf.ecore.EObject
 import linear.algebra.matrix.matrix.*
-import linear.algebra.matrix.core.*
+
+import linear.algebra.matrix.VariableRegister;
+
+import linear.algebra.matrix.core.Matrix
+import linear.algebra.matrix.core.IntegerMatrix
 
 auxiliary {
 	matrixMultiplicationDefined(SmartMatrixType left, SmartMatrixType right) : boolean

@@ -1,18 +1,18 @@
-package linear.algebra.matrix.core;
+package linear.algebra.matrix;
 
 import java.util.Hashtable;
 import java.util.HashSet;
 
 public class VariableRegister {
-	private static VariableRegister empty = new VariableRegister();
+	private final static VariableRegister empty = new VariableRegister();
 
-	private static Object undefined = new Object();
+	private final static Object undefined = new Object();
 
 	private VariableRegister superScope = empty;
 
-	private Hashtable<String, Object> variables = new Hashtable<>();
+	private final Hashtable<String, Object> variables = new Hashtable<String, Object>();
 
-	private HashSet<String> constants = new HashSet<>();
+	private final HashSet<String> constants = new HashSet<String>();
 
 	public VariableRegister(VariableRegister superScope) {
 		setSuperScope(superScope);
