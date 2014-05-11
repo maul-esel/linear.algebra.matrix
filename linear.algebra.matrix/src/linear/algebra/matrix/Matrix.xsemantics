@@ -81,9 +81,9 @@ auxiliary isGeneric(String size) {
 
 /* SUBTYPING */
 rule SMatrixType
-	derives G |- SmartMatrixType sub <: SmartMatrixType sup
+	derives G |- MatrixType sub <: MatrixType sup
 from {
-	sub.equals(sup) // TODO: take into account entry type subtype relation!
+	SmartMatrixType.copy(sub).equals(sup) // TODO: take into account entry type subtype relation!
 }
 
 rule SDefault
