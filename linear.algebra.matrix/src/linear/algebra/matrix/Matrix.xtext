@@ -47,11 +47,11 @@ IfElse :
 
 // I. b) Function and proc declarations
 FuncDeclaration :
-	DEF name=ID ':' params=ParameterList '->' returnType=Type body=Block
+	(internal?=INTERNAL)? DEF name=ID ':' params=ParameterList '->' returnType=Type body=Block
 ;
 
 ProcDeclaration :
-	PROC name=ID ':' params=ParameterList body=Block
+	(internal?=INTERNAL)? PROC name=ID ':' params=ParameterList body=Block
 ;
 
 ParameterList :
@@ -234,6 +234,7 @@ terminal PROC : 'proc';
 terminal DOT : 'dot';
 terminal CONST : 'const';
 terminal TRANSPOS : 'T';
+terminal INTERNAL : 'internal';
 
 // IV. b) misc 
 terminal NEWLINE  : '\n';
