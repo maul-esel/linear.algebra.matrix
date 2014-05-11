@@ -47,7 +47,7 @@ IfElse :
 
 // I. b) Function and proc declarations
 FuncDeclaration :
-	DEF name=ID ':' params=ParameterList '->' returnType=FuncType body=Block
+	DEF name=ID ':' params=ParameterList '->' returnType=Type body=Block
 ;
 
 ProcDeclaration :
@@ -58,12 +58,8 @@ ParameterList :
 	{ParameterList} '(' (params+=ParameterDeclaration (',' params+=ParameterDeclaration)*)? ')'
 ;
 
-FuncType :
-	Type //| GenericMatrixType
-;
-
 ParameterDeclaration : 
-	type=FuncType name=ID
+	type=Type name=ID
 ;
 
 // II. types
