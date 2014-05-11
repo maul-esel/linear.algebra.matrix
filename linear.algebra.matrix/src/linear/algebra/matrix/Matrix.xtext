@@ -72,15 +72,7 @@ MathematicalType :
 ;
 
 MatrixType :
-	ExactMatrixType | GenericMatrixType
-;
-
-GenericMatrixType returns MatrixType :
-	{GenericMatrixType} '(' height=GENERIC_VAR '°' width=GENERIC_VAR ')'
-;
-
-ExactMatrixType returns MatrixType :
-	{ExactMatrixType} '(' height=POSITIVE_INTEGER '°' width=POSITIVE_INTEGER ')'
+	'(' height=(POSITIVE_INTEGER|GENERIC_VAR) '°' width=(POSITIVE_INTEGER|GENERIC_VAR) ')'
 ;
 
 Type :

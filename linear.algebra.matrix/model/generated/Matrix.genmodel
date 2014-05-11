@@ -119,8 +119,6 @@
     </genClasses>
     <genClasses ecoreClass="Matrix.ecore#//BooleanType"/>
     <genClasses ecoreClass="Matrix.ecore#//IntegerType"/>
-    <genClasses ecoreClass="Matrix.ecore#//GenericMatrixType"/>
-    <genClasses ecoreClass="Matrix.ecore#//ExactMatrixType"/>
     <genClasses ecoreClass="Matrix.ecore#//EntryAccess">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//EntryAccess/matr"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//EntryAccess/line"/>

@@ -5,16 +5,13 @@ validatorExtends linear.algebra.matrix.validation.AbstractMatrixValidator
 import org.eclipse.emf.ecore.EObject
 import linear.algebra.matrix.matrix.*
 import linear.algebra.matrix.core.*
-import linear.algebra.matrix.SmartMatrixType
-import linear.algebra.matrix.SmartGenericMatrixType
 
 auxiliary {
-	matrixDimensionsEqual(MatrixType left, MatrixType right) : boolean
-	matrixMultiplicationDefined(MatrixType left, MatrixType right) : boolean
-	multipliedMatrixDimensions(MatrixType left, MatrixType right) : MatrixType
-	isSquare(MatrixType type) : boolean
+	matrixMultiplicationDefined(SmartMatrixType left, SmartMatrixType right) : boolean
+	multipliedMatrixDimensions(SmartMatrixType left, SmartMatrixType right) : SmartMatrixType
+	isSquare(SmartMatrixType type) : boolean
 	consistentLineWidth(MultiLineMatrixLiteral lit) : boolean
-	transpose(MatrixType type) : MatrixType
+	transpose(SmartMatrixType type) : SmartMatrixType
 	hasPlaceholders(MultiLineMatrixLiteral lit) : boolean
 }
 
@@ -27,35 +24,15 @@ judgments {
     interpret |- EObject obj ~> output Object
 }
 
-auxiliary matrixDimensionsEqual(ExactMatrixType left, ExactMatrixType right) {
-	Integer.valueOf(left.height) == Integer.valueOf(right.height)
-		&& Integer.valueOf(left.width) == Integer.valueOf(right.width)
-}
-auxiliary matrixDimensionsEqual(GenericMatrixType left, GenericMatrixType right) {
-	left.height == right.height && left.width == right.width
-}
-
-auxiliary matrixMultiplicationDefined(ExactMatrixType left, ExactMatrixType right) {
-	Integer.valueOf(left.width) == Integer.valueOf(right.height)
-}
-auxiliary matrixMultiplicationDefined(GenericMatrixType left, GenericMatrixType right) {
+auxiliary matrixMultiplicationDefined(SmartMatrixType left, SmartMatrixType right) {
 	left.width == right.height
 }
-
-auxiliary multipliedMatrixDimensions(ExactMatrixType left, ExactMatrixType right) {
-	new SmartMatrixType(Integer.parseInt(left.height), Integer.parseInt(right.width))
+auxiliary multipliedMatrixDimensions(SmartMatrixType left, SmartMatrixType right) {
+	new SmartMatrixType(left.height, right.width)
 }
-auxiliary multipliedMatrixDimensions(GenericMatrixType left, GenericMatrixType right) {
-	new SmartGenericMatrixType(left.height, right.width)
-}
-
-auxiliary isSquare(ExactMatrixType type) {
-	Integer.valueOf(type.height) == Integer.valueOf(type.width)
-}
-auxiliary isSquare(GenericMatrixType type) {
+auxiliary isSquare(SmartMatrixType type) {
 	type.height == type.width
 }
-
 auxiliary consistentLineWidth(MultiLineMatrixLiteral lit) {
 	val width = lit.lines.get(0).getEntries().size()
 	var consistent = true
@@ -64,14 +41,9 @@ auxiliary consistentLineWidth(MultiLineMatrixLiteral lit) {
 	}
 	consistent
 }
-
-auxiliary transpose(ExactMatrixType type) {
-	new SmartMatrixType(Integer.parseInt(type.width), Integer.parseInt(type.height))
+auxiliary transpose(SmartMatrixType type) {
+	new SmartMatrixType(type.width, type.height)
 }
-auxiliary transpose(GenericMatrixType type) {
-	new SmartGenericMatrixType(type.width, type.height)
-}
-
 auxiliary hasPlaceholders(MultiLineMatrixLiteral lit) {
 	var placeholders = false;
 	for (line : lit.lines) {
@@ -84,9 +56,9 @@ auxiliary hasPlaceholders(MultiLineMatrixLiteral lit) {
 
 /* SUBTYPING */
 rule SMatrixType
-	derives G |- MatrixType sub <: MatrixType sup
+	derives G |- SmartMatrixType sub <: SmartMatrixType sup
 from {
-	(matrixDimensionsEqual(sub, sup))
+	sub.equals(sup) // TODO: take into account entry type subtype relation!
 }
 
 rule SDefault
@@ -105,21 +77,31 @@ axiom TIntegerLiteral
 axiom TBooleanLiteral
 	G |- BooleanLiteral bool : MatrixFactory.eINSTANCE.createBooleanType()
 
-axiom TVariable
-	G |- Variable variable : variable.ref.type
+rule TVariable
+	G |- Variable variable : Type type
+from {
+	if (variable.ref.type instanceof MatrixType)
+		type = SmartMatrixType.copy(variable.ref.type as MatrixType)
+	else type = variable.ref.type;
+}
 
-axiom TFunctionCall
-	G |- FunctionCall call : call.func.ref.returnType
+rule TFunctionCall
+	G |- FunctionCall call : Type type
+from {
+	if (call.func.ref.returnType instanceof MatrixType)
+		type = SmartMatrixType.copy(call.func.ref.returnType as MatrixType)
+	else type = call.func.ref.returnType;
+}
 
 rule TMultiLineMatrixLiteral
-	G |- MultiLineMatrixLiteral lit : MatrixType type
+	G |- MultiLineMatrixLiteral lit : SmartMatrixType type
 from {
 	// TODO: take into account entry type	
 	(consistentLineWidth(lit))
 
 	val lines = lit.lines.size()
 	val columns = lit.lines.get(0).getEntries().size()
-	type = new SmartMatrixType(lines, columns)
+	type = new SmartMatrixType(Integer.toString(lines), Integer.toString(columns))
 }
 
 rule TParenthesis
@@ -149,14 +131,7 @@ from {
 	G |- eq.left : var Type leftType
 	G |- eq.right : var Type rightType
 
-	{
-		(leftType instanceof MatrixType && rightType instanceof MatrixType)
-		(matrixDimensionsEqual(leftType as MatrixType, rightType as MatrixType))
-	} or {
-		(leftType instanceof BooleanType && rightType instanceof BooleanType)
-	} or {
-		(leftType instanceof IntegerType && rightType instanceof IntegerType)
-	}
+	{ G |- leftType <: rightType } or { G |- rightType <: leftType }
 }
 
 rule TComparison
@@ -172,8 +147,8 @@ rule TEquivalency
 from {
 	G |- eq.left : var Type leftType
 	G |- eq.right : var Type rightType
-	(leftType instanceof MatrixType && rightType instanceof MatrixType
-		&& matrixDimensionsEqual(leftType as MatrixType, rightType as MatrixType))
+	(leftType instanceof SmartMatrixType && rightType instanceof SmartMatrixType)
+	G|- leftType <: rightType
 }
 
 rule TAddition
@@ -182,12 +157,7 @@ from  {
 	G |- add.left  : var Type leftType
 	G |- add.right : var Type rightType
 
-	(leftType instanceof IntegerType && rightType instanceof IntegerType)
-	|| (leftType instanceof MatrixType && rightType instanceof MatrixType
-		&& matrixDimensionsEqual(leftType as MatrixType, rightType as MatrixType)
-	)
-	// int + matrix: not defined
-
+	{ G |- leftType <: rightType } or { G|- rightType <: leftType }
 	type = leftType
 }
 
@@ -206,7 +176,7 @@ rule TMultiplication
 from {
 	G |- mult.left  : var Type leftType
 	G |- mult.right : var Type rightType
-	
+
 	{
 		(leftType instanceof IntegerType && rightType instanceof IntegerType)
 		type = leftType
@@ -220,8 +190,9 @@ from {
 		type = leftType
 	}
 	or { // matrix multiplication
-		(matrixMultiplicationDefined(leftType as MatrixType, rightType as MatrixType))
-		type = multipliedMatrixDimensions(leftType as MatrixType, rightType as MatrixType)
+		(leftType instanceof SmartMatrixType && rightType instanceof SmartMatrixType)
+		(matrixMultiplicationDefined(leftType as SmartMatrixType, rightType as SmartMatrixType))
+		type = multipliedMatrixDimensions(leftType as SmartMatrixType, rightType as SmartMatrixType)
 	}
 }
 
@@ -232,9 +203,9 @@ from {
 }
 
 rule TTransposition
-	G |- Transposition t : MatrixType type
+	G |- Transposition t : SmartMatrixType type
 from {
-	G |- t.base : var MatrixType baseType
+	G |- t.base : var SmartMatrixType baseType
 	type = transpose(baseType)
 }
 
@@ -244,7 +215,7 @@ from {
 	G |- exp.base : baseType
 
 	{ (baseType instanceof IntegerType) }
-	or { (baseType instanceof MatrixType && isSquare(baseType as MatrixType)) }
+	or { (baseType instanceof SmartMatrixType && isSquare(baseType as SmartMatrixType)) }
 
 	G |- exp.exp : var Type expType
 	(expType instanceof IntegerType)
@@ -260,7 +231,7 @@ rule TEntryAccess
 	G |- EntryAccess acc : MatrixFactory.eINSTANCE.createIntegerType() // change for other entry types
 from {
 	var IntegerType intType
-	G |- acc.matr : var MatrixType matrType
+	G |- acc.matr : var SmartMatrixType matrType
 	G |- acc.line : intType
 	G |- acc.column : intType
 }
@@ -275,8 +246,8 @@ axiom IBooleanLiteral
 rule IMultiLineMatrixLiteral
 	G |- MultiLineMatrixLiteral lit ~> Matrix m
 from {
-	G |- lit : var MatrixType matrType
-	if (matrType instanceof ExactMatrixType) {
+	G |- lit : var SmartMatrixType matrType
+	if (matrType.isExact()) {
 		var im = new IntegerMatrix(Integer.parseInt(matrType.height), Integer.parseInt(matrType.width)) // change for other entry types
 
 		var i = 1;

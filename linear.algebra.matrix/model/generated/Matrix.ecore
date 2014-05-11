@@ -138,8 +138,6 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="BooleanType" eSuperTypes="#//SimpleType"/>
   <eClassifiers xsi:type="ecore:EClass" name="IntegerType" eSuperTypes="#//MathematicalType"/>
-  <eClassifiers xsi:type="ecore:EClass" name="GenericMatrixType" eSuperTypes="#//MatrixType"/>
-  <eClassifiers xsi:type="ecore:EClass" name="ExactMatrixType" eSuperTypes="#//MatrixType"/>
   <eClassifiers xsi:type="ecore:EClass" name="EntryAccess" eSuperTypes="#//Expression">
     <eStructuralFeatures xsi:type="ecore:EReference" name="matr" eType="#//Expression"
         containment="true"/>
