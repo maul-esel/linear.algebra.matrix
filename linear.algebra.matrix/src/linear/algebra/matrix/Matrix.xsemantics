@@ -13,6 +13,8 @@ auxiliary {
 	consistentLineWidth(MultiLineMatrixLiteral lit) : boolean
 	transpose(SmartMatrixType type) : SmartMatrixType
 	hasPlaceholders(MultiLineMatrixLiteral lit) : boolean
+	isGenericInParamList(SmartMatrixType type, ParameterList list) : boolean
+	isGeneric(String size) : boolean
 }
 
 judgments {
@@ -52,6 +54,25 @@ auxiliary hasPlaceholders(MultiLineMatrixLiteral lit) {
 		}
 	}
 	placeholders
+}
+auxiliary isGenericInParamList(SmartMatrixType type, ParameterList list) {
+	val height = type.height
+	val width = type.width
+
+	var heightFound = !isGeneric(height) // not generic dimensions are assumed to be "found" i.e. valid
+	var widthFound = !isGeneric(width)
+
+	for (param : list.params) {
+		if (param.type instanceof MatrixType) {
+			val matrType = param.type as MatrixType
+			heightFound = heightFound || matrType.height == height || matrType.width == height
+			widthFound = widthFound || matrType.height == width || matrType.width == width
+		}
+	}
+	widthFound && heightFound
+}
+auxiliary isGeneric(String size) {
+	size.charAt(0).toString() == '$'
 }
 
 /* SUBTYPING */
@@ -433,6 +454,18 @@ from {
 		empty |- type <: funcParams.get(i).type
 		or fail error "param type " + stringRep(type) + " does not match " + stringRep(funcParams.get(i).type)
 			source callParams.get(i)
+	}
+}
+
+checkrule CFuncDeclaration
+	for FuncDeclaration func
+from {
+	if (func.returnType instanceof MatrixType) {
+		val retType = SmartMatrixType.copy(func.returnType as MatrixType);
+		if (retType.isGeneric()) {
+			(isGenericInParamList(retType, func.params))
+				or fail error "Generic return type " + stringRep(retType) + " is not defined"
+		}
 	}
 }
 
