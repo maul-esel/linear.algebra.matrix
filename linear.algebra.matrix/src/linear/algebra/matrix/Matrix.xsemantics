@@ -103,8 +103,11 @@ axiom TIntegerLiteral
 axiom TBooleanLiteral
 	G |- BooleanLiteral bool : MatrixFactory.eINSTANCE.createBooleanType()
 
-axiom TVariable
-	G |- Variable variable : variable.ref.type
+rule TVariable
+	G |- Variable variable : Type type
+from {
+	G ||- variable.ref : type
+}
 
 rule TFunctionCall
 	G |- FunctionCall call : Type type
