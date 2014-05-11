@@ -89,8 +89,13 @@ from {
 }
 
 /* TYPING */
-axiom TVarDecl
-	G ||- VarDeclaration variable : variable.type
+rule TVarDecl
+	G ||- VarDeclaration variable : Type type
+from {
+	if (variable.type instanceof MatrixType)
+		type = SmartMatrixType.copy(variable.type as MatrixType)
+	else type = variable.type
+}
 
 axiom TIntegerLiteral
     G |- IntLiteral expr : MatrixFactory.eINSTANCE.createIntegerType()
@@ -98,13 +103,8 @@ axiom TIntegerLiteral
 axiom TBooleanLiteral
 	G |- BooleanLiteral bool : MatrixFactory.eINSTANCE.createBooleanType()
 
-rule TVariable
-	G |- Variable variable : Type type
-from {
-	if (variable.ref.type instanceof MatrixType)
-		type = SmartMatrixType.copy(variable.ref.type as MatrixType)
-	else type = variable.ref.type;
-}
+axiom TVariable
+	G |- Variable variable : variable.ref.type
 
 rule TFunctionCall
 	G |- FunctionCall call : Type type
@@ -429,11 +429,14 @@ from {
 
 	{ (variable.value == null) }
 	or {
-		empty, 'expected' <- vartype |- variable.value : var Type valtype
+		empty |- variable.value : var Type valtype
 		empty |- vartype <: valtype
 	}
 
 	{ (!variable.const || variable.value != null) }
+
+	//{ !(vartype instanceof MatrixType) }
+	//or {}
 }
 
 checkrule CIfCondition
@@ -468,4 +471,3 @@ from {
 		}
 	}
 }
-
