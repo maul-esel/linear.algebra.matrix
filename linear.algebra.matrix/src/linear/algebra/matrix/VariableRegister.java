@@ -8,7 +8,7 @@ public class VariableRegister {
 
 	private final static Object undefined = new Object();
 
-	private VariableRegister superScope = empty;
+	private VariableRegister superScope = empty; // { != null, except for empty itself }
 
 	private final Hashtable<String, Object> variables = new Hashtable<String, Object>();
 
@@ -68,7 +68,7 @@ public class VariableRegister {
 	}
 
 	public boolean exists(String name) {
-		return existsLocally(name) || superScope.exists(name);
+		return existsLocally(name) || (superScope != null && superScope.exists(name));
 	}
 
 	private boolean existsLocally(String name) {
@@ -76,11 +76,11 @@ public class VariableRegister {
 	}
 
 	public boolean isDefined(String name) {
-		return existsLocally(name) ? !undefined.equals(variables.get(name)) : superScope.isDefined(name);
+		return existsLocally(name) ? !undefined.equals(variables.get(name)) : (superScope != null && superScope.isDefined(name));
 	}
 
 	public boolean isConstant(String name) {
-		return existsLocally(name) ? constants.contains(name) : superScope.isConstant(name);
+		return existsLocally(name) ? constants.contains(name) : (superScope != null && superScope.isConstant(name));
 	}
 
 	public void makeConstant(String name) {
