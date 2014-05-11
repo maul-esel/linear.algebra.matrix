@@ -304,15 +304,14 @@ rule IEntryAccess
 	G |- EntryAccess acc ~> Integer entry  // change for other entry types
 from {
 	G |- acc.matr ~> var Matrix mat
-	G |- acc.line ~> var int line
-	G |- acc.column ~> var int column
-
+	G |- acc.line ~> var Integer line
+	G |- acc.column ~> var Integer column
 }
 
 rule INegation
 	G |- Negation neg ~> Boolean bool
 from {
-	G |- neg.expr ~> var boolean inner
+	G |- neg.expr ~> var Boolean inner
 	bool = !inner
 }
 
@@ -320,7 +319,7 @@ rule IExponentiation
 	G |- Exponentiation expr ~> Object result
 from {
 	G |- expr.base ~> var Object base
-	G |- expr.exp ~> var int exp
+	G |- expr.exp ~> var Integer exp
 	if (base instanceof Integer) {
 		result = Math.pow(base, exp)
 	} else {
