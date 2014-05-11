@@ -2,6 +2,7 @@ system linear.algebra.matrix.typing.XSemanticMatrix
 
 validatorExtends linear.algebra.matrix.validation.AbstractMatrixValidator
 
+import org.eclipse.emf.ecore.EObject
 import linear.algebra.matrix.matrix.*
 import linear.algebra.matrix.core.*
 import linear.algebra.matrix.SmartMatrixType
@@ -23,8 +24,7 @@ judgments {
     	source expr
    	subtype |- Type sub <: Type sup
     vartype ||- VarDeclaration decl : output Type
-    interpretExpr |- Expression expr ~> output Object
-    //executeFunc |- FuncDeclaration func ~> output Object 
+    interpret |- EObject obj ~> output Object
 }
 
 auxiliary matrixDimensionsEqual(ExactMatrixType left, ExactMatrixType right) {
