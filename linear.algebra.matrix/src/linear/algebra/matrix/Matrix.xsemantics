@@ -109,7 +109,7 @@ axiom TVariable
 	G |- Variable variable : variable.ref.type
 
 axiom TFunctionCall
-	G |- FunctionCall call : (call.func.ref.returnType as Type) // TODO
+	G |- FunctionCall call : call.func.ref.returnType
 
 rule TMultiLineMatrixLiteral
 	G |- MultiLineMatrixLiteral lit : MatrixType type
@@ -459,7 +459,7 @@ from {
 	{ (callParams.size() == funcParams.size) }
 	for (i : 0 ..< callParams.size) {
 		empty |- callParams.get(i) : var Type type
-		empty |- type <: (funcParams.get(i).type as Type)
+		empty |- type <: funcParams.get(i).type
 		or fail error "param type " + stringRep(type) + " does not match " + stringRep(funcParams.get(i).type)
 			source callParams.get(i)
 	}
