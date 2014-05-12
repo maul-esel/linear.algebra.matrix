@@ -24,7 +24,7 @@ ReturnStatement :
 ;
 
 ProcRef hidden() :
-	ref=[ProcDeclaration] '('
+	ref=[ProcDeclaration|PROC_NAME] '('
 ;
 
 ProcCall :
@@ -51,7 +51,7 @@ FuncDeclaration :
 ;
 
 ProcDeclaration :
-	(internal?=INTERNAL)? PROC name=ID ':' params=ParameterList body=Block
+	(internal?=INTERNAL)? PROC name=PROC_NAME ':' params=ParameterList body=Block
 ;
 
 ParameterList :
@@ -233,6 +233,7 @@ terminal NEWLINE  : '\n';
 terminal WHITESPACE : (' '|'\t')+;
 terminal ID : (LETTER|'_')(LETTER|'_'|DIGIT_WITHOUT_ZERO|'0')*;
 terminal GENERIC_VAR : '$' ID;
+terminal PROC_NAME : '@' ID;
 
 terminal fragment DIGIT_WITHOUT_ZERO : '1'..'9';
 terminal fragment LETTER : ('a'..'z'|'A'..'Z');
