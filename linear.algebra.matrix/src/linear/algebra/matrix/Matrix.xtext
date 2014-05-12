@@ -20,7 +20,7 @@ VarDeclaration :
 ;
 
 ReturnStatement :
-	RETURN value=Expression ';'
+	{ReturnStatement} RETURN (value=Expression)? ';'
 ;
 
 ProcRef hidden() :

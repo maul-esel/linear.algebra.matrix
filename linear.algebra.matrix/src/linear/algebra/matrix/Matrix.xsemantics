@@ -522,15 +522,22 @@ from {
 	}
 }
 
-checkrule CReturnStatement // only allowed in func declarations, must return correct type
+checkrule CReturnStatement // only allowed in func / proc declarations; must return correct type
 	for ReturnStatement ret
 from {
 	var container = ret.eContainer
-	while (container != null && !(container instanceof FuncDeclaration))
+	while (container != null && !(container instanceof FuncDeclaration) && !(container instanceof ProcDeclaration))
 		container = container.eContainer
 	{ (container != null) }
 
-	empty |- ret.value : var Type type
-	empty |- type <: (container as FuncDeclaration).returnType
-	or fail error "expression type does not match function return type" source ret.value
+	if (container instanceof FuncDeclaration) {
+		{ ret.value != null }
+		{
+			empty |- ret.value : var Type type
+			empty |- type <: (container as FuncDeclaration).returnType
+				or fail error "expression type does not match function return type" source ret.value
+		}
+	}
+
+	{ !(container instanceof ProcDeclaration) } or { ret.value == null }
 }
