@@ -2,6 +2,8 @@ system linear.algebra.matrix.typing.XSemanticMatrix
 
 validatorExtends linear.algebra.matrix.validation.AbstractMatrixValidator
 
+import java.util.List;
+
 import org.eclipse.emf.ecore.EObject
 import linear.algebra.matrix.matrix.*
 
@@ -20,6 +22,7 @@ auxiliary {
 	isGenericInParamList(SmartMatrixType type, ParameterList list) : boolean
 	isGeneric(String size) : boolean
 	genericVarMatches(VariableRegister genReg, String variable, String value) : boolean
+	checkParamTypes(VariableRegister genReg, List<ParameterDeclaration> declaredParams, List<Expression> suppliedParams)
 }
 
 judgments {
@@ -88,6 +91,26 @@ auxiliary genericVarMatches(VariableRegister genReg, String variable, String val
 			(genReg.get(variable) == value)
 	} else true
 }
+auxiliary checkParamTypes(VariableRegister genReg, List<ParameterDeclaration> declaredParams, List<Expression> suppliedParams) {
+	{ (suppliedParams.size() == declaredParams.size) }
+
+	for (i : 0 ..< suppliedParams.size) {
+		empty |- suppliedParams.get(i) : var Type valueType
+		val Type paramType = declaredParams.get(i).type;
+
+		var SmartMatrixType generic;
+		if (valueType instanceof MatrixType && paramType instanceof MatrixType && (generic = SmartMatrixType.copy(paramType as MatrixType)).isGeneric()) {
+			val exactType = valueType as MatrixType;
+			(genericVarMatches(genReg, generic.height, exactType.height)
+				&& (genericVarMatches(genReg, generic.width, exactType.width)))
+			 or fail error "generic param type does not match" source suppliedParams.get(i)
+		} else {
+			empty |- valueType <: paramType
+			or fail error "param type " + stringRep(valueType) + " does not match " + stringRep(paramType)
+				source suppliedParams.get(i)
+		}
+	}
+}
 
 /* SUBTYPING */
 rule SMatrixType
@@ -132,27 +155,8 @@ from {
 		val retType = SmartMatrixType.copy(call.func.ref.returnType as MatrixType)
 		type = retType
 
-		val callParams = call.params
-		val funcParams = call.func.ref.params.params;
-		{ (callParams.size() == funcParams.size) }
-
 		val genericRegister = new VariableRegister();
-		for (i : 0 ..< callParams.size) {
-			empty |- callParams.get(i) : var Type valueType
-			val Type paramType = funcParams.get(i).type;
-
-			var SmartMatrixType generic;
-			if (valueType instanceof MatrixType && paramType instanceof MatrixType && (generic = SmartMatrixType.copy(paramType as MatrixType)).isGeneric()) {
-				val exactType = valueType as MatrixType;
-				(genericVarMatches(genericRegister, generic.height, exactType.height)
-					&& (genericVarMatches(genericRegister, generic.width, exactType.width)))
-				 or fail error "generic param type does not match" source callParams.get(i)
-			} else {
-				empty |- valueType <: paramType
-				or fail error "param type " + stringRep(valueType) + " does not match " + stringRep(paramType)
-					source callParams.get(i)
-			}
-		}
+		checkParamTypes(genericRegister, call.func.ref.params.params, call.params)
 
 		if (retType.isGeneric())
 			type = new SmartMatrixType(
@@ -540,4 +544,12 @@ from {
 	}
 
 	{ !(container instanceof ProcDeclaration) } or { ret.value == null }
+}
+
+checkrule CProcCall
+	for ProcCall call
+from {
+	val genReg = new VariableRegister();
+	{ call.proc.ref.params.params.size == call.params.size }
+	{ checkParamTypes(genReg, call.proc.ref.params.params, call.params) }
 }
