@@ -1,4 +1,4 @@
-int var := 45;
+int var := 4 * 5;
 int other := 4 + 5 * var;
 
 boolean b := true;
@@ -12,19 +12,14 @@ e := true;
 
 if (e) {
 	e := false;
-	return e;
 } else if (e) {
-	return e;
 } else {
-	return b;
 	if (b) {}
 }
 
 boolean c := false;
 
 int d := 5;
-
-return e;
 
 (4 ° 5) A := (dot 0) {
 	5 5 5 . .
@@ -44,6 +39,9 @@ return e;
 (1 ° 1) J := int {
 	1
 };
+
+(1 ° 1) HGF := J;
+(1 ° 1) HGF2 := J * J;
 
 (4 ° 5) L := B^T;
 const boolean zzf := !(A ~ A);
@@ -98,13 +96,31 @@ int h := (5 * 4)^0;
 (4 ° 4) G := F^2;
 (4 ° 4) H := F^2 + F;
 
-scalar_mult(g, h);
+(1 ° 2) param1;
+(2 ° 1) param2;
 
-def scalar_mult : ((2 ° 3) matr, int scalar) -> (2 ° 4) { § support ($i ° $j) type
-	return 4; § check return type
+(1 ° 4) res := scalar_mult(param1, param2, 4);
+
+@print();
+@prints(true, param1, param2);
+
+def scalar_mult : (($i ° $j) matr1, ($j ° $i) other, int scalar) -> ($i ° 4) {
+	($i ° 4) F;
+	int a;
+	return (F := F);
+	return F;
 }
 
-proc print : (boolean quert) {
-	§ todo
+def is : (int a) -> boolean {
+	int a := 3;
+	return a == a;
 }
- 
+
+proc @prints : (boolean quert, ($k ° $l) m, ($l ° $k) n) {
+	($k ° $l) other;
+}
+
+proc @print : () {
+	return;
+	int b;
+}
