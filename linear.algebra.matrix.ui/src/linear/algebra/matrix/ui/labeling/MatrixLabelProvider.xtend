@@ -10,6 +10,8 @@ import linear.algebra.matrix.matrix.PlaceholderEntry
 import linear.algebra.matrix.matrix.IntLiteral
 import linear.algebra.matrix.matrix.Multiplication
 import linear.algebra.matrix.matrix.MatrixType
+import linear.algebra.matrix.matrix.ReturnStatement
+import linear.algebra.matrix.matrix.Block
 
 /**
  * Provides labels for a EObjects.
@@ -31,11 +33,19 @@ class MatrixLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabel
 		'[matrix type] (' + type.height + ' ° ' + type.width ')'
 	}
 
+	def text(ReturnStatement ret) {
+		'return' + (if (ret.value != null) ' ' + text(ret.value) else '')
+	}
+
 	def text(MatrixLiteralLine line) {
 		var str = ''
 		for (entry : line.getEntries())
 			str = str + (if (entry instanceof PlaceholderEntry) '.' else (entry as IntLiteral).value) + ' '
 		str
+	}
+
+	def text(Block bl) {
+		'[block]'
 	}
 
 	def text(Multiplication mult) {
