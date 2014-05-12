@@ -4,7 +4,6 @@ validatorExtends linear.algebra.matrix.validation.AbstractMatrixValidator
 
 import java.util.List;
 
-import org.eclipse.emf.ecore.EObject
 import linear.algebra.matrix.matrix.*
 
 import linear.algebra.matrix.util.VariableRegister;
@@ -23,6 +22,7 @@ auxiliary {
 	isGeneric(String size) : boolean
 	genericVarMatches(VariableRegister genReg, String variable, String value) : boolean
 	checkParamTypes(VariableRegister genReg, List<ParameterDeclaration> declaredParams, List<Expression> suppliedParams)
+	makeExactFromGeneric(VariableRegister generics, SmartMatrixType matrType) : SmartMatrixType
 }
 
 judgments {
@@ -110,6 +110,12 @@ auxiliary checkParamTypes(VariableRegister genReg, List<ParameterDeclaration> de
 				source suppliedParams.get(i)
 		}
 	}
+}
+auxiliary makeExactFromGeneric(VariableRegister generics, SmartMatrixType matrType) {
+	new SmartMatrixType(
+		if (isGeneric(matrType.height)) generics.get(matrType.height) as String else matrType.height,
+		if (isGeneric(matrType.width)) generics.get(matrType.width) as String else matrType.width
+	)
 }
 
 /* SUBTYPING */
@@ -310,32 +316,45 @@ from {
 }
 
 /* INTERPRETING */
+axiom IVariable
+	G |- Variable variable ~> env(G, 'variables', VariableRegister).get(variable.ref.name)
+
 axiom IIntegerLiteral
 	G |- IntLiteral lit ~> Integer.parseInt(lit.value)
 
 axiom IBooleanLiteral
 	G |- BooleanLiteral lit ~> Boolean.parseBoolean(lit.value)
 
+rule IAssignment
+	G |- Assignment assign ~> Object value
+from {
+	G |- assign.value ~> value
+	env(G, 'variables', VariableRegister).set(assign.getVar.ref.name, value)
+}
+
 rule IMultiLineMatrixLiteral
 	G |- MultiLineMatrixLiteral lit ~> Matrix m
 from {
 	G |- lit : var SmartMatrixType matrType
-	if (matrType.isExact()) {
-		var im = new IntegerMatrix(Integer.parseInt(matrType.height), Integer.parseInt(matrType.width)) // change for other entry types
+	if (!matrType.isExact()) {
+		val generics = env(G, 'generics', VariableRegister)
+		matrType = makeExactFromGeneric(generics, matrType)
+	}
 
-		var i = 1;
-		for (line : lit.lines) {
-			var j = 1;
-			for (entry : line.entries) {
-				G |- (entry as IntLiteral) ~> var Integer value // change for other entry types
-				im.setEntry(i, j, value)
-				j = j + 1
-			}
-			i = i + 1
+	var im = new IntegerMatrix(Integer.parseInt(matrType.height), Integer.parseInt(matrType.width)) // change for other entry types
+
+	var i = 1;
+	for (line : lit.lines) {
+		var j = 1;
+		for (entry : line.entries) {
+			G |- (entry as IntLiteral) ~> var Integer value // change for other entry types
+			im.setEntry(i, j, value)
+			j = j + 1
 		}
+		i = i + 1
+	}
 
-		m = im;
-	} else { fail error "generic matr interpretation not implemented" }
+	m = im;
 }
 
 rule IParenthesis
