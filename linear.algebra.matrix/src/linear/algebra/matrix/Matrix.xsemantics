@@ -521,6 +521,15 @@ from {
 	}
 }
 
+checkrule CVarDeclarationUnique
+	for VarDeclaration decl
+from {
+	val container = decl.eContainer
+	for (other : container.eContents)
+		{ !(other instanceof VarDeclaration) || ((other as VarDeclaration).name != decl.name) || (other == decl) }
+		or fail error "variable names must be unique" source decl
+}
+
 checkrule CIfCondition
 	for IfElse ifelse
 from {

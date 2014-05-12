@@ -2,12 +2,13 @@ int var := 4 * 5;
 int other := 4 + 5 * var;
 
 boolean b := true;
-boolean c := false;
+boolean cd := false;
+int d := 0;
 bool e := b;
 
 const int wert := 3;
 
-int e := 4; § should fail
+int ef := 4;
 e := true;
 
 if (e) {
@@ -17,9 +18,8 @@ if (e) {
 	if (b) {}
 }
 
-boolean c := false;
-
-int d := 5;
+boolean c0 := false;
+int d_ := 5;
 
 (4 ° 5) A := (dot 0) {
 	5 5 5 . .
@@ -53,8 +53,8 @@ if (2 > 2) {}
 if (B*A == B*A) {}
 if (A == 2*A) {}
 
-boolean b := A == A && 2 == 2;
-boolean c := b == b;
+boolean b1 := A == A && 2 == 2;
+boolean c1 := b == b;
 
 if (b == true) {}
 
