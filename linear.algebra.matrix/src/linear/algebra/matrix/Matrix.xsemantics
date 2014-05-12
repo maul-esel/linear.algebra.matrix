@@ -194,7 +194,7 @@ rule TAssignment
 from {
 	G |- assign.getVar() : vartype
 	G |- assign.value : var Type valtype
-	G |- vartype <: valtype
+	G |- vartype <: valtype or fail error "value cannot be assigned" source assign.value
 }
 
 rule TLogical
