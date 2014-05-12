@@ -7,7 +7,7 @@ import java.util.List;
 import org.eclipse.emf.ecore.EObject
 import linear.algebra.matrix.matrix.*
 
-import linear.algebra.matrix.VariableRegister;
+import linear.algebra.matrix.util.VariableRegister;
 
 import linear.algebra.matrix.core.Matrix
 import linear.algebra.matrix.core.IntegerMatrix
