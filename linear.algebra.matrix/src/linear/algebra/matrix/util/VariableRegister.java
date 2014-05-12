@@ -2,6 +2,7 @@ package linear.algebra.matrix.util;
 
 import java.util.Hashtable;
 import java.util.HashSet;
+import java.util.Set;
 
 public class VariableRegister {
 	private final static VariableRegister empty = new VariableRegister();
@@ -91,5 +92,9 @@ public class VariableRegister {
 			constants.add(name);
 		else
 			superScope.makeConstant(name);
+	}
+
+	public Set<String> getVariables() {
+		return variables.keySet();
 	}
 }
