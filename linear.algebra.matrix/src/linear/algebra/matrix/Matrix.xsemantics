@@ -31,7 +31,7 @@ judgments {
     	source expr
    	subtype |- Type sub <: Type sup
     vartype ||- VarDeclaration decl : output Type
-    interpret |- EObject obj ~> output Object
+    interpret |- Expression expr ~> output Object
 }
 
 auxiliary matrixMultiplicationDefined(SmartMatrixType left, SmartMatrixType right) {
