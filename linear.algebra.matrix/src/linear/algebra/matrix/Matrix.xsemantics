@@ -433,6 +433,18 @@ from {
 	}
 }
 
+rule IAddition
+	G |- Addition add ~> Object result
+from {
+	G |- add.left ~> var Object left
+	G |- add.right ~> var Object right
+
+	{
+		(left instanceof Integer && right instanceof Integer)
+		result = (left as Integer) + (right as Integer)
+	} or fail error "matrix add not implemented"
+}
+
 rule IMultiplication
 	G |- Multiplication mult ~> Object result
 from {
