@@ -69,8 +69,7 @@ public class Interpreter {
 
 	def dispatch void interpret(FromToLoop loop) {
 		currentScope.set(loop.getVar.ref.name, evaluate(loop.init)) // initialize counter
-		val endCount = evaluate(loop.end) as Integer;
-		while ((evaluate(loop.getVar) as Integer) <= endCount) {
+		while ((evaluate(loop.getVar) as Integer) <= (evaluate(loop.end) as Integer)) {
 			interpret(loop.body)
 			currentScope.set(loop.getVar.ref.name, (evaluate(loop.getVar) as Integer) + 1)
 		}
