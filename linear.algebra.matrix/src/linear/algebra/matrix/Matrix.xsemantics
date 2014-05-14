@@ -414,7 +414,13 @@ from {
 rule IMultiplication
 	G |- Multiplication mult ~> Object result
 from {
-	fail error "mult not implemented" // TODO
+	G |- mult.left ~> var Object left
+	G |- mult.right ~> var Object right
+
+	{
+		(left instanceof Integer && right instanceof Integer)
+		result = (left as Integer) * (right as Integer)
+	} or fail error "matrix mult not implemented"
 }
 
 rule IFunctionCall
