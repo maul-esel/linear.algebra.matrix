@@ -1,1 +1,8 @@
 int var := 5;
+(2 ° 3) matr := {
+	1 0 0
+	0 1 0
+};
+(2 ° 3) mult := matr;
+int other := var * 4;
+int entry := matr[1,1];
