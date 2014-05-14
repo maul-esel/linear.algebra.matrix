@@ -123,9 +123,10 @@ public class Interpreter {
 
 	def private Object executeWithParams(List<VarDeclaration> declared,
 		List<Expression> supplied, Block exec) {
-		variables.push(new VariableRegister()) // add exec scope
+		val execScope = new VariableRegister()
 		for (i : 0..<supplied.size)
-			currentScope.add(declared.get(i).name, supplied.get(i)) // set the params
+			execScope.add(declared.get(i).name, evaluate(supplied.get(i))) // set the params
+		variables.push(execScope) // add exec scope
 
 		val computed = new VariableRegister()
 		semantics.checkParamTypes(computed, declared, supplied) // call only to compute generics
