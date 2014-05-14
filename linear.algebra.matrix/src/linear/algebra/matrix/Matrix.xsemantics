@@ -369,6 +369,7 @@ from {
 	G |- acc.matr ~> var Matrix mat
 	G |- acc.line ~> var Integer line
 	G |- acc.column ~> var Integer column
+	entry = (mat as IntegerMatrix).getEntry(line, column)
 }
 
 rule INegation
