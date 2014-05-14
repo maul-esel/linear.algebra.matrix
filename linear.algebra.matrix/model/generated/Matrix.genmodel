@@ -99,6 +99,13 @@
     </genClasses>
     <genClasses ecoreClass="Matrix.ecore#//MathematicalLiteral"/>
     <genClasses ecoreClass="Matrix.ecore#//SimpleLiteral"/>
+    <genClasses ecoreClass="Matrix.ecore#//MatrixInit">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//MatrixInit/line"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//MatrixInit/lineMax"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//MatrixInit/column"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//MatrixInit/colMax"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//MatrixInit/entry"/>
+    </genClasses>
     <genClasses ecoreClass="Matrix.ecore#//MultiLineMatrixLiteral">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//MultiLineMatrixLiteral/type"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//MultiLineMatrixLiteral/dot"/>

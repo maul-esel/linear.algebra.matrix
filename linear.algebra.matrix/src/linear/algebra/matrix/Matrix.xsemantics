@@ -189,6 +189,12 @@ from {
 	type = new SmartMatrixType(Integer.toString(lines), Integer.toString(columns))
 }
 
+rule TMatrixInit
+	G |- MatrixInit init : SmartMatrixType type
+from {
+	type = new SmartMatrixType(init.lineMax, init.colMax)
+}
+
 rule TParenthesis
 	G |- ParenthesizedExpression expr : Type type
 from {
@@ -362,11 +368,11 @@ from {
 		matrType = makeExactFromGeneric(generics, matrType)
 	}
 
-	var im = new IntegerMatrix(Integer.parseInt(matrType.height), Integer.parseInt(matrType.width)) // change for other entry types
+	val im = new IntegerMatrix(Integer.parseInt(matrType.height), Integer.parseInt(matrType.width)) // change for other entry types
 
-	var i = 1;
+	var i = 1
 	for (line : lit.lines) {
-		var j = 1;
+		var j = 1
 		for (entry : line.entries) {
 			G |- (entry as IntLiteral) ~> var Integer value // change for other entry types
 			im.setEntry(i, j, value)
@@ -375,7 +381,33 @@ from {
 		i = i + 1
 	}
 
-	m = im;
+	m = im
+}
+
+rule IMatrixInit
+	G |- MatrixInit init ~> Matrix m
+from {
+	G |- init : var SmartMatrixType matrType
+	if (!matrType.isExact()) {
+		val generics = env(G, 'generics', VariableRegister)
+		matrType = makeExactFromGeneric(generics, matrType)
+	}
+
+	val variables = new VariableRegister(env(G, 'variables', VariableRegister))
+	variables.add(init.line.name)
+	variables.add(init.column.name)
+
+	val lines = Integer.parseInt(matrType.height)
+	val columns = Integer.parseInt(matrType.width)
+	val im = new IntegerMatrix(lines, columns)
+	for (i : 1..lines)
+		for (j : 1..columns) {
+			variables.set(init.line.name, i)
+			variables.set(init.column.name, j)
+			G, 'variables' <- variables |- init.entry ~> var Integer entry
+			im.setEntry(i, j, entry)
+		}
+	m = im
 }
 
 rule IParenthesis
@@ -650,4 +682,14 @@ checkrule CWhileLoop
 from {
 	empty |- loop.cond : var BooleanType bool
 	or fail error "condition must be boolean" source loop.cond
+}
+
+checkrule CMatrixInit
+	for MatrixInit init
+from {
+	{ init.line.value == null && init.column.value == null }
+	var IntegerType intType
+	empty ||- init.line : intType
+	empty ||- init.column : intType
+	empty |- init.entry : intType
 }

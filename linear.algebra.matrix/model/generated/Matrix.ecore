@@ -101,6 +101,16 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="MathematicalLiteral" eSuperTypes="#//SimpleLiteral #//MatrixEntry"/>
   <eClassifiers xsi:type="ecore:EClass" name="SimpleLiteral" eSuperTypes="#//Expression"/>
+  <eClassifiers xsi:type="ecore:EClass" name="MatrixInit" eSuperTypes="#//Expression">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="line" eType="#//TypedVarDeclaration"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lineMax" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="column" eType="#//TypedVarDeclaration"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="colMax" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="entry" eType="#//Expression"
+        containment="true"/>
+  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="MultiLineMatrixLiteral" eSuperTypes="#//Expression">
     <eStructuralFeatures xsi:type="ecore:EReference" name="type" eType="#//MathematicalType"
         containment="true"/>
