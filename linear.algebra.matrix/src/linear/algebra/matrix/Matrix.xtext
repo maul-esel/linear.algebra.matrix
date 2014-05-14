@@ -224,8 +224,12 @@ LogicalAndOr returns Expression:
 	Equals ({LogicalAndOr.left=current} op=LogicalOp right=Equals)*
 ;
 
+Ternary returns Expression :
+	LogicalAndOr ({Ternary.cond=current} '?' ifTrue=Ternary ':' ifFalse=Ternary)?
+;
+
 Expression returns Expression :
-	LogicalAndOr | Assignment
+	Ternary | Assignment
 ;
 
 // III. d) operator enums

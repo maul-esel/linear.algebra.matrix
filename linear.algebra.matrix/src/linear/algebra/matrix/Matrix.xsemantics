@@ -321,6 +321,22 @@ from {
 	G |- neg.expr : bool
 }
 
+rule TTernary
+	G |- Ternary ter : Type type
+from {
+	G |- ter.cond : var BooleanType bool
+	G |- ter.ifTrue : var Type trueType
+	G |- ter.ifFalse : var Type falseType
+
+	{
+		G |- trueType <: falseType
+		type = falseType
+	} or {
+		G |- falseType <: trueType
+		type = trueType
+	} or fail error "expression doesn't have matching type" source ter.ifFalse
+}
+
 rule TEntryAccess
 	G |- EntryAccess acc : MatrixFactory.eINSTANCE.createIntegerType() // change for other entry types
 from {
@@ -498,6 +514,17 @@ from {
 	}
 	//G /* <- vars */ |- call.func.ref ~> result
 	fail error "func call not implemented"
+}
+
+rule ITernary
+	G |- Ternary ter ~> Object result
+from {
+	G |- ter.cond ~> var Boolean cond
+	if (cond) {
+		G |- ter.ifTrue ~> result
+	} else {
+		G |- ter.ifFalse ~> result
+	}
 }
 
 /* CHECKING */

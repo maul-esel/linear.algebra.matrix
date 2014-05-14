@@ -195,5 +195,10 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//LogicalAndOr/op"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//LogicalAndOr/right"/>
     </genClasses>
+    <genClasses ecoreClass="Matrix.ecore#//Ternary">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//Ternary/cond"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//Ternary/ifTrue"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//Ternary/ifFalse"/>
+    </genClasses>
   </genPackages>
 </genmodel:GenModel>
