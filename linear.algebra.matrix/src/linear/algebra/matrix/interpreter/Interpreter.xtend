@@ -67,6 +67,20 @@ public class Interpreter {
 
 	def dispatch void interpret(ProcDeclaration proc) {} // doesn't do anything
 
+	def dispatch void interpret(FromToLoop loop) {
+		currentScope.set(loop.getVar.ref.name, evaluate(loop.init)) // initialize counter
+		val endCount = evaluate(loop.end) as Integer;
+		while ((evaluate(loop.getVar) as Integer) <= endCount) {
+			interpret(loop.body)
+			currentScope.set(loop.getVar.ref.name, (evaluate(loop.getVar) as Integer) + 1)
+		}
+	}
+
+	def dispatch void interpret(WhileLoop loop) {
+		while (evaluate(loop.cond) as Boolean)
+			interpret(loop.body);
+	}
+
 	def dispatch void interpret(Block block) {
 		variables.push(new VariableRegister(currentScope)) // introduce block scope
 		try {
