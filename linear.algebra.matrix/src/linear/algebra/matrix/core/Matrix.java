@@ -45,4 +45,16 @@ public abstract class Matrix<T> {
 	}
 
 	protected abstract T[][] getEntries(); // dimensions must be height and width
+
+	@Override
+	public String toString() {
+		T[][] entries = getEntries();
+		String str = "";
+		for (int i = 0; i < height; ++i) {
+			for (int j = 0; j < width; ++j)
+				str = str + entries[i][j] + " ";
+			str = str.trim() + "\n";
+		}
+		return str.trim();
+	}
 }
