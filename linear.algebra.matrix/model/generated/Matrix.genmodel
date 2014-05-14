@@ -22,7 +22,11 @@
       <genEnumLiterals ecoreEnumLiteral="Matrix.ecore#//LogicalOp/OR"/>
     </genEnums>
     <genClasses ecoreClass="Matrix.ecore#//Code">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//Code/imports"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//Code/lines"/>
+    </genClasses>
+    <genClasses ecoreClass="Matrix.ecore#//Import">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//Import/source"/>
     </genClasses>
     <genClasses ecoreClass="Matrix.ecore#//Line"/>
     <genClasses ecoreClass="Matrix.ecore#//Action"/>

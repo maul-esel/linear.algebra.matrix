@@ -4,7 +4,12 @@ generate matrix "http://www.algebra.linear/matrix/Matrix"
 
 // I. General code structure
 Code hidden(WHITESPACE, NEWLINE, SL_COMMENT, ML_COMMENT) :
+	(imports+=Import)*
 	(lines+=Line)*
+;
+
+Import :
+	'import' source=ID ';'
 ;
 
 Line :
