@@ -84,10 +84,6 @@
     <genClasses ecoreClass="Matrix.ecore#//ParameterList">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//ParameterList/params"/>
     </genClasses>
-    <genClasses ecoreClass="Matrix.ecore#//ParameterDeclaration">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//ParameterDeclaration/type"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//ParameterDeclaration/name"/>
-    </genClasses>
     <genClasses ecoreClass="Matrix.ecore#//SimpleType"/>
     <genClasses ecoreClass="Matrix.ecore#//MathematicalType"/>
     <genClasses ecoreClass="Matrix.ecore#//MatrixType">

@@ -21,7 +21,7 @@ auxiliary {
 	isGenericInParamList(SmartMatrixType type, ParameterList list) : boolean
 	isGeneric(String size) : boolean
 	genericVarMatches(VariableRegister genReg, String variable, String value) : boolean
-	checkParamTypes(VariableRegister genReg, List<ParameterDeclaration> declaredParams, List<Expression> suppliedParams)
+	checkParamTypes(VariableRegister genReg, List<VarDeclaration> declaredParams, List<Expression> suppliedParams)
 	makeExactFromGeneric(VariableRegister generics, SmartMatrixType matrType) : SmartMatrixType
 }
 
@@ -71,10 +71,10 @@ auxiliary isGenericInParamList(SmartMatrixType type, ParameterList list) {
 	var widthFound = !isGeneric(width)
 
 	for (param : list.params) {
-		if (param.type instanceof MatrixType) {
-			val matrType = param.type as MatrixType
-			heightFound = heightFound || matrType.height == height || matrType.width == height
-			widthFound = widthFound || matrType.height == width || matrType.width == width
+		empty ||- param : var Type paramType
+		if (paramType instanceof MatrixType) {
+			heightFound = heightFound || paramType.height == height || paramType.width == height
+			widthFound = widthFound || paramType.height == width || paramType.width == width
 		}
 	}
 	widthFound && heightFound
@@ -91,12 +91,12 @@ auxiliary genericVarMatches(VariableRegister genReg, String variable, String val
 			(genReg.get(variable) == value)
 	} else true
 }
-auxiliary checkParamTypes(VariableRegister genReg, List<ParameterDeclaration> declaredParams, List<Expression> suppliedParams) {
+auxiliary checkParamTypes(VariableRegister genReg, List<VarDeclaration> declaredParams, List<Expression> suppliedParams) {
 	{ (suppliedParams.size() == declaredParams.size) }
 
 	for (i : 0 ..< suppliedParams.size) {
 		empty |- suppliedParams.get(i) : var Type valueType
-		val Type paramType = declaredParams.get(i).type;
+		empty ||- declaredParams.get(i) : var Type paramType;
 
 		var SmartMatrixType generic;
 		if (valueType instanceof MatrixType && paramType instanceof MatrixType && (generic = SmartMatrixType.copy(paramType as MatrixType)).isGeneric()) {
@@ -552,6 +552,11 @@ from {
 checkrule CFunctionCall
 	for FunctionCall call
 from {
+	/* no parameter default values allowed at the moment */
+	{ call.func.ref.params.params.size == call.params.size }
+	for (param : call.func.ref.params.params)
+		{ param.value == null }
+
 	empty |- call : var Type type
 }
 
@@ -590,8 +595,12 @@ from {
 checkrule CProcCall
 	for ProcCall call
 from {
-	val genReg = new VariableRegister();
+	/* no parameter default values allowed at the moment */
 	{ call.proc.ref.params.params.size == call.params.size }
+	for (param : call.proc.ref.params.params)
+		{ param.value == null }
+
+	val genReg = new VariableRegister();
 	{ checkParamTypes(genReg, call.proc.ref.params.params, call.params) }
 }
 

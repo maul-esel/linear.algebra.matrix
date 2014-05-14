@@ -121,7 +121,7 @@ public class Interpreter {
 		return variables.peek()
 	}
 
-	def private Object executeWithParams(List<ParameterDeclaration> declared,
+	def private Object executeWithParams(List<VarDeclaration> declared,
 		List<Expression> supplied, Block exec) {
 		variables.push(new VariableRegister()) // add exec scope
 		for (i : 0..<supplied.size)

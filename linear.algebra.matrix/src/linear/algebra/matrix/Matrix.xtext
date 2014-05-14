@@ -17,7 +17,7 @@ Line :
 ;
 
 Action :
-	VarDeclaration | (Assignment ';') | (FunctionCall ';') | ReturnStatement | IfElse | ProcCall // TODO: solve proc/func conflict without backtracking
+	(VarDeclaration ';') | (Assignment ';') | (FunctionCall ';') | ReturnStatement | IfElse | ProcCall // TODO: solve proc/func conflict without backtracking
 ;
 
 VarDeclaration :
@@ -25,11 +25,11 @@ VarDeclaration :
 ;
 
 TypedVarDeclaration :
-	(const?=CONST)? type=Type name=ID (OP_ASSIGN value=Expression)? ';'
+	(const?=CONST)? type=Type name=ID (OP_ASSIGN value=Expression)?
 ;
 
 InferredVarDeclaration :
-	(const?=CONST)? 'var' name=ID OP_ASSIGN value=Expression ';'
+	(const?=CONST)? 'var' name=ID OP_ASSIGN value=Expression
 ;
 
 ReturnStatement :
@@ -76,11 +76,7 @@ ProcDeclaration :
 ;
 
 ParameterList :
-	{ParameterList} '(' (params+=ParameterDeclaration (',' params+=ParameterDeclaration)*)? ')'
-;
-
-ParameterDeclaration : 
-	type=Type name=ID
+	{ParameterList} '(' (params+=VarDeclaration (',' params+=VarDeclaration)*)? ')'
 ;
 
 // II. types
