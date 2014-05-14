@@ -7,6 +7,7 @@ import java.util.List;
 import linear.algebra.matrix.matrix.*
 
 import linear.algebra.matrix.util.VariableRegister;
+import linear.algebra.matrix.interpreter.Interpreter;
 
 import linear.algebra.matrix.core.Matrix
 import linear.algebra.matrix.core.IntegerMatrix
@@ -524,12 +525,7 @@ from {
 rule IFunctionCall
 	G |- FunctionCall call ~> Object result
 from {
-	for (i : 0..<call.params.size()) {
-		G |- call.params.get(i) ~> var Object param
-		// accumulate in var register
-	}
-	//G /* <- vars */ |- call.func.ref ~> result
-	fail error "func call not implemented"
+	result = env(G, "interpreter", Interpreter).evaluate(call)
 }
 
 rule ITernary

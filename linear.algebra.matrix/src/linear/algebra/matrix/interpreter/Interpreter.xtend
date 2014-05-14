@@ -106,6 +106,7 @@ public class Interpreter {
 		val env = new RuleEnvironment()
 		env.add("variables", currentScope)
 		env.add("generics", generics.peek())
+		env.add("interpreter", this)
 
 		val result = semantics.interpret(env, expr)
 		if (result.failed)
