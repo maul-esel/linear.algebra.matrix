@@ -14,16 +14,18 @@ import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
 
 import java.util.List
+import com.google.inject.Injector
 
 public class Interpreter {
+	private static val Injector injector = new MatrixStandaloneSetup().createInjectorAndDoEMFRegistration();
+
 	def static Interpreter fromFile(String file) {
-		new MatrixStandaloneSetup().createInjectorAndDoEMFRegistration();
 		val rs = new ResourceSetImpl()
 		val resource = rs.getResource(URI.createURI(file), true)
 		return new Interpreter(resource)
 	}
 
-	XSemanticMatrix semantics = new XSemanticMatrix();
+	private val semantics = injector.getInstance(XSemanticMatrix);
 
 	private Resource resource;
 
@@ -90,10 +92,10 @@ public class Interpreter {
 		val env = new RuleEnvironment()
 		env.add("variables", currentScope)
 		env.add("generics", generics.peek())
-		
+
 		val result = semantics.interpret(env, expr)
-		System.out.println(result.failed)
-		if (result.failed) throw result.ruleFailedException
+		if (result.failed)
+			throw result.ruleFailedException
 		result.value
 	}
 
