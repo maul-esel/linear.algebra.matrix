@@ -161,7 +161,15 @@ AtomExpression returns Expression :
 
 // III. c) complex expressions
 Assignment :
-	var=Variable OP_ASSIGN value=Expression
+	VariableAssignment | MatrixEntryAssignment
+;
+
+VariableAssignment :
+	variable=Variable OP_ASSIGN value=Expression
+;
+
+MatrixEntryAssignment :
+	matr=AtomExpression '[' line=Expression ',' column=Expression ']' OP_ASSIGN value=Expression
 ;
 
 EntryAccess returns Expression :

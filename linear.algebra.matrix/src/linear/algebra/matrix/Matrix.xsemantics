@@ -195,13 +195,16 @@ from {
 	G |- expr.inner : type
 }
 
-rule TAssignment
-	G |- Assignment assign : Type vartype
+rule TVariableAssignment
+	G |- VariableAssignment assign : Type vartype
 from {
-	G |- assign.getVar() : vartype
+	G |- assign.variable : vartype
 	G |- assign.value : var Type valtype
 	G |- vartype <: valtype or fail error "value cannot be assigned" source assign.value
 }
+
+axiom TMatrixEntryAssignment
+	G |- MatrixEntryAssignment assign : MatrixFactory.eINSTANCE.createIntegerType() // change for other entry types
 
 rule TLogical
 	G |- LogicalAndOr log : BooleanType bool
@@ -331,11 +334,23 @@ axiom IIntegerLiteral
 axiom IBooleanLiteral
 	G |- BooleanLiteral lit ~> Boolean.parseBoolean(lit.value)
 
-rule IAssignment
-	G |- Assignment assign ~> Object value
+rule IVariableAssignment
+	G |- VariableAssignment assign ~> Object value
 from {
 	G |- assign.value ~> value
-	env(G, 'variables', VariableRegister).set(assign.getVar.ref.name, value)
+	env(G, 'variables', VariableRegister).set(assign.variable.ref.name, value)
+}
+
+rule IEntryAssignment
+	G |- MatrixEntryAssignment assign ~> Object result
+from {
+	G |- assign.matr ~> var Matrix mat
+	G |- assign.line ~> var Integer line
+	G |- assign.column ~> var Integer column
+	G |- assign.value ~> var Integer value
+	(mat as IntegerMatrix).setEntry(line, column, value)
+
+	result = mat.getEntry(line, column)
 }
 
 rule IMultiLineMatrixLiteral
@@ -492,9 +507,9 @@ from {
 }
 
 checkrule CNoConstAssign
-	for Assignment assign
+	for VariableAssignment assign
 from {
-	(!assign.getVar.ref.const)
+	(!assign.variable.ref.const)
 	or fail
 		error "Cannot assign value to constant variable"
 		source assign

@@ -127,8 +127,15 @@
     </genClasses>
     <genClasses ecoreClass="Matrix.ecore#//Expression"/>
     <genClasses ecoreClass="Matrix.ecore#//Assignment">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//Assignment/var"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//Assignment/value"/>
+    </genClasses>
+    <genClasses ecoreClass="Matrix.ecore#//VariableAssignment">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//VariableAssignment/variable"/>
+    </genClasses>
+    <genClasses ecoreClass="Matrix.ecore#//MatrixEntryAssignment">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//MatrixEntryAssignment/matr"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//MatrixEntryAssignment/line"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//MatrixEntryAssignment/column"/>
     </genClasses>
     <genClasses ecoreClass="Matrix.ecore#//BooleanType"/>
     <genClasses ecoreClass="Matrix.ecore#//IntegerType"/>
