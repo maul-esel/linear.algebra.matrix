@@ -363,6 +363,9 @@ from {
 axiom IVariable
 	G |- Variable variable ~> env(G, 'variables', VariableRegister).get(variable.ref.name)
 
+axiom IGenericVariable
+	G |- GenericVariable variable ~> Integer.parseInt(env(G, 'generics', VariableRegister).get(variable.name) as String)
+
 axiom IIntegerLiteral
 	G |- IntLiteral lit ~> Integer.parseInt(lit.value)
 
