@@ -13,7 +13,7 @@ Import :
 ;
 
 Line :
-	Action | FuncDeclaration | ProcDeclaration
+	Action | FuncDeclaration | ProcDeclaration | FromToLoop | WhileLoop
 ;
 
 Action :
@@ -34,6 +34,14 @@ ProcRef hidden() :
 
 ProcCall :
 	proc=ProcRef (params+=Expression (',' params+=Expression)*)? ')' ';'
+;
+
+FromToLoop :
+	'from' var=Variable '=' init=Expression 'to' end=Expression body=Block
+;
+
+WhileLoop :
+	'while' cond=Expression body=Block
 ;
 
 Block: 

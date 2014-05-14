@@ -46,6 +46,16 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//ProcCall/proc"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//ProcCall/params"/>
     </genClasses>
+    <genClasses ecoreClass="Matrix.ecore#//FromToLoop">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//FromToLoop/var"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//FromToLoop/init"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//FromToLoop/end"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//FromToLoop/body"/>
+    </genClasses>
+    <genClasses ecoreClass="Matrix.ecore#//WhileLoop">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//WhileLoop/cond"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//WhileLoop/body"/>
+    </genClasses>
     <genClasses ecoreClass="Matrix.ecore#//Block">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//Block/lines"/>
     </genClasses>

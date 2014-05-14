@@ -588,3 +588,22 @@ from {
 	{ call.proc.ref.params.params.size == call.params.size }
 	{ checkParamTypes(genReg, call.proc.ref.params.params, call.params) }
 }
+
+checkrule CFromToLoop
+	for FromToLoop loop
+from {
+	var IntegerType intType
+	empty ||- loop.getVar.ref : intType
+		or fail error "counter var must be integer" source loop.getVar
+	empty |- loop.init : intType
+		or fail error "initial value must be integer" source loop.init
+	empty |- loop.end : intType
+		or fail error "end value must be integer" source loop.end
+}
+
+checkrule CWhileLoop
+	for WhileLoop loop
+from {
+	empty |- loop.cond : var BooleanType bool
+	or fail error "condition must be boolean" source loop.cond
+}
