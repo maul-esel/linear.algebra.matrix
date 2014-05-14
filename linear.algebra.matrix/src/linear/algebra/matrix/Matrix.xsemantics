@@ -132,12 +132,18 @@ from {
 }
 
 /* TYPING */
-rule TVarDecl
-	G ||- VarDeclaration variable : Type type
+rule TTypedVarDecl
+	G ||- TypedVarDeclaration variable : Type type
 from {
 	if (variable.type instanceof MatrixType)
 		type = SmartMatrixType.copy(variable.type as MatrixType)
 	else type = variable.type
+}
+
+rule TInferredVarDecl
+	G ||- InferredVarDeclaration decl : Type type
+from {
+	G |- decl.value : type
 }
 
 axiom TIntegerLiteral

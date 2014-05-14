@@ -21,7 +21,15 @@ Action :
 ;
 
 VarDeclaration :
+	TypedVarDeclaration | InferredVarDeclaration
+;
+
+TypedVarDeclaration :
 	(const?=CONST)? type=Type name=ID (OP_ASSIGN value=Expression)? ';'
+;
+
+InferredVarDeclaration :
+	(const?=CONST)? 'var' name=ID OP_ASSIGN value=Expression ';'
 ;
 
 ReturnStatement :

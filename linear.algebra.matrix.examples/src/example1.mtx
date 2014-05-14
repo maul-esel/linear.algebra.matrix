@@ -1,10 +1,12 @@
-int var := 4 * 5;
-int other := 4 + 5 * var;
+int myvar := 4 * 5;
+int other := 4 + 5 * myvar;
 
 boolean b := true;
 boolean cd := false;
 int d := 0;
 bool e := b;
+
+var test := false;
 
 const int wert := 3;
 

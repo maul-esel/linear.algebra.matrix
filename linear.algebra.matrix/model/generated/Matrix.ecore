@@ -14,11 +14,14 @@
   <eClassifiers xsi:type="ecore:EClass" name="Action" eSuperTypes="#//Line #//IfBody"/>
   <eClassifiers xsi:type="ecore:EClass" name="VarDeclaration" eSuperTypes="#//Action">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="const" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="type" eType="#//Type" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="value" eType="#//Expression"
         containment="true"/>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="TypedVarDeclaration" eSuperTypes="#//VarDeclaration">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="type" eType="#//Type" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="InferredVarDeclaration" eSuperTypes="#//VarDeclaration"/>
   <eClassifiers xsi:type="ecore:EClass" name="ReturnStatement" eSuperTypes="#//Action">
     <eStructuralFeatures xsi:type="ecore:EReference" name="value" eType="#//Expression"
         containment="true"/>

@@ -32,10 +32,13 @@
     <genClasses ecoreClass="Matrix.ecore#//Action"/>
     <genClasses ecoreClass="Matrix.ecore#//VarDeclaration">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//VarDeclaration/const"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//VarDeclaration/type"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//VarDeclaration/name"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//VarDeclaration/value"/>
     </genClasses>
+    <genClasses ecoreClass="Matrix.ecore#//TypedVarDeclaration">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//TypedVarDeclaration/type"/>
+    </genClasses>
+    <genClasses ecoreClass="Matrix.ecore#//InferredVarDeclaration"/>
     <genClasses ecoreClass="Matrix.ecore#//ReturnStatement">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//ReturnStatement/value"/>
     </genClasses>
