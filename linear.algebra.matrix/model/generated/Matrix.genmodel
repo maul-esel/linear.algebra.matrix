@@ -119,6 +119,9 @@
     <genClasses ecoreClass="Matrix.ecore#//Dotting">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//Dotting/fill"/>
     </genClasses>
+    <genClasses ecoreClass="Matrix.ecore#//GenericVariable">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//GenericVariable/name"/>
+    </genClasses>
     <genClasses ecoreClass="Matrix.ecore#//Variable">
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Matrix.ecore#//Variable/ref"/>
     </genClasses>

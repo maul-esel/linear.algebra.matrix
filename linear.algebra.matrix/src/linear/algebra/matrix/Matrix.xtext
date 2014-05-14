@@ -143,6 +143,10 @@ Dotting :
 ;
 
 // III. b) simple expressions
+GenericVariable :
+	name=GENERIC_VAR
+;
+
 Variable :
 	ref=[VarDeclaration]
 ;
@@ -160,7 +164,7 @@ ParenthesizedExpression :
 ;
 
 AtomExpression returns Expression :
-	SimpleLiteral | MultiLineMatrixLiteral | MatrixInit | Variable | ParenthesizedExpression | FunctionCall
+	SimpleLiteral | MultiLineMatrixLiteral | MatrixInit | Variable | GenericVariable | ParenthesizedExpression | FunctionCall
 ;
 
 // III. c) complex expressions

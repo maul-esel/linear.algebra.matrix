@@ -19,6 +19,7 @@ auxiliary {
 	transpose(SmartMatrixType type) : SmartMatrixType
 	hasPlaceholders(MultiLineMatrixLiteral lit) : boolean
 	isGenericInParamList(SmartMatrixType type, ParameterList list) : boolean
+	isGenericVariableDefined(String generic, ParameterList list) : boolean
 	isGeneric(String size) : boolean
 	genericVarMatches(VariableRegister genReg, String variable, String value) : boolean
 	checkParamTypes(VariableRegister genReg, List<VarDeclaration> declaredParams, List<Expression> suppliedParams)
@@ -78,6 +79,15 @@ auxiliary isGenericInParamList(SmartMatrixType type, ParameterList list) {
 		}
 	}
 	widthFound && heightFound
+}
+auxiliary isGenericVariableDefined(String generic, ParameterList list) {
+	var found = false
+	for (param : list.params) {
+		empty ||- param : var Type paramType
+		if (paramType instanceof MatrixType)
+			found = found || paramType.height == generic || paramType.width == generic
+	}
+	found
 }
 auxiliary isGeneric(String size) {
 	size.charAt(0).toString() == '$'
@@ -151,6 +161,9 @@ axiom TIntegerLiteral
 
 axiom TBooleanLiteral
 	G |- BooleanLiteral bool : MatrixFactory.eINSTANCE.createBooleanType()
+
+axiom TGenericVariable
+	G |- GenericVariable gen : MatrixFactory.eINSTANCE.createIntegerType()
 
 rule TVariable
 	G |- Variable variable : Type type
@@ -618,6 +631,20 @@ from {
 			|| (container instanceof ProcDeclaration && (isGenericInParamList(vartype as SmartMatrixType, (container as ProcDeclaration).params)))
 		)
 	}
+}
+
+checkrule CGenericVariable
+	for GenericVariable gen
+from {
+	var container = gen.eContainer;
+	while (container != null && !(container instanceof FuncDeclaration) && !(container instanceof ProcDeclaration))
+		container = container.eContainer;
+
+	(container != null)
+	(
+		(container instanceof FuncDeclaration && (isGenericVariableDefined(gen.name, (container as FuncDeclaration).params)))
+		|| (container instanceof ProcDeclaration && (isGenericVariableDefined(gen.name, (container as ProcDeclaration).params)))
+	)
 }
 
 checkrule CVarDeclarationUnique
