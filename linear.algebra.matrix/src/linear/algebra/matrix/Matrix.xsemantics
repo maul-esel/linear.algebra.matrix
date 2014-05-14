@@ -592,6 +592,8 @@ from {
 checkrule CFromToLoop
 	for FromToLoop loop
 from {
+	{ !loop.getVar.ref.const }
+		or fail error "Cannot use constant as loop counter" source loop.getVar
 	var IntegerType intType
 	empty ||- loop.getVar.ref : intType
 		or fail error "counter var must be integer" source loop.getVar
