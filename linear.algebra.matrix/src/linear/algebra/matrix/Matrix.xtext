@@ -13,11 +13,11 @@ Import :
 ;
 
 Line :
-	Action | FuncDeclaration | ProcDeclaration | FromToLoop | WhileLoop
+	Action | FuncDeclaration | ProcDeclaration
 ;
 
 Action :
-	(VarDeclaration ';') | (Assignment ';') | (FunctionCall ';') | ReturnStatement | IfElse | ProcCall // TODO: solve proc/func conflict without backtracking
+	(VarDeclaration ';') | (Assignment ';') | (FunctionCall ';') | ReturnStatement | IfElse | ProcCall | FromToLoop | WhileLoop // TODO: solve proc/func conflict without backtracking
 ;
 
 VarDeclaration :
