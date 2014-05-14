@@ -4,7 +4,6 @@ import it.xsemantics.runtime.RuleEnvironment;
 
 import java.util.Stack;
 
-import linear.algebra.matrix.MatrixStandaloneSetup
 import linear.algebra.matrix.typing.XSemanticMatrix
 import linear.algebra.matrix.util.VariableRegister
 import linear.algebra.matrix.matrix.*
@@ -14,18 +13,17 @@ import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
 
 import java.util.List
-import com.google.inject.Injector
+import com.google.inject.Inject
 
 public class Interpreter {
-	private static val Injector injector = new MatrixStandaloneSetup().createInjectorAndDoEMFRegistration();
-
 	def static Interpreter fromFile(String file) {
 		val rs = new ResourceSetImpl()
 		val resource = rs.getResource(URI.createURI(file), true)
 		return new Interpreter(resource)
 	}
 
-	private val semantics = injector.getInstance(XSemanticMatrix);
+	@Inject
+	private XSemanticMatrix semantics
 
 	private Resource resource;
 
