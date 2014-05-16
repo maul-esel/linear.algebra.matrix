@@ -11,4 +11,8 @@ public class MatrixRuntimeModule extends linear.algebra.matrix.AbstractMatrixRun
         return linear.algebra.matrix.scoping.MatrixResourceDescriptionStrategy.class;
     }
 
+	public Class<? extends org.eclipse.xtext.naming.IQualifiedNameConverter> bindIQualifiedNameConverter() {
+		return linear.algebra.matrix.scoping.MatrixQualifiedNameConverter.class;
+	}
+
 }
