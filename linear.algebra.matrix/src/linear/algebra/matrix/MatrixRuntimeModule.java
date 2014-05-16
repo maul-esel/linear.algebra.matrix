@@ -23,11 +23,15 @@ public class MatrixRuntimeModule extends linear.algebra.matrix.AbstractMatrixRun
 		super.configure(binder);
 		binder.install(new FactoryModuleBuilder()
 			.implement(org.eclipse.xtext.scoping.IScope.class,
-					linear.algebra.matrix.scoping.MatrixGlobalScope.class)
+				linear.algebra.matrix.scoping.MatrixGlobalScope.class)
 			.build(linear.algebra.matrix.scoping.MatrixGlobalScopeFactory.class));
 		binder.install(new FactoryModuleBuilder()
-		.implement(org.eclipse.xtext.scoping.IScope.class,
+			.implement(org.eclipse.xtext.scoping.IScope.class,
 				linear.algebra.matrix.scoping.MatrixLocalScope.class)
-		.build(linear.algebra.matrix.scoping.MatrixLocalScopeFactory.class));
+			.build(linear.algebra.matrix.scoping.MatrixLocalScopeFactory.class));
+		binder.install(new FactoryModuleBuilder()
+			.implement(linear.algebra.matrix.interpreter.Interpreter.class,
+				linear.algebra.matrix.interpreter.InterpreterImpl.class)
+			.build(linear.algebra.matrix.interpreter.InterpreterFactory.class));
 	}
 }
