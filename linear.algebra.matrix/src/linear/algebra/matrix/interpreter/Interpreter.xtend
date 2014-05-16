@@ -3,6 +3,7 @@ package linear.algebra.matrix.interpreter
 import it.xsemantics.runtime.RuleEnvironment;
 
 import java.util.Stack;
+import java.util.List
 
 import linear.algebra.matrix.typing.XSemanticMatrix
 import linear.algebra.matrix.util.VariableRegister
@@ -12,7 +13,6 @@ import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
 
-import java.util.List
 import com.google.inject.Inject
 
 public class Interpreter {
@@ -98,6 +98,10 @@ public class Interpreter {
 	}
 
 	def dispatch void interpret(FuncDeclaration decl) {} // doesn't do anything
+
+	def dispatch void interpret(Expression expr) { // namely Assignment and FunctionCall instances
+		evaluate(expr)
+	}
 
 	def dispatch Object evaluate(Expression expr) {
 		val env = new RuleEnvironment()
