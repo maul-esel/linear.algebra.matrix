@@ -1,0 +1,85 @@
+def add : (($n ° $m) A, ($n ° $m) B) -> ($n ° $m) {
+	return init (int i..$n, int j..$m) ~> A[i,j] + B[i,j];
+}
+
+def mult : (($n ° $m) A, ($m ° $k) B) -> ($n ° $k) {
+	return init (int i..$n, int j..$k) ~> mult_vectors(A, B, i, j);
+}
+
+internal def mult_vectors : (($n ° $m) A, ($m ° $k) B, int line, int column) -> int {
+	int i;
+	int sum := 0;
+	from i=1 to $m {
+		sum := sum + A[line,i] * B[i,column];
+	}
+	return sum;
+}
+
+def minus : (($n ° $m) A) -> ($n ° $m) {
+	return init (int i..$n, int j..$m) ~> -A[i,j];
+}
+
+def transpose : (($n ° $m) A) -> ($m ° $n) {
+	return init (int i..$m, int j..$n) ~> A[j,i];
+}
+
+def exp : (($n ° $n) A, int exp) -> ($n ° $n) {
+	if (exp == 0) § identity matrix
+		return init (int i..$n, int j..$n) ~> i == j ? 1 : 0;
+	if (exp < 0) {
+		A := invert(A);
+		exp := -exp;
+	}
+	int i;
+	from i=2 to exp {
+		A := A * A;
+	}
+	return A;
+}
+
+def scalar_mult : (($n ° $m) A, int scalar) -> ($n ° $m) {
+	return init (int i..$n, int j..$m) ~> scalar * A[i,j];
+}
+
+def diagonal : (($n ° $m) A) -> boolean {
+	boolean diagonal := true;
+	int i; int j;
+	from i=1 to $n {
+		from j=1 to $m {
+			diagonal := diagonal && (i == j || A[i,j] == 0);
+		}
+	}
+	return diagonal;
+}
+
+def diagonalize : (($n ° $m) A) -> ($n ° $m) {
+	§ TODO
+}
+
+def strictly_diagonalize : (($n ° $m) A) -> ($n ° $m) {
+	§ TODO
+}
+
+def equivalent : (($n ° $m) A, ($n ° $m) B) -> boolean {
+	§ TODO
+}
+
+def similar : (($n ° $m) A, ($n ° $m) B) -> boolean {
+	§ TODO
+}
+
+def det : (($n ° $n) A) -> int {
+	§ TODO
+}
+
+def rational_canonical : (($n ° $m) A) -> ($n ° $m) {
+	§ TODO
+}
+
+def invert : (($n ° $n) A) -> ($n ° $n) {
+	§ TODO
+}
+
+def pseudo_invert : (($n ° $m) A) -> ($m ° $n) {
+	§ TODO
+}
