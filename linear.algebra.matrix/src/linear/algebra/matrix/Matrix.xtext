@@ -37,7 +37,11 @@ ReturnStatement :
 ;
 
 ProcRef hidden() :
-	ref=[ProcDeclaration|PROC_NAME] '('
+	ref=[ProcDeclaration|QualifiedProcName] '('
+;
+
+QualifiedProcName :
+	(ID '::')? PROC_NAME
 ;
 
 ProcCall :
@@ -152,7 +156,11 @@ Variable :
 ;
 
 Function hidden() :
-	ref=[FuncDeclaration] '('
+	ref=[FuncDeclaration|QualifiedFunctionName] '('
+;
+
+QualifiedFunctionName :
+	(ID '::')? ID
 ;
 
 FunctionCall :
