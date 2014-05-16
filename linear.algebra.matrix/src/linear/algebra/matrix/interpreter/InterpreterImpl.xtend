@@ -6,7 +6,6 @@ import java.util.Stack;
 import java.util.List
 
 import linear.algebra.matrix.typing.XSemanticMatrix
-import linear.algebra.matrix.util.VariableRegister
 import linear.algebra.matrix.matrix.*
 
 import org.eclipse.emf.ecore.resource.Resource

@@ -6,7 +6,7 @@ import java.util.List;
 
 import linear.algebra.matrix.matrix.*
 
-import linear.algebra.matrix.util.VariableRegister;
+import linear.algebra.matrix.interpreter.VariableRegister;
 import linear.algebra.matrix.interpreter.Interpreter;
 
 import linear.algebra.matrix.core.Matrix

@@ -1,4 +1,4 @@
-package linear.algebra.matrix.util;
+package linear.algebra.matrix.interpreter;
 
 import java.util.Hashtable;
 import java.util.HashSet;

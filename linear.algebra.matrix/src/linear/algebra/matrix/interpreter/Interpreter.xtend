@@ -1,7 +1,6 @@
 package linear.algebra.matrix.interpreter
 
 import linear.algebra.matrix.matrix.Expression
-import linear.algebra.matrix.util.VariableRegister
 
 interface Interpreter {
 	def void interpret()
