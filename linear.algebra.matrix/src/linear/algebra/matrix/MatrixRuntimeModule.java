@@ -7,5 +7,8 @@ package linear.algebra.matrix;
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  */
 public class MatrixRuntimeModule extends linear.algebra.matrix.AbstractMatrixRuntimeModule {
+	public Class<? extends org.eclipse.xtext.resource.IDefaultResourceDescriptionStrategy> bindIDefaultResourceDescriptionStrategy() {
+        return linear.algebra.matrix.scoping.MatrixResourceDescriptionStrategy.class;
+    }
 
 }
