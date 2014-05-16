@@ -119,6 +119,16 @@ public class Interpreter {
 		executeWithParams(call.func.ref.params.params, call.params, call.func.ref.body)
 	}
 
+	def Object evaluate(FunctionCall call, VariableRegister vars, VariableRegister gen) {
+		variables.push(vars)
+		generics.push(gen)
+		val result = evaluate(call)
+
+		variables.pop()
+		generics.pop()
+		result
+	}
+
 	def private VariableRegister currentScope() {
 		return variables.peek()
 	}

@@ -525,7 +525,10 @@ from {
 rule IFunctionCall
 	G |- FunctionCall call ~> Object result
 from {
-	result = env(G, "interpreter", Interpreter).evaluate(call)
+	result = env(G, "interpreter", Interpreter).evaluate(call,
+		env(G, 'variables', VariableRegister),
+		env(G, 'generics', VariableRegister)
+	)
 }
 
 rule ITernary
