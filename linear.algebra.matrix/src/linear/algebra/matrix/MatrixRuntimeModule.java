@@ -3,6 +3,9 @@
  */
 package linear.algebra.matrix;
 
+import com.google.inject.Binder;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
+
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  */
@@ -15,4 +18,16 @@ public class MatrixRuntimeModule extends linear.algebra.matrix.AbstractMatrixRun
 		return linear.algebra.matrix.scoping.MatrixQualifiedNameConverter.class;
 	}
 
+	@Override
+	public void configure(Binder binder) {
+		super.configure(binder);
+		binder.install(new FactoryModuleBuilder()
+			.implement(org.eclipse.xtext.scoping.IScope.class,
+					linear.algebra.matrix.scoping.MatrixGlobalScope.class)
+			.build(linear.algebra.matrix.scoping.MatrixGlobalScopeFactory.class));
+		binder.install(new FactoryModuleBuilder()
+		.implement(org.eclipse.xtext.scoping.IScope.class,
+				linear.algebra.matrix.scoping.MatrixLocalScope.class)
+		.build(linear.algebra.matrix.scoping.MatrixLocalScopeFactory.class));
+	}
 }

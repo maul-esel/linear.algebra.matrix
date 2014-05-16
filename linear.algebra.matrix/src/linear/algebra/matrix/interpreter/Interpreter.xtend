@@ -25,7 +25,7 @@ public class Interpreter {
 	@Inject
 	private XSemanticMatrix semantics
 
-	private Resource resource;
+	private Resource resource
 
 	private Stack<VariableRegister> variables = new Stack<VariableRegister>()
 	private Stack<VariableRegister> generics = new Stack<VariableRegister>()
