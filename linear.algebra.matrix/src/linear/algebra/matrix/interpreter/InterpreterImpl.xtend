@@ -10,10 +10,10 @@ import linear.algebra.matrix.util.VariableRegister
 import linear.algebra.matrix.matrix.*
 
 import org.eclipse.emf.ecore.resource.Resource
+import org.eclipse.emf.ecore.util.EcoreUtil
 
 import com.google.inject.Inject
 import com.google.inject.assistedinject.Assisted
-import linear.algebra.matrix.matrix.Expression
 
 public class InterpreterImpl implements Interpreter {
 	@Inject
@@ -27,6 +27,7 @@ public class InterpreterImpl implements Interpreter {
 	@Inject
 	new(@Assisted Resource res) {
 		resource = res;
+		EcoreUtil.resolveAll(resource)
 		variables.push(new VariableRegister())
 		generics.push(new VariableRegister());
 	}
