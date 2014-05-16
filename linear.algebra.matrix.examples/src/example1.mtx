@@ -14,7 +14,8 @@ int ef := 4;
 e := true;
 
 if (e) {
-	e := false;
+	int e := 4;
+	e := 2;
 } else if (e) {
 } else {
 	if (b) {}
@@ -23,14 +24,14 @@ if (e) {
 boolean c0 := false;
 int d_ := 5;
 
-(4 ° 5) A := (dot 0) {
+var A := (dot 0) {
 	5 5 5 . .
 	4 3 2 . .
 	1 . . . .
 	1 2 3 4 5
 };
 
-(5 ° 4) B := int (dot 3) {
+var B := int (dot 3) {
 	2 . 4  5
 	2 . 4  5
 	2 . 45 5
@@ -49,6 +50,8 @@ int d_ := 5;
 const boolean zzf := !(A ~ A);
 
 int c := A[1, 2^2];
+int fgh;
+A[1,1] := 0;
 
 if (2 > 2) {}
 
@@ -66,6 +69,12 @@ h := 4; § should error
 	1 2 3
 	4 5 6
 };
+
+var tern := 3 == 3 ? 4 : 1 == 2 ? 4 : 5;
+
+var identity := init (int i..10, int j..10) ~> i == j ? 1 : 0;
+var zero := init (int i..10, int j..10) ~> 0;
+var D_init := init (int i..2, int j..3) ~> (i*j);
 
 (2 ° 2) Q := {
 	1 2 3
@@ -103,7 +112,6 @@ int h := (5 * 4)^0;
 
 (1 ° 4) res := scalar_mult(param1, param2, 4);
 
-@print();
 @prints(true, param1, param2);
 
 def scalar_mult : (($i ° $j) matr1, ($j ° $i) other, int scalar) -> ($i ° 4) {
@@ -118,11 +126,14 @@ def is : (int a) -> boolean {
 	return a == a;
 }
 
-proc @prints : (boolean quert, ($k ° $l) m, ($l ° $k) n) {
-	($k ° $l) other;
-}
-
 proc @print : () {
 	return;
 	int b;
+}
+
+proc @prints : (boolean quert, ($k ° $l) m, ($l ° $k) n) {
+	($k ° $l) other;
+	int counter;
+	from counter=1 to $k {
+	}
 }

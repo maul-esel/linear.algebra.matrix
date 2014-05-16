@@ -1,8 +1,44 @@
+import stdlib;
+
 int myvar := 5;
 (2 ° 3) matr := {
 	1 0 0
 	0 1 0
 };
+
+var matr2 := init (int i..2, int j..2) ~> i + j;
+
 (2 ° 3) mult := matr;
+
 int other := myvar * 4;
 int e := matr[1,1];
+e := 4;
+
+if (true) {
+	boolean e;
+	e := true;
+}
+
+def add : (($n ° $m) A, ($n ° $m) B) -> ($n ° $m) {
+	var c := A;
+	return init (int i..$n, int j..$m) ~> A[i,j] + B[i,j];
+}
+
+internal def test : (($n ° $m) A ) -> int {
+	return $n;
+}
+
+proc @myproc : () {}
+
+@myproc();
+
+var left := {
+	1 0
+	0 1
+};
+var right := {
+	0 1
+	1 0
+};
+var result := stdlib::mult(left, right);
+var gen := test(left) + 1;
