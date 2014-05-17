@@ -140,7 +140,30 @@ def similar : (($n ° $m) A, ($n ° $m) B) -> boolean {
 }
 
 def det : (($n ° $n) A) -> int {
-	§ TODO
+	A := diagonalize(A);
+	int d := 1; int i;
+	from i=1 to $n {
+		d := d * A[i,i];
+	}
+	return d;
+}
+
+def tr : (($n ° $m) A) -> int {
+	A := diagonalize(A);
+	int t := 0; int i;
+	from i=1 to min($n,$m) {
+		t := t + A[i,i];
+	}
+	return t;
+}
+
+def rk : (($n ° $m) A) -> int {
+	A := diagonalize(A);
+	int r := 0; int i;
+	from i=1 to min($n,$m) {
+		r := r + (A[i,i] == 0 ? 0 : 1);
+	}
+	return r;
 }
 
 def rational_canonical : (($n ° $m) A) -> ($n ° $m) {
