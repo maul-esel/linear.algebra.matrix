@@ -50,53 +50,44 @@ auxiliary isGenericVariableDefined(String generic, ParameterList list) {
 	found
 }
 
-checkrule CMatrixLiteral
+checkrule CVarDeclarationIsTyped
+	for VarDeclaration variable
+from {
+	empty ||- variable : var Type vartype
+}
+
+checkrule CAssignmentIsTyped
+	for Assignment assign
+from {
+	empty |- assign : var Type type
+}
+
+checkrule CFunctionCallIsTyped
+	for FunctionCall call
+from {
+	empty |- call : var Type type
+}
+
+checkrule CReturnStatementIsTyped
+	for ReturnStatement ret
+from {
+	if (ret.value != null) {
+		empty |- ret.value : var Type type
+	}
+}
+
+checkrule CIfConditionIsTyped
+	for IfElse ifelse
+from {
+	empty |- ifelse.cond : var BooleanType type
+}
+
+checkrule CMatrixLiteralHasDot
 	for MultiLineMatrixLiteral lit
 from {
-	empty |- lit : var Type type
 	{ lit.dot != null || !hasPlaceholders(lit) }
-}
-
-checkrule CMultiplication
-	for Multiplication mult
-from {
-	empty |- mult : var Type type
-}
-
-checkrule CEquivalency
-	for Equivalency eq
-from {
-	empty |- eq : var Type type
-}
-
-checkrule CAddition
-	for Addition add
-from {
-	empty |- add : var Type type
-}
-
-checkrule CTransposition
-	for Transposition t
-from {
-	empty |- t : var Type type
-}
-
-checkrule CExponentiation
-	for Exponentiation exp
-from {
-	empty |- exp : var Type type
-}
-
-checkrule CNegation
-	for Negation neg
-from {
-	empty |- neg : var Type type
-}
-
-checkrule CEntryAccess
-	for EntryAccess acc
-from {
-	empty |- acc : var Type type
+	or fail error "Literal references undefined placeholder '.'"
+		source lit
 }
 
 checkrule CNoConstAssign
@@ -108,37 +99,50 @@ from {
 		source assign
 }
 
-checkrule CAssignment
-	for Assignment assign
+checkrule CConstVarHasValue
+	for VarDeclaration variable
 from {
-	empty |- assign : var Type type
+	{ (!variable.const || variable.value != null) }
+	or fail error "Constant variable must be assigned a value on declaration"
+		source variable
 }
 
-checkrule CVarDeclaration
+checkrule CInferredVarHasValue
+	for InferredVarDeclaration variable
+from {
+	{ variable.value != null }
+	or fail error "Variable with inferred type must be assigned value"
+		source variable
+}
+
+checkrule CVarDeclHasCompatibleValueType
+	for VarDeclaration variable
+from {
+	if (variable.value != null) {
+		empty ||- variable : var Type vartype
+		empty |- variable.value : var Type valtype
+		empty |- vartype <: valtype
+		or fail error "Value of type " + stringRep(valtype) + " cannot be assigned to variable of type " + stringRep(vartype)
+			source variable.value
+	}
+}
+
+checkrule CGenericVarDeclarationDefined
 	for VarDeclaration variable
 from {
 	empty ||- variable : var Type vartype
-
-	{ (variable.value == null) }
-	or {
-		empty |- variable.value : var Type valtype
-		empty |- vartype <: valtype
-	}
-
-	{ (!variable.const || variable.value != null) }
 
 	var container = variable.eContainer;
 	while (container != null && !(container instanceof FuncDeclaration) && !(container instanceof ProcDeclaration))
 		container = container.eContainer;
 
-	{ !(vartype instanceof MatrixType) }
-	or { !((vartype as SmartMatrixType).isGeneric()) }
-	or {
-		(container != null)
-		(
+	if ((vartype instanceof MatrixType) && (vartype as SmartMatrixType).isGeneric()) {
+		(container != null) && 	(
 			(container instanceof FuncDeclaration && (isGenericInParamList(vartype as SmartMatrixType, (container as FuncDeclaration).params)))
 			|| (container instanceof ProcDeclaration && (isGenericInParamList(vartype as SmartMatrixType, (container as ProcDeclaration).params)))
 		)
+		or fail error "Variable definition references unknown generic types"
+			source variable
 	}
 }
 
@@ -149,88 +153,112 @@ from {
 	while (container != null && !(container instanceof FuncDeclaration) && !(container instanceof ProcDeclaration))
 		container = container.eContainer;
 
-	(container != null)
-	(
+	(container != null) && (
 		(container instanceof FuncDeclaration && (isGenericVariableDefined(gen.name, (container as FuncDeclaration).params)))
 		|| (container instanceof ProcDeclaration && (isGenericVariableDefined(gen.name, (container as ProcDeclaration).params)))
 	)
+	or fail error "References undefined generic variable"
+		source gen
 }
 
-checkrule CVarDeclarationUnique
+checkrule CVarDeclarationIsUnique
 	for VarDeclaration decl
 from {
 	val container = decl.eContainer
 	for (other : container.eContents)
 		{ !(other instanceof VarDeclaration) || ((other as VarDeclaration).name != decl.name) || (other == decl) }
-		or fail error "variable names must be unique" source decl
+		or fail error "variable names must be unique"
+			source decl
 }
 
-checkrule CIfCondition
-	for IfElse ifelse
-from {
-	empty |- ifelse.cond : var BooleanType type
-}
-
-checkrule CFunctionCall
+checkrule CFunctionCallHasValidParameters
 	for FunctionCall call
 from {
-	/* no parameter default values allowed at the moment */
 	{ call.func.ref.params.params.size == call.params.size }
-	for (param : call.func.ref.params.params)
-		{ param.value == null }
-
-	empty |- call : var Type type
+	or fail error "Function call has invalid number of parameters (expected " + call.func.ref.params.params.size + ", found " + call.params.size + ")"
+		source call
 }
 
-checkrule CFuncDeclaration
+checkrule CFunctionDeclarationHasNoDefaultValues
+	for FuncDeclaration decl
+from {
+	for (param : decl.params.params) {
+		param.value == null
+		or fail error "Parameter default values are not allowed"
+			source param.value
+	}
+}
+
+checkrule CFuncDeclarationGenericReturnTypeDefined
 	for FuncDeclaration func
 from {
 	if (func.returnType instanceof MatrixType) {
 		val retType = SmartMatrixType.copy(func.returnType as MatrixType);
 		if (retType.isGeneric()) {
 			(isGenericInParamList(retType, func.params))
-				or fail error "Generic return type " + stringRep(retType) + " is not defined"
+			or fail error "Generic return type " + stringRep(retType) + " is not defined"
+				source func.returnType
 		}
 	}
 }
 
-checkrule CReturnStatement // only allowed in func / proc declarations; must return correct type
+checkrule CReturnStatement
 	for ReturnStatement ret
 from {
 	var container = ret.eContainer
 	while (container != null && !(container instanceof FuncDeclaration) && !(container instanceof ProcDeclaration))
 		container = container.eContainer
+
 	{ (container != null) }
+	or fail error "Return must be inside a function or proc declaration"
+		source ret
 
 	if (container instanceof FuncDeclaration) {
 		{ ret.value != null }
+		or fail error "Return must specify return value"
+			source ret
+
 		{
 			empty |- ret.value : var Type type
-			empty |- type <: (container as FuncDeclaration).returnType
-				or fail error "expression type does not match function return type" source ret.value
-		}
+			empty |- type <: container.returnType
+		} or fail error "expression type does not match function return type"
+			source ret.value
 	}
-
-	{ !(container instanceof ProcDeclaration) } or { ret.value == null }
+	else if (container instanceof ProcDeclaration) {
+		ret.value == null
+		or fail error "Proc cannot return a value"
+			source ret.value
+	}
 }
 
-checkrule CProcCall
+checkrule CProcCallHasValidParameters
 	for ProcCall call
 from {
-	/* no parameter default values allowed at the moment */
 	{ call.proc.ref.params.params.size == call.params.size }
-	for (param : call.proc.ref.params.params)
-		{ param.value == null }
+	or fail error "Proc call has invalid number of parameters (expected " + call.proc.ref.params.params.size + ", found " + call.params.size + ")"
+		source call
 
 	val genReg = new VariableRegister();
 	{ checkParamTypes(genReg, call.proc.ref.params.params, call.params) }
+}
+
+checkrule CProcDeclarationHasNoDefaultValues
+	for ProcDeclaration proc
+from {
+	for (param : proc.params.params) {
+		param.value == null
+		or fail error "Parameter default values are not allowed"
+			source param.value
+	}
 }
 
 checkrule CFromToLoop
 	for FromToLoop loop
 from {
 	{ !loop.getVar.ref.const }
-		or fail error "Cannot use constant as loop counter" source loop.getVar
+	or fail error "Cannot use constant as loop counter"
+		source loop.getVar
+
 	var IntegerType intType
 	empty ||- loop.getVar.ref : intType
 		or fail error "counter var must be integer" source loop.getVar
@@ -244,15 +272,6 @@ checkrule CWhileLoop
 	for WhileLoop loop
 from {
 	empty |- loop.cond : var BooleanType bool
-	or fail error "condition must be boolean" source loop.cond
-}
-
-checkrule CMatrixInit
-	for MatrixInit init
-from {
-	{ init.line.value == null && init.column.value == null }
-	var IntegerType intType
-	empty ||- init.line : intType
-	empty ||- init.column : intType
-	empty |- init.entry : intType
+	or fail error "condition must be boolean"
+		source loop.cond
 }
