@@ -44,8 +44,9 @@ var result := stdlib::mult(left, right);
 var gen := test(left) + 1;
 
 var zzz := {
-	1 2 3
-	3 4 0
-	0 0 8
+	-4 4 -8
+	4 -4 0
+	-8 6 -9
 };
 var diagonal_zzz := stdlib::diagonalize(zzz);
+var strict_zzz := stdlib::strictly_diagonalize(zzz);
