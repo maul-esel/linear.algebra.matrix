@@ -380,6 +380,38 @@ from {
 	env(G, 'variables', VariableRegister).set(assign.variable.ref.name, value)
 }
 
+rule ILogicalAndOr
+	G |- LogicalAndOr comp ~> Boolean value
+from {
+	G |- comp.left ~> var Boolean left
+	G |- comp.right ~> var Boolean right
+	value = if (comp.op == LogicalOp.AND) (left && right) else (left || right)
+}
+
+rule IEquals
+	G |- Equals eq ~> Boolean value
+from {
+	G |- eq.left ~> var Object left
+	G |- eq.right ~> var Object right
+	value = if (left == null) (right == null) else (left.equals(right))
+}
+
+rule IComparison
+	G |- Comparison comp ~> Boolean value
+from {
+	G |- comp.left ~> var Object left
+	G |- comp.right ~> var Object right
+	if (left instanceof Integer && right instanceof Integer) {
+		val leftInt = left as Integer; val rightInt = right as Integer;
+		value = switch comp.op {
+			case ComparisonOp.LESS: leftInt < rightInt
+			case ComparisonOp.GREATER : leftInt > rightInt
+			case ComparisonOp.LESSOREQUAL : leftInt <= rightInt
+			case ComparisonOp.GREATEROREQUAL : leftInt >= rightInt
+		}
+	} else { fail error "can only compare integers right now" source comp }
+}
+
 rule IEntryAssignment
 	G |- MatrixEntryAssignment assign ~> Object result
 from {
