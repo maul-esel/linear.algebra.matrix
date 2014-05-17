@@ -506,7 +506,10 @@ from {
 
 	{
 		(left instanceof Integer && right instanceof Integer)
-		result = (left as Integer) + (right as Integer)
+		result = if (add.op == AdditionOp.PLUS)
+			(left as Integer) + (right as Integer)
+		else
+			(left as Integer) - (right as Integer)
 	} or fail error "matrix add not implemented"
 }
 
