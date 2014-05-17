@@ -1,12 +1,14 @@
 system linear.algebra.matrix.semantics.Checks extends linear.algebra.matrix.semantics.Typing
 
+import org.eclipse.emf.ecore.EObject
 import linear.algebra.matrix.matrix.*
-import linear.algebra.matrix.interpreter.VariableRegister;
+import linear.algebra.matrix.interpreter.VariableRegister
 
 auxiliary {
 	hasPlaceholders(MultiLineMatrixLiteral lit) : boolean
 	isGenericInParamList(SmartMatrixType type, ParameterList list) : boolean
 	isGenericVariableDefined(String generic, ParameterList list) : boolean
+	alwaysReturns(EObject obj) : boolean
 }
 
 judgments {
@@ -48,6 +50,36 @@ auxiliary isGenericVariableDefined(String generic, ParameterList list) {
 			found = found || paramType.height == generic || paramType.width == generic
 	}
 	found
+}
+
+auxiliary alwaysReturns(EObject obj) {
+	false
+}
+
+auxiliary alwaysReturns(ReturnStatement ret) {
+	true
+}
+
+auxiliary alwaysReturns(Block block) {
+	var returns = false
+	for (line : block.lines)
+		returns = returns || alwaysReturns(line)
+	returns
+}
+
+auxiliary alwaysReturns(IfElse ifElse) {
+	if (ifElse.getElse == null)
+		false
+	else
+		alwaysReturns(ifElse.ifTrue) && alwaysReturns(ifElse.getElse)
+}
+
+auxiliary alwaysReturns(FromToLoop loop) {
+	alwaysReturns(loop.body)
+}
+
+auxiliary alwaysReturns(WhileLoop loop) {
+	alwaysReturns(loop.body)
 }
 
 checkrule CVarDeclarationIsTyped
@@ -200,6 +232,14 @@ from {
 				source func.returnType
 		}
 	}
+}
+
+checkrule CFuncDeclarationAlwaysReturns
+	for FuncDeclaration func
+from {
+	alwaysReturns(func.body)
+	or fail error "Not all code paths return a value"
+		source func
 }
 
 checkrule CReturnStatement
