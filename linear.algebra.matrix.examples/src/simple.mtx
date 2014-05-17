@@ -50,3 +50,9 @@ var zzz := {
 };
 var diagonal_zzz := stdlib::diagonalize(zzz);
 var strict_zzz := stdlib::strictly_diagonalize(zzz);
+
+var id := {
+	1 0
+	0 1
+};
+var equals := left = id;

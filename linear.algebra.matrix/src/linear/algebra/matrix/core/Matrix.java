@@ -57,4 +57,27 @@ public abstract class Matrix<T> {
 		}
 		return str.trim();
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof Matrix))
+			return false;
+		Matrix other = (Matrix)o;
+		if (width != other.width || height != other.height)
+			return false; // only matrices of same dimensions can be equal
+		for (int i = 1; i <= height; ++i)
+			for (int j = 1; j <= width; ++j)
+				if (!getEntry(i, j).equals(other.getEntry(i, j))) // compare entry by entry (do not use getEntries().equals() because it falls back on Object.equals())
+					return false;
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		int hash = width + height;
+		for (int i = 1; i <= height; ++i)
+			for (int j = 1; j <= width; ++j)
+				hash += getEntry(i, j).hashCode();
+		return hash;
+	}
 }
