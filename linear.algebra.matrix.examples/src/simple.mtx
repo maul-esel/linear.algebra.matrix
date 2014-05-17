@@ -56,3 +56,4 @@ var id := {
 	0 1
 };
 var equals := left = id;
+var equivalent := stdlib::equivalent(zzz, diagonal_zzz);

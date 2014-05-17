@@ -132,7 +132,7 @@ internal def is_multiple : (int factor, int product) -> boolean {
 internal def abs : (int i) -> int { return i >= 0 ? i : -i; }
 
 def equivalent : (($n ° $m) A, ($n ° $m) B) -> boolean {
-	§ TODO
+	return strictly_diagonalize(A) == strictly_diagonalize(B);
 }
 
 def similar : (($n ° $m) A, ($n ° $m) B) -> boolean {
