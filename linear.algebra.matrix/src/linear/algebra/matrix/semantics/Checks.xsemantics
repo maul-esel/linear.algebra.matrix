@@ -315,3 +315,16 @@ from {
 	or fail error "condition must be boolean"
 		source loop.cond
 }
+
+checkrule CBlockHasNoUnreachableCode
+	for Block block
+from {
+	var reachable = true;
+	for (line : block.lines) {
+		{ reachable }
+		or fail error "Unreachable code detected"
+			source line
+		if (alwaysReturns(line))
+			reachable = false
+	}
+}

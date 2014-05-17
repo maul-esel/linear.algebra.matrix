@@ -118,7 +118,6 @@ def scalar_mult : (($i ° $j) matr1, ($j ° $i) other, int scalar) -> ($i ° 4) 
 	($i ° 4) F;
 	int a;
 	return (F := F);
-	return F;
 }
 
 def is : (int a) -> boolean {
@@ -127,8 +126,8 @@ def is : (int a) -> boolean {
 }
 
 proc @print : () {
+	int gh := 9;
 	return;
-	int b;
 }
 
 proc @prints : (boolean quert, ($k ° $l) m, ($l ° $k) n) {
