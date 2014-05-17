@@ -1,0 +1,230 @@
+system linear.algebra.matrix.interpreter.ExpressionInterpretation extends linear.algebra.matrix.semantics.Checks
+
+import linear.algebra.matrix.matrix.*
+
+import linear.algebra.matrix.interpreter.VariableRegister;
+import linear.algebra.matrix.interpreter.Interpreter;
+
+import linear.algebra.matrix.core.Matrix
+import linear.algebra.matrix.core.IntegerMatrix
+
+auxiliary {
+	makeExactFromGeneric(VariableRegister generics, SmartMatrixType matrType) : SmartMatrixType
+}
+
+judgments {
+    interpret |- Expression expr ~> output Object
+}
+
+auxiliary makeExactFromGeneric(VariableRegister generics, SmartMatrixType matrType) {
+	new SmartMatrixType(
+		if (isGeneric(matrType.height)) generics.get(matrType.height) as String else matrType.height,
+		if (isGeneric(matrType.width)) generics.get(matrType.width) as String else matrType.width
+	)
+}
+
+axiom IVariable
+	G |- Variable variable ~> env(G, 'variables', VariableRegister).get(variable.ref.name)
+
+axiom IGenericVariable
+	G |- GenericVariable variable ~> Integer.parseInt(env(G, 'generics', VariableRegister).get(variable.name) as String)
+
+axiom IIntegerLiteral
+	G |- IntLiteral lit ~> Integer.parseInt(lit.value)
+
+axiom IBooleanLiteral
+	G |- BooleanLiteral lit ~> Boolean.parseBoolean(lit.value)
+
+rule IVariableAssignment
+	G |- VariableAssignment assign ~> Object value
+from {
+	G |- assign.value ~> value
+	env(G, 'variables', VariableRegister).set(assign.variable.ref.name, value)
+}
+
+rule ILogicalAndOr
+	G |- LogicalAndOr comp ~> Boolean value
+from {
+	G |- comp.left ~> var Boolean left
+	G |- comp.right ~> var Boolean right
+	value = if (comp.op == LogicalOp.AND) (left && right) else (left || right)
+}
+
+rule IEquals
+	G |- Equals eq ~> Boolean value
+from {
+	G |- eq.left ~> var Object left
+	G |- eq.right ~> var Object right
+	value = if (left == null) (right == null) else (left.equals(right))
+}
+
+rule IComparison
+	G |- Comparison comp ~> Boolean value
+from {
+	G |- comp.left ~> var Object left
+	G |- comp.right ~> var Object right
+	if (left instanceof Integer && right instanceof Integer) {
+		val leftInt = left as Integer; val rightInt = right as Integer;
+		value = switch comp.op {
+			case ComparisonOp.LESS: leftInt < rightInt
+			case ComparisonOp.GREATER : leftInt > rightInt
+			case ComparisonOp.LESSOREQUAL : leftInt <= rightInt
+			case ComparisonOp.GREATEROREQUAL : leftInt >= rightInt
+		}
+	} else { fail error "can only compare integers right now" source comp }
+}
+
+rule IEntryAssignment
+	G |- MatrixEntryAssignment assign ~> Object result
+from {
+	G |- assign.matr ~> var Matrix mat
+	G |- assign.line ~> var Integer line
+	G |- assign.column ~> var Integer column
+	G |- assign.value ~> var Integer value
+	(mat as IntegerMatrix).setEntry(line, column, value)
+
+	result = mat.getEntry(line, column)
+}
+
+rule IMultiLineMatrixLiteral
+	G |- MultiLineMatrixLiteral lit ~> Matrix m
+from {
+	G |- lit : var SmartMatrixType matrType
+	if (!matrType.isExact()) {
+		val generics = env(G, 'generics', VariableRegister)
+		matrType = makeExactFromGeneric(generics, matrType)
+	}
+
+	val im = new IntegerMatrix(Integer.parseInt(matrType.height), Integer.parseInt(matrType.width)) // change for other entry types
+
+	var i = 1
+	for (line : lit.lines) {
+		var j = 1
+		for (entry : line.entries) {
+			G |- (entry as IntLiteral) ~> var Integer value // change for other entry types
+			im.setEntry(i, j, value)
+			j = j + 1
+		}
+		i = i + 1
+	}
+
+	m = im
+}
+
+rule IMatrixInit
+	G |- MatrixInit init ~> Matrix m
+from {
+	G |- init : var SmartMatrixType matrType
+	if (!matrType.isExact()) {
+		val generics = env(G, 'generics', VariableRegister)
+		matrType = makeExactFromGeneric(generics, matrType)
+	}
+
+	val variables = new VariableRegister(env(G, 'variables', VariableRegister))
+	variables.add(init.line.name)
+	variables.add(init.column.name)
+
+	val lines = Integer.parseInt(matrType.height)
+	val columns = Integer.parseInt(matrType.width)
+	val im = new IntegerMatrix(lines, columns)
+	for (i : 1..lines)
+		for (j : 1..columns) {
+			variables.set(init.line.name, i)
+			variables.set(init.column.name, j)
+			G, 'variables' <- variables |- init.entry ~> var Integer entry
+			im.setEntry(i, j, entry)
+		}
+	m = im
+}
+
+rule IParenthesis
+	G |- ParenthesizedExpression par ~> Object o
+from {
+	G |- par.inner ~> o
+}
+
+rule IEntryAccess
+	G |- EntryAccess acc ~> Integer entry  // change for other entry types
+from {
+	G |- acc.matr ~> var Matrix mat
+	G |- acc.line ~> var Integer line
+	G |- acc.column ~> var Integer column
+	entry = (mat as IntegerMatrix).getEntry(line, column)
+}
+
+rule INegation
+	G |- Negation neg ~> Boolean bool
+from {
+	G |- neg.expr ~> var Boolean inner
+	bool = !inner
+}
+
+rule IExponentiation
+	G |- Exponentiation expr ~> Object result
+from {
+	G |- expr.base ~> var Object base
+	G |- expr.exp ~> var Integer exp
+	if (base instanceof Integer)
+		result = Math.pow(base, exp)
+	else {
+		fail error "matr exp not yet implemented" // TODO : transform builtin function call and evaluate it
+	}
+}
+
+rule IUnaryMinus
+	G |- UnaryMinus minus ~> Object result
+from {
+	G |- minus.expr ~> var Object obj
+	if (obj instanceof Integer) {
+		result = -obj
+	} else {
+		fail error "matr unary minus not implemented"
+	}
+}
+
+rule IAddition
+	G |- Addition add ~> Object result
+from {
+	G |- add.left ~> var Object left
+	G |- add.right ~> var Object right
+
+	{
+		(left instanceof Integer && right instanceof Integer)
+		result = if (add.op == AdditionOp.PLUS)
+			(left as Integer) + (right as Integer)
+		else
+			(left as Integer) - (right as Integer)
+	} or fail error "matrix add not implemented"
+}
+
+rule IMultiplication
+	G |- Multiplication mult ~> Object result
+from {
+	G |- mult.left ~> var Object left
+	G |- mult.right ~> var Object right
+
+	{
+		(left instanceof Integer && right instanceof Integer)
+		result = (left as Integer) * (right as Integer)
+	} or fail error "matrix mult not implemented"
+}
+
+rule IFunctionCall
+	G |- FunctionCall call ~> Object result
+from {
+	result = env(G, "interpreter", Interpreter).evaluate(call,
+		env(G, 'variables', VariableRegister),
+		env(G, 'generics', VariableRegister)
+	)
+}
+
+rule ITernary
+	G |- Ternary ter ~> Object result
+from {
+	G |- ter.cond ~> var Boolean cond
+	if (cond) {
+		G |- ter.ifTrue ~> result
+	} else {
+		G |- ter.ifFalse ~> result
+	}
+}

@@ -5,7 +5,6 @@ import it.xsemantics.runtime.RuleEnvironment;
 import java.util.Stack;
 import java.util.List
 
-import linear.algebra.matrix.typing.XSemanticMatrix
 import linear.algebra.matrix.matrix.*
 
 import org.eclipse.emf.ecore.resource.Resource
@@ -16,7 +15,7 @@ import com.google.inject.assistedinject.Assisted
 
 public class InterpreterImpl implements Interpreter {
 	@Inject
-	private XSemanticMatrix semantics
+	private ExpressionInterpretation exprInterpreter
 
 	private Resource resource
 
@@ -104,7 +103,7 @@ public class InterpreterImpl implements Interpreter {
 		env.add("generics", generics.peek())
 		env.add("interpreter", this)
 
-		val result = semantics.interpret(env, expr)
+		val result = exprInterpreter.interpret(env, expr)
 		if (result.failed)
 			throw result.ruleFailedException
 		result.value
@@ -136,12 +135,12 @@ public class InterpreterImpl implements Interpreter {
 		variables.push(execScope) // add exec scope
 
 		val computed = new VariableRegister()
-		semantics.checkParamTypes(computed, declared, supplied) // call only to compute generics
+		exprInterpreter.checkParamTypes(computed, declared, supplied) // call only to compute generics
 		val generic = new VariableRegister()
 		for (variable : computed.variables) {
 			val value = computed.get(variable);
 			generic.add(variable,
-				if (value instanceof String && semantics.isGeneric(value as String)) generics.peek().get(value as String) else value,
+				if (value instanceof String && exprInterpreter.isGeneric(value as String)) generics.peek().get(value as String) else value,
 				true) // replaces callers own generics with value
 		}
 		generics.push(generic)

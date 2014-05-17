@@ -1,0 +1,258 @@
+system linear.algebra.matrix.semantics.Checks extends linear.algebra.matrix.semantics.Typing
+
+import linear.algebra.matrix.matrix.*
+import linear.algebra.matrix.interpreter.VariableRegister;
+
+auxiliary {
+	hasPlaceholders(MultiLineMatrixLiteral lit) : boolean
+	isGenericInParamList(SmartMatrixType type, ParameterList list) : boolean
+	isGenericVariableDefined(String generic, ParameterList list) : boolean
+}
+
+judgments {
+	G |- Object just_a |> Object dummy // XSemantics won't accept an empty judgments section
+}
+
+auxiliary hasPlaceholders(MultiLineMatrixLiteral lit) {
+	var placeholders = false;
+	for (line : lit.lines) {
+		for (entry : line.entries) {
+			placeholders = placeholders || (entry instanceof PlaceholderEntry)
+		}
+	}
+	placeholders
+}
+
+auxiliary isGenericInParamList(SmartMatrixType type, ParameterList list) {
+	val height = type.height
+	val width = type.width
+
+	var heightFound = !isGeneric(height) // not generic dimensions are assumed to be "found" i.e. valid
+	var widthFound = !isGeneric(width)
+
+	for (param : list.params) {
+		empty ||- param : var Type paramType
+		if (paramType instanceof MatrixType) {
+			heightFound = heightFound || paramType.height == height || paramType.width == height
+			widthFound = widthFound || paramType.height == width || paramType.width == width
+		}
+	}
+	widthFound && heightFound
+}
+
+auxiliary isGenericVariableDefined(String generic, ParameterList list) {
+	var found = false
+	for (param : list.params) {
+		empty ||- param : var Type paramType
+		if (paramType instanceof MatrixType)
+			found = found || paramType.height == generic || paramType.width == generic
+	}
+	found
+}
+
+checkrule CMatrixLiteral
+	for MultiLineMatrixLiteral lit
+from {
+	empty |- lit : var Type type
+	{ lit.dot != null || !hasPlaceholders(lit) }
+}
+
+checkrule CMultiplication
+	for Multiplication mult
+from {
+	empty |- mult : var Type type
+}
+
+checkrule CEquivalency
+	for Equivalency eq
+from {
+	empty |- eq : var Type type
+}
+
+checkrule CAddition
+	for Addition add
+from {
+	empty |- add : var Type type
+}
+
+checkrule CTransposition
+	for Transposition t
+from {
+	empty |- t : var Type type
+}
+
+checkrule CExponentiation
+	for Exponentiation exp
+from {
+	empty |- exp : var Type type
+}
+
+checkrule CNegation
+	for Negation neg
+from {
+	empty |- neg : var Type type
+}
+
+checkrule CEntryAccess
+	for EntryAccess acc
+from {
+	empty |- acc : var Type type
+}
+
+checkrule CNoConstAssign
+	for VariableAssignment assign
+from {
+	(!assign.variable.ref.const)
+	or fail
+		error "Cannot assign value to constant variable"
+		source assign
+}
+
+checkrule CAssignment
+	for Assignment assign
+from {
+	empty |- assign : var Type type
+}
+
+checkrule CVarDeclaration
+	for VarDeclaration variable
+from {
+	empty ||- variable : var Type vartype
+
+	{ (variable.value == null) }
+	or {
+		empty |- variable.value : var Type valtype
+		empty |- vartype <: valtype
+	}
+
+	{ (!variable.const || variable.value != null) }
+
+	var container = variable.eContainer;
+	while (container != null && !(container instanceof FuncDeclaration) && !(container instanceof ProcDeclaration))
+		container = container.eContainer;
+
+	{ !(vartype instanceof MatrixType) }
+	or { !((vartype as SmartMatrixType).isGeneric()) }
+	or {
+		(container != null)
+		(
+			(container instanceof FuncDeclaration && (isGenericInParamList(vartype as SmartMatrixType, (container as FuncDeclaration).params)))
+			|| (container instanceof ProcDeclaration && (isGenericInParamList(vartype as SmartMatrixType, (container as ProcDeclaration).params)))
+		)
+	}
+}
+
+checkrule CGenericVariable
+	for GenericVariable gen
+from {
+	var container = gen.eContainer;
+	while (container != null && !(container instanceof FuncDeclaration) && !(container instanceof ProcDeclaration))
+		container = container.eContainer;
+
+	(container != null)
+	(
+		(container instanceof FuncDeclaration && (isGenericVariableDefined(gen.name, (container as FuncDeclaration).params)))
+		|| (container instanceof ProcDeclaration && (isGenericVariableDefined(gen.name, (container as ProcDeclaration).params)))
+	)
+}
+
+checkrule CVarDeclarationUnique
+	for VarDeclaration decl
+from {
+	val container = decl.eContainer
+	for (other : container.eContents)
+		{ !(other instanceof VarDeclaration) || ((other as VarDeclaration).name != decl.name) || (other == decl) }
+		or fail error "variable names must be unique" source decl
+}
+
+checkrule CIfCondition
+	for IfElse ifelse
+from {
+	empty |- ifelse.cond : var BooleanType type
+}
+
+checkrule CFunctionCall
+	for FunctionCall call
+from {
+	/* no parameter default values allowed at the moment */
+	{ call.func.ref.params.params.size == call.params.size }
+	for (param : call.func.ref.params.params)
+		{ param.value == null }
+
+	empty |- call : var Type type
+}
+
+checkrule CFuncDeclaration
+	for FuncDeclaration func
+from {
+	if (func.returnType instanceof MatrixType) {
+		val retType = SmartMatrixType.copy(func.returnType as MatrixType);
+		if (retType.isGeneric()) {
+			(isGenericInParamList(retType, func.params))
+				or fail error "Generic return type " + stringRep(retType) + " is not defined"
+		}
+	}
+}
+
+checkrule CReturnStatement // only allowed in func / proc declarations; must return correct type
+	for ReturnStatement ret
+from {
+	var container = ret.eContainer
+	while (container != null && !(container instanceof FuncDeclaration) && !(container instanceof ProcDeclaration))
+		container = container.eContainer
+	{ (container != null) }
+
+	if (container instanceof FuncDeclaration) {
+		{ ret.value != null }
+		{
+			empty |- ret.value : var Type type
+			empty |- type <: (container as FuncDeclaration).returnType
+				or fail error "expression type does not match function return type" source ret.value
+		}
+	}
+
+	{ !(container instanceof ProcDeclaration) } or { ret.value == null }
+}
+
+checkrule CProcCall
+	for ProcCall call
+from {
+	/* no parameter default values allowed at the moment */
+	{ call.proc.ref.params.params.size == call.params.size }
+	for (param : call.proc.ref.params.params)
+		{ param.value == null }
+
+	val genReg = new VariableRegister();
+	{ checkParamTypes(genReg, call.proc.ref.params.params, call.params) }
+}
+
+checkrule CFromToLoop
+	for FromToLoop loop
+from {
+	{ !loop.getVar.ref.const }
+		or fail error "Cannot use constant as loop counter" source loop.getVar
+	var IntegerType intType
+	empty ||- loop.getVar.ref : intType
+		or fail error "counter var must be integer" source loop.getVar
+	empty |- loop.init : intType
+		or fail error "initial value must be integer" source loop.init
+	empty |- loop.end : intType
+		or fail error "end value must be integer" source loop.end
+}
+
+checkrule CWhileLoop
+	for WhileLoop loop
+from {
+	empty |- loop.cond : var BooleanType bool
+	or fail error "condition must be boolean" source loop.cond
+}
+
+checkrule CMatrixInit
+	for MatrixInit init
+from {
+	{ init.line.value == null && init.column.value == null }
+	var IntegerType intType
+	empty ||- init.line : intType
+	empty ||- init.column : intType
+	empty |- init.entry : intType
+}

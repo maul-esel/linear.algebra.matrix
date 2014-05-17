@@ -3,12 +3,12 @@
  */
 package linear.algebra.matrix.validation
 
-import linear.algebra.matrix.typing.validation.XSemanticMatrixValidator
+import linear.algebra.matrix.semantics.validation.ChecksValidator
 
 /**
  * Custom validation rules. 
  *
  * see http://www.eclipse.org/Xtext/documentation.html#validation
  */
-class MatrixValidator extends XSemanticMatrixValidator {
+class MatrixValidator extends ChecksValidator {
 }
