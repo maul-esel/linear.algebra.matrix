@@ -9,6 +9,8 @@ import linear.algebra.matrix.matrix.*
 
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.util.EcoreUtil
+import org.eclipse.emf.ecore.util.Diagnostician
+import org.eclipse.emf.common.util.Diagnostic
 
 import com.google.inject.Inject
 import com.google.inject.assistedinject.Assisted
@@ -24,8 +26,11 @@ public class InterpreterImpl implements Interpreter {
 
 	@Inject
 	new(@Assisted Resource res) {
+		EcoreUtil.resolveAll(res)
+		if (Diagnostician.INSTANCE.validate(res.contents.get(0)).severity == Diagnostic.ERROR)
+			throw new IllegalStateException("Cannot interpret resource: it has errors")
+
 		resource = res;
-		EcoreUtil.resolveAll(resource)
 		variables.push(new VariableRegister())
 		generics.push(new VariableRegister());
 	}
