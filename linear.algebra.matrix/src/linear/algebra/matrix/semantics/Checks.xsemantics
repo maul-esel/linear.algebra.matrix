@@ -328,3 +328,13 @@ from {
 			reachable = false
 	}
 }
+
+checkrule CImportIsUnique
+	for Import imp
+from {
+	(imp.eContainer as Code).imports.forEach [ other |
+		{ other.getSource != imp.getSource || other == imp }
+		or fail error "Duplicate import of '" + imp.getSource + "'"
+			source imp
+	]
+}
