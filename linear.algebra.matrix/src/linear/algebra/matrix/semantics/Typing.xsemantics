@@ -203,7 +203,7 @@ rule TComparison
 from {
 	G |- comp.left : var Type leftType
 	G |- comp.right : var Type rightType
-	(leftType instanceof IntegerType) && (rightType instanceof IntegerType) // matrices and booleans cannot be compared
+	(leftType instanceof MathematicalType) && (rightType instanceof MathematicalType) // matrices and booleans cannot be compared
 }
 
 rule TEquivalency
@@ -221,8 +221,14 @@ from  {
 	G |- add.left  : var Type leftType
 	G |- add.right : var Type rightType
 
-	{ G |- leftType <: rightType } or { G|- rightType <: leftType }
-	type = leftType
+	{
+		G |- leftType <: rightType
+		type = rightType
+	}
+	or {
+		G|- rightType <: leftType
+		type = leftType
+	}
 }
 
 rule TDivision
@@ -241,22 +247,35 @@ from {
 	G |- mult.left  : var Type leftType
 	G |- mult.right : var Type rightType
 
-	{
-		(leftType instanceof IntegerType && rightType instanceof IntegerType)
+	if (leftType instanceof SmartMatrixType && rightType instanceof SmartMatrixType) { // matrix multiplication
+		(matrixMultiplicationDefined(leftType as SmartMatrixType, rightType as SmartMatrixType))
+		or fail error "Matrix multiplication is not defined"
+			source mult
+		type = multipliedMatrixDimensions(leftType as SmartMatrixType, rightType as SmartMatrixType)
+	}
+	else if (leftType instanceof SmartMatrixType) {
+		(rightType instanceof IntegerType) // right scalar multiplication // change for other entry types
+		or fail error "Scalar multiplication not defined"
+			source mult
 		type = leftType
 	}
-	or {
-		(true && leftType instanceof IntegerType) // left scalar multiplication // change for other entry types
+	else if (rightType instanceof SmartMatrixType) {
+		(leftType instanceof IntegerType) // left scalar multiplication // change for other entry types
+		or fail error "Scalar multiplication not defined"
+			source mult
 		type = rightType
 	}
-	or {
-		(true && rightType instanceof IntegerType) // right scalar multiplication // change for other entry types
-		type = leftType
-	}
-	or { // matrix multiplication
-		(leftType instanceof SmartMatrixType && rightType instanceof SmartMatrixType)
-		(matrixMultiplicationDefined(leftType as SmartMatrixType, rightType as SmartMatrixType))
-		type = multipliedMatrixDimensions(leftType as SmartMatrixType, rightType as SmartMatrixType)
+	else {
+		(leftType instanceof MathematicalType && rightType instanceof MathematicalType)
+		or fail error "Multiplication undefined"
+			source mult
+		{
+			G |- leftType <: rightType
+			type = rightType
+		} or {
+			G |- rightType <: leftType
+			type = leftType
+		}
 	}
 }
 
@@ -278,7 +297,7 @@ rule TExponentiation
 from {
 	G |- exp.base : baseType
 
-	{ (baseType instanceof IntegerType) }
+	{ (baseType instanceof MathematicalType) }
 	or { (baseType instanceof SmartMatrixType && isSquare(baseType as SmartMatrixType)) }
 
 	G |- exp.exp : var Type expType
