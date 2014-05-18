@@ -78,7 +78,7 @@ from {
 rule IEntryAssignment
 	G |- MatrixEntryAssignment assign ~> Object result
 from {
-	G |- assign.matr ~> var Matrix mat
+	G |- assign.matr ~> var Matrix<?> mat
 	G |- assign.line ~> var Integer line
 	G |- assign.column ~> var Integer column
 	G |- assign.value ~> var Integer value
@@ -88,7 +88,7 @@ from {
 }
 
 rule IMultiLineMatrixLiteral
-	G |- MultiLineMatrixLiteral lit ~> Matrix m
+	G |- MultiLineMatrixLiteral lit ~> Matrix<?> m
 from {
 	G |- lit : var SmartMatrixType matrType
 	if (!matrType.isExact()) {
@@ -113,7 +113,7 @@ from {
 }
 
 rule IMatrixInit
-	G |- MatrixInit init ~> Matrix m
+	G |- MatrixInit init ~> Matrix<?> m
 from {
 	G |- init : var SmartMatrixType matrType
 	if (!matrType.isExact()) {
@@ -147,7 +147,7 @@ from {
 rule IEntryAccess
 	G |- EntryAccess acc ~> Integer entry  // change for other entry types
 from {
-	G |- acc.matr ~> var Matrix mat
+	G |- acc.matr ~> var Matrix<?> mat
 	G |- acc.line ~> var Integer line
 	G |- acc.column ~> var Integer column
 	entry = (mat as IntegerMatrix).getEntry(line, column)

@@ -62,7 +62,7 @@ public abstract class Matrix<T> {
 	public boolean equals(Object o) {
 		if (!(o instanceof Matrix))
 			return false;
-		Matrix other = (Matrix)o;
+		Matrix<?> other = (Matrix<?>)o;
 		if (width != other.width || height != other.height)
 			return false; // only matrices of same dimensions can be equal
 		for (int i = 1; i <= height; ++i)
