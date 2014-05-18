@@ -11,10 +11,6 @@ auxiliary {
 	alwaysReturns(EObject obj) : boolean
 }
 
-judgments {
-	G |- Object just_a |> Object dummy // XSemantics won't accept an empty judgments section
-}
-
 auxiliary hasPlaceholders(MultiLineMatrixLiteral lit) {
 	var placeholders = false;
 	for (line : lit.lines) {
