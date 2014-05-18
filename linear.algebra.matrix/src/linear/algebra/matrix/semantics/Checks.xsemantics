@@ -178,7 +178,7 @@ from {
 	if (variable.value != null) {
 		empty ||- variable : var Type vartype
 		empty |- variable.value : var Type valtype
-		empty |- vartype <: valtype
+		empty |- valtype <: vartype
 		or fail error "Value of type " + stringRep(valtype) + " cannot be assigned to variable of type " + stringRep(vartype)
 			source variable.value
 	}
