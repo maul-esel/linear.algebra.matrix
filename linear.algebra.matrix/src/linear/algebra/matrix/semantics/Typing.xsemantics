@@ -180,8 +180,9 @@ rule TMatrixInit
 	G |- MatrixInit init : SmartMatrixType type
 from {
 	var MathematicalType entryType = init.entryType
-	if (entryType == null)
-		G |- init.entry : entryType
+	//if (entryType == null) // FIXME: enabling this somehow magically breaks the example code
+	//	G |- init.entry : entryType // (counter var j is properly typed at first, but suddenly its type is null)
+	// leading to a NullPointerException in TVariable
 	type = new SmartMatrixType(init.lineMax, init.colMax, entryType)
 }
 
