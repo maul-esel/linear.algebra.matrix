@@ -16,6 +16,7 @@ auxiliary {
 	multipliedMatrixType(SmartMatrixType left, SmartMatrixType right) : SmartMatrixType
 	transpose(SmartMatrixType type) : SmartMatrixType
 	superType(Type a, Type b) : Type
+	scalarMultType(MathematicalType scalar, MatrixType matr) : MatrixType
 }
 
 judgments {
@@ -98,6 +99,18 @@ auxiliary genericVarMatches(VariableRegister genReg, String variable, String val
 	} else true
 }
 
+auxiliary scalarMultType(MathematicalType scalar, MatrixType matr) {
+	var MatrixType result
+	{
+		empty |- scalar <: matr.entryType
+		result = matr
+	} or {
+		empty |- matr.entryType <: scalar
+		result = new SmartMatrixType(matr.height, matr.width, scalar)
+	}
+	result
+}
+
 /* SUBTYPING */
 rule SMatrixType
 	derives G |- MatrixType sub <: MatrixType sup
@@ -108,6 +121,9 @@ from {
 	{ smartSub.dimensionsEqual(smartSup) }
 	{ G |- smartSub.entryType <: smartSup.entryType }
 }
+
+axiom SIntFraction
+	G |-IntegerType sub <: FractionType sup
 
 rule SDefault
 	G |- Type sub <: Type sup
@@ -138,6 +154,9 @@ axiom TBooleanLiteral
 
 axiom TGenericVariable
 	G |- GenericVariable gen : MatrixFactory.eINSTANCE.createIntegerType()
+
+axiom TFractionLiteral
+	G |- FractionLiteral frac : MatrixFactory.eINSTANCE.createFractionType()
 
 rule TVariable
 	G |- Variable variable : Type type
@@ -200,8 +219,14 @@ from {
 	G |- vartype <: valtype or fail error "value cannot be assigned" source assign.value
 }
 
-axiom TMatrixEntryAssignment
-	G |- MatrixEntryAssignment assign : MatrixFactory.eINSTANCE.createIntegerType() // change for other entry types
+rule TMatrixEntryAssignment
+	G |- MatrixEntryAssignment assign : MathematicalType type
+from {
+	G |- assign.matr : var MatrixType matrType
+	G |- assign.value : var Type valType
+	G |- valType <: matrType.entryType or fail error "entry cannot be assigned" source assign.value
+	type = matrType.entryType
+}
 
 rule TLogical
 	G |- LogicalAndOr log : BooleanType bool
@@ -253,13 +278,10 @@ from  {
 }
 
 rule TDivision
-	G |- Division div : Type type
+	G |- Division div : MatrixFactory.eINSTANCE.createFractionType()
 from {
-	G |- div.left : var Type leftType
-	G |- div.right : var Type rightType
-
-	// TODO: use fraction
-	false
+	G |- div.left : var MathematicalType leftType
+	G |- div.right : var MathematicalType rightType
 }
 
 rule TMultiplication
@@ -275,28 +297,22 @@ from {
 		type = multipliedMatrixType(leftType as SmartMatrixType, rightType as SmartMatrixType)
 	}
 	else if (leftType instanceof SmartMatrixType) {
-		(rightType instanceof IntegerType) // right scalar multiplication // change for other entry types
+		(rightType instanceof MathematicalType) // right scalar multiplication // change for other entry types
 		or fail error "Scalar multiplication not defined"
 			source mult
-		type = leftType
+		type = scalarMultType(rightType as MathematicalType, leftType)
 	}
 	else if (rightType instanceof SmartMatrixType) {
-		(leftType instanceof IntegerType) // left scalar multiplication // change for other entry types
+		(leftType instanceof MathematicalType) // left scalar multiplication // change for other entry types
 		or fail error "Scalar multiplication not defined"
 			source mult
-		type = rightType
+		type = scalarMultType(leftType as MathematicalType, rightType)
 	}
 	else {
 		(leftType instanceof MathematicalType && rightType instanceof MathematicalType)
 		or fail error "Multiplication undefined"
 			source mult
-		{
-			G |- leftType <: rightType
-			type = rightType
-		} or {
-			G |- rightType <: leftType
-			type = leftType
-		}
+		type = superType(leftType, rightType)
 	}
 }
 
@@ -348,10 +364,11 @@ from {
 }
 
 rule TEntryAccess
-	G |- EntryAccess acc : MatrixFactory.eINSTANCE.createIntegerType() // change for other entry types
+	G |- EntryAccess acc : MathematicalType type
 from {
 	var IntegerType intType
 	G |- acc.matr : var SmartMatrixType matrType
 	G |- acc.line : intType
 	G |- acc.column : intType
+	type = matrType.entryType
 }
