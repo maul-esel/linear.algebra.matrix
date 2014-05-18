@@ -13,8 +13,9 @@ auxiliary {
 	consistentLineWidth(MultiLineMatrixLiteral lit) : boolean
 	isSquare(SmartMatrixType type) : boolean
 	matrixMultiplicationDefined(SmartMatrixType left, SmartMatrixType right) : boolean
-	multipliedMatrixDimensions(SmartMatrixType left, SmartMatrixType right) : SmartMatrixType
+	multipliedMatrixType(SmartMatrixType left, SmartMatrixType right) : SmartMatrixType
 	transpose(SmartMatrixType type) : SmartMatrixType
+	superType(Type a, Type b) : Type
 }
 
 judgments {
@@ -29,8 +30,20 @@ auxiliary matrixMultiplicationDefined(SmartMatrixType left, SmartMatrixType righ
 	left.width == right.height
 }
 
-auxiliary multipliedMatrixDimensions(SmartMatrixType left, SmartMatrixType right) {
-	new SmartMatrixType(left.height, right.width)
+auxiliary multipliedMatrixType(SmartMatrixType left, SmartMatrixType right) {
+	new SmartMatrixType(left.height, right.width, superType(left.entryType, right.entryType) as MathematicalType)
+}
+
+auxiliary superType(Type a, Type b) {
+	var Type result
+	{
+		empty |- a <: b
+		result = b
+	} or {
+		empty |- b <: a
+		result = a
+	}
+	result
 }
 
 auxiliary isSquare(SmartMatrixType type) {
@@ -47,7 +60,7 @@ auxiliary consistentLineWidth(MultiLineMatrixLiteral lit) {
 }
 
 auxiliary transpose(SmartMatrixType type) {
-	new SmartMatrixType(type.width, type.height)
+	new SmartMatrixType(type.width, type.height, type.entryType)
 }
 
 auxiliary isGeneric(String size) {
@@ -89,7 +102,11 @@ auxiliary genericVarMatches(VariableRegister genReg, String variable, String val
 rule SMatrixType
 	derives G |- MatrixType sub <: MatrixType sup
 from {
-	SmartMatrixType.copy(sub).equals(sup) // TODO: take into account entry type subtype relation!
+	val smartSub = SmartMatrixType.copy(sub)
+	val smartSup = SmartMatrixType.copy(sup)
+
+	{ smartSub.dimensionsEqual(smartSup) }
+	{ G |- smartSub.entryType <: smartSup.entryType }
 }
 
 rule SDefault
@@ -143,7 +160,8 @@ from {
 		if (retType.isGeneric())
 			type = new SmartMatrixType(
 				if (isGeneric(retType.height)) genericRegister.get(retType.height).toString() else retType.height,
-				if (isGeneric(retType.width))  genericRegister.get(retType.width).toString()  else retType.width
+				if (isGeneric(retType.width))  genericRegister.get(retType.width).toString()  else retType.width,
+				retType.entryType // TODO: handle generic entry types once allowed
 			);
 	}
 }
@@ -151,18 +169,20 @@ from {
 rule TMultiLineMatrixLiteral
 	G |- MultiLineMatrixLiteral lit : SmartMatrixType type
 from {
-	// TODO: take into account entry type	
 	(consistentLineWidth(lit))
 
 	val lines = lit.lines.size()
 	val columns = lit.lines.get(0).getEntries().size()
-	type = new SmartMatrixType(Integer.toString(lines), Integer.toString(columns))
+	type = new SmartMatrixType(Integer.toString(lines), Integer.toString(columns), lit.entryType) // TODO: if entryType is null, derive from entries
 }
 
 rule TMatrixInit
 	G |- MatrixInit init : SmartMatrixType type
 from {
-	type = new SmartMatrixType(init.lineMax, init.colMax)
+	var MathematicalType entryType = init.entryType
+	if (entryType == null)
+		G |- init.entry : entryType
+	type = new SmartMatrixType(init.lineMax, init.colMax, entryType)
 }
 
 rule TParenthesis
@@ -251,7 +271,7 @@ from {
 		(matrixMultiplicationDefined(leftType as SmartMatrixType, rightType as SmartMatrixType))
 		or fail error "Matrix multiplication is not defined"
 			source mult
-		type = multipliedMatrixDimensions(leftType as SmartMatrixType, rightType as SmartMatrixType)
+		type = multipliedMatrixType(leftType as SmartMatrixType, rightType as SmartMatrixType)
 	}
 	else if (leftType instanceof SmartMatrixType) {
 		(rightType instanceof IntegerType) // right scalar multiplication // change for other entry types

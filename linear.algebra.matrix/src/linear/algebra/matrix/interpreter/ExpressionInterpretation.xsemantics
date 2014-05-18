@@ -19,7 +19,8 @@ judgments {
 auxiliary makeExactFromGeneric(VariableRegister generics, SmartMatrixType matrType) {
 	new SmartMatrixType(
 		if (isGeneric(matrType.height)) generics.get(matrType.height) as String else matrType.height,
-		if (isGeneric(matrType.width)) generics.get(matrType.width) as String else matrType.width
+		if (isGeneric(matrType.width)) generics.get(matrType.width) as String else matrType.width,
+		matrType.entryType
 	)
 }
 

@@ -3,10 +3,20 @@ package linear.algebra.matrix.matrix;
 import linear.algebra.matrix.matrix.impl.MatrixTypeImpl;
 
 public class SmartMatrixType extends MatrixTypeImpl {
-	public SmartMatrixType(String height, String width) {
+	public SmartMatrixType(String height, String width, MathematicalType entryType) {
 		super();
 		setHeight(height);
 		setWidth(width);
+
+		if (entryType == null)
+			setEntryType(MatrixFactory.eINSTANCE.createIntegerType());
+		else
+			setEntryType(entryType);
+	}
+
+	// typing helper methods
+	public static SmartMatrixType copy(MatrixType other) {
+		return new SmartMatrixType(other.getHeight(), other.getWidth(), other.getEntryType());
 	}
 
 	public boolean isExact() {
@@ -29,6 +39,11 @@ public class SmartMatrixType extends MatrixTypeImpl {
 		return false;
 	}
 
+	public boolean dimensionsEqual(MatrixType other) {
+		return height.contentEquals(other.getHeight()) && width.contentEquals(other.getWidth());
+	}
+
+	// make immutable
 	@Override
 	public void setHeight(String height) {
 		if (this.height != HEIGHT_EDEFAULT)
@@ -44,29 +59,31 @@ public class SmartMatrixType extends MatrixTypeImpl {
 	}
 
 	@Override
+	public void setEntryType(MathematicalType entryType) {
+		if (this.entryType != null)
+			throw new IllegalStateException("Entry type already set");
+		super.setEntryType(entryType);
+	}
+
+	// overridden Object methods
+	@Override
+	@Deprecated
 	public boolean equals(Object other) {
 		if (!(other instanceof MatrixType))
 			return false;
 
 		MatrixType otherType = (MatrixType)other;
-		return height.contentEquals(otherType.getHeight()) && width.contentEquals(otherType.getWidth());
+		return dimensionsEqual(otherType) && entryType.eClass().equals(otherType.getEntryType().eClass());
 	}
 
 	@Override
+	@Deprecated
 	public int hashCode() {
-		return height.hashCode() + width.hashCode();
+		return height.hashCode() + width.hashCode() + entryType.eClass().hashCode();
 	}
 
 	@Override
 	public String toString() {
-		return "(" + height + "°" + width + ")";
+		return entryType.toString() + "(" + height + "°" + width + ")";
 	}
-
-	public static SmartMatrixType copy(MatrixType other) {
-		return new SmartMatrixType(other.getHeight(), other.getWidth());
-	}
-
-	/* TODO:
-	 * support entry type
-	 */
 }
