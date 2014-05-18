@@ -123,7 +123,7 @@ from {
 }
 
 axiom SIntFraction
-	G |-IntegerType sub <: FractionType sup
+	G |-IntegerType sub <: RationalType sup
 
 rule SDefault
 	G |- Type sub <: Type sup
@@ -155,8 +155,8 @@ axiom TBooleanLiteral
 axiom TGenericVariable
 	G |- GenericVariable gen : MatrixFactory.eINSTANCE.createIntegerType()
 
-axiom TFractionLiteral
-	G |- FractionLiteral frac : MatrixFactory.eINSTANCE.createFractionType()
+axiom TRationalLiteral
+	G |- RationalLiteral frac : MatrixFactory.eINSTANCE.createRationalType()
 
 rule TVariable
 	G |- Variable variable : Type type
@@ -278,7 +278,7 @@ from  {
 }
 
 rule TDivision
-	G |- Division div : MatrixFactory.eINSTANCE.createFractionType()
+	G |- Division div : MatrixFactory.eINSTANCE.createRationalType()
 from {
 	G |- div.left : var MathematicalType leftType
 	G |- div.right : var MathematicalType rightType

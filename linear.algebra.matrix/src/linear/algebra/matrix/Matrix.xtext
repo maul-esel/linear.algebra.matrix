@@ -89,7 +89,7 @@ SimpleType :
 ;
 
 MathematicalType :
-	{IntegerType} INT | {FractionType} 'rational'
+	{IntegerType} INT | {RationalType} 'rational'
 ;
 
 MatrixType :
@@ -110,12 +110,12 @@ IntLiteral :
 	value=(POSITIVE_INTEGER | ZERO | NEGATIVE_INTEGER)
 ;
 
-FractionLiteral hidden() :
+RationalLiteral hidden() :
 	'<' numerator=(POSITIVE_INTEGER | ZERO | NEGATIVE_INTEGER) '/' denominator=(POSITIVE_INTEGER | ZERO | NEGATIVE_INTEGER) '>'
 ;
 
 MathematicalLiteral :
-	IntLiteral | FractionLiteral
+	IntLiteral | RationalLiteral
 ;
 
 SimpleLiteral :

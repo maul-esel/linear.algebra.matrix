@@ -364,11 +364,11 @@ from {
 	]
 }
 
-checkrule CFractionNoDivisionByZero
-	for FractionLiteral frac
+checkrule CRationalNoDivisionByZero
+	for RationalLiteral frac
 from {
 	Integer.parseInt(frac.denominator) != 0
 	or fail error "Division by zero is not allowed"
 		source frac
-		feature MatrixPackage.eINSTANCE.fractionLiteral_Denominator
+		feature MatrixPackage.eINSTANCE.rationalLiteral_Denominator
 }
