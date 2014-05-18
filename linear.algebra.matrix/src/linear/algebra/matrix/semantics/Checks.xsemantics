@@ -122,6 +122,31 @@ from {
 		source lit
 }
 
+checkrule CMatrixInitHasProperExpression
+	for MatrixInit init
+from {
+	empty |- init : var MatrixType type
+	{
+		empty |- init.entry : var Type entryType
+		empty |- entryType <: type.entryType
+	} or fail error "Matrix initialization expression is of incompatible type"
+		source init.entry
+}
+
+checkrule CMatrixLiteralHashValidEntries
+	for MultiLineMatrixLiteral lit
+from {
+	empty |- lit : var MatrixType type
+	for (line : lit.lines)
+		for (entry : line.entries)
+			if (entry instanceof MathematicalLiteral) {// i.e. not a placeholder
+				empty |- entry : var Type entryType
+				empty |- entryType <: type.entryType
+				or fail error "Matrix entry is of incompatible type"
+					source entry
+			}
+}
+
 checkrule CNoConstAssign
 	for VariableAssignment assign
 from {
