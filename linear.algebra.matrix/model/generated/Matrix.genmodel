@@ -98,6 +98,10 @@
     <genClasses ecoreClass="Matrix.ecore#//IntLiteral">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//IntLiteral/value"/>
     </genClasses>
+    <genClasses ecoreClass="Matrix.ecore#//FractionLiteral">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//FractionLiteral/numerator"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//FractionLiteral/denominator"/>
+    </genClasses>
     <genClasses ecoreClass="Matrix.ecore#//MathematicalLiteral"/>
     <genClasses ecoreClass="Matrix.ecore#//SimpleLiteral"/>
     <genClasses ecoreClass="Matrix.ecore#//MatrixInit">
@@ -151,6 +155,7 @@
     </genClasses>
     <genClasses ecoreClass="Matrix.ecore#//BooleanType"/>
     <genClasses ecoreClass="Matrix.ecore#//IntegerType"/>
+    <genClasses ecoreClass="Matrix.ecore#//FractionType"/>
     <genClasses ecoreClass="Matrix.ecore#//EntryAccess">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//EntryAccess/matr"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//EntryAccess/line"/>
