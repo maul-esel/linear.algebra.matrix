@@ -2,11 +2,14 @@ system linear.algebra.matrix.interpreter.ExpressionInterpretation extends linear
 
 import linear.algebra.matrix.matrix.*
 
-import linear.algebra.matrix.interpreter.VariableRegister;
-import linear.algebra.matrix.interpreter.Interpreter;
+import linear.algebra.matrix.interpreter.VariableRegister
+import linear.algebra.matrix.interpreter.Interpreter
+import linear.algebra.matrix.interpreter.CompareUtil
 
 import linear.algebra.matrix.core.Matrix
 import linear.algebra.matrix.core.IntegerMatrix
+import linear.algebra.matrix.core.RationalMatrix
+import linear.algebra.matrix.core.Rational
 
 auxiliary {
 	makeExactFromGeneric(VariableRegister generics, SmartMatrixType matrType) : SmartMatrixType
@@ -36,11 +39,16 @@ axiom IIntegerLiteral
 axiom IBooleanLiteral
 	G |- BooleanLiteral lit ~> Boolean.parseBoolean(lit.value)
 
+axiom IRationalLiteral
+	G |- RationalLiteral lit ~> new Rational(Integer.parseInt(lit.numerator), Integer.parseInt(lit.denominator))
+
 rule IVariableAssignment
 	G |- VariableAssignment assign ~> Object value
 from {
+	G |- assign.variable : var Type type
 	G |- assign.value ~> value
-	env(G, 'variables', VariableRegister).set(assign.variable.ref.name, value)
+	env(G, 'variables', VariableRegister).set(assign.variable.ref.name,
+		if (type instanceof RationalType) Rational.valueOf(value) else value)
 }
 
 rule ILogicalAndOr
@@ -56,7 +64,13 @@ rule IEquals
 from {
 	G |- eq.left ~> var Object left
 	G |- eq.right ~> var Object right
-	value = if (left == null) (right == null) else (left.equals(right))
+	value = if (left == null)
+		(right == null)
+	else if (left instanceof Rational && right instanceof Integer)
+		left.equals(new Rational(right as Integer))
+	else if (left instanceof Integer && right instanceof Rational)
+		right.equals(new Rational(left as Integer))
+	else (left.equals(right))
 }
 
 rule IComparison
@@ -64,15 +78,12 @@ rule IComparison
 from {
 	G |- comp.left ~> var Object left
 	G |- comp.right ~> var Object right
-	if (left instanceof Integer && right instanceof Integer) {
-		val leftInt = left as Integer; val rightInt = right as Integer;
-		value = switch comp.op {
-			case ComparisonOp.LESS: leftInt < rightInt
-			case ComparisonOp.GREATER : leftInt > rightInt
-			case ComparisonOp.LESSOREQUAL : leftInt <= rightInt
-			case ComparisonOp.GREATEROREQUAL : leftInt >= rightInt
-		}
-	} else { fail error "can only compare integers right now" source comp }
+
+	if (left instanceof Rational || right instanceof Rational) {
+		value = CompareUtil.compare(Rational.valueOf(left), Rational.valueOf(right), comp.op)
+	} else { // two integers
+		value = CompareUtil.compare(left as Integer, right as Integer, comp.op)
+	}
 }
 
 rule IEntryAssignment
@@ -81,8 +92,12 @@ from {
 	G |- assign.matr ~> var Matrix<?> mat
 	G |- assign.line ~> var Integer line
 	G |- assign.column ~> var Integer column
-	G |- assign.value ~> var Integer value
-	(mat as IntegerMatrix).setEntry(line, column, value)
+	G |- assign.value ~> var Object value
+
+	if (mat instanceof IntegerMatrix)
+		mat.setEntry(line, column, value as Integer)
+	else if (mat instanceof RationalMatrix)
+		mat.setEntry(line, column, Rational.valueOf(value))
 
 	result = mat.getEntry(line, column)
 }
@@ -96,20 +111,29 @@ from {
 		matrType = makeExactFromGeneric(generics, matrType)
 	}
 
-	val im = new IntegerMatrix(Integer.parseInt(matrType.height), Integer.parseInt(matrType.width)) // change for other entry types
+	m = if (matrType.entryType instanceof IntegerType)
+		new IntegerMatrix(Integer.parseInt(matrType.height), Integer.parseInt(matrType.width))
+	else if (matrType.entryType instanceof RationalType)
+		new RationalMatrix(Integer.parseInt(matrType.height), Integer.parseInt(matrType.width))
 
 	var i = 1
 	for (line : lit.lines) {
 		var j = 1
+		var Object value
 		for (entry : line.entries) {
-			G |- (entry as IntLiteral) ~> var Integer value // change for other entry types
-			im.setEntry(i, j, value)
+			if (entry instanceof MathematicalLiteral) {
+				G |- entry ~> value
+			} else { // placeholder '.'
+				G |- lit.dot.fill ~> value
+			}
+			if (m instanceof IntegerMatrix)
+				m.setEntry(i, j, value as Integer)
+			else if (m instanceof RationalMatrix)
+				m.setEntry(i, j, value as Rational)
 			j = j + 1
 		}
 		i = i + 1
 	}
-
-	m = im
 }
 
 rule IMatrixInit
@@ -127,15 +151,22 @@ from {
 
 	val lines = Integer.parseInt(matrType.height)
 	val columns = Integer.parseInt(matrType.width)
-	val im = new IntegerMatrix(lines, columns)
+
+	m = if (matrType.entryType instanceof IntegerType)
+		new IntegerMatrix(lines, columns)
+	else if (matrType.entryType instanceof RationalType)
+		new RationalMatrix(lines, columns)
+
 	for (i : 1..lines)
 		for (j : 1..columns) {
 			variables.set(init.line.name, i)
 			variables.set(init.column.name, j)
-			G, 'variables' <- variables |- init.entry ~> var Integer entry
-			im.setEntry(i, j, entry)
+			G, 'variables' <- variables |- init.entry ~> var Object entry
+			if (m instanceof IntegerMatrix)
+				m.setEntry(i, j, entry as Integer)
+			else if (m instanceof RationalMatrix)
+				m.setEntry(i, j, Rational.valueOf(entry))
 		}
-	m = im
 }
 
 rule IParenthesis
@@ -145,12 +176,13 @@ from {
 }
 
 rule IEntryAccess
-	G |- EntryAccess acc ~> Integer entry  // change for other entry types
+	G |- EntryAccess acc ~> Object entry
 from {
 	G |- acc.matr ~> var Matrix<?> mat
 	G |- acc.line ~> var Integer line
 	G |- acc.column ~> var Integer column
-	entry = (mat as IntegerMatrix).getEntry(line, column)
+
+	entry = mat.getEntry(line, column)
 }
 
 rule INegation
@@ -176,10 +208,10 @@ rule IUnaryMinus
 	G |- UnaryMinus minus ~> Object result
 from {
 	G |- minus.expr ~> var Object obj
-	if (obj instanceof Integer) {
-		result = -obj
-	} else {
-		fail error "matr unary minus not implemented"
+	switch (obj) {
+		Integer  : result = -obj
+		Rational : result = obj.negative
+		default  : { fail error "matr unary minus not implemented" }
 	}
 }
 
@@ -189,13 +221,17 @@ from {
 	G |- add.left ~> var Object left
 	G |- add.right ~> var Object right
 
-	{
-		(left instanceof Integer && right instanceof Integer)
-		result = if (add.op == AdditionOp.PLUS)
-			(left as Integer) + (right as Integer)
-		else
-			(left as Integer) - (right as Integer)
-	} or fail error "matrix add not implemented"
+	if (left instanceof Integer && right instanceof Integer) {
+		result = switch (add.op) {
+			case AdditionOp.PLUS : (left as Integer) + (right as Integer)
+			case AdditionOp.MINUS : (left as Integer) - (right as Integer)
+		}
+	} else if (left instanceof Rational || right instanceof Rational) {
+		result = switch (add.op) {
+			case AdditionOp.PLUS : Rational.add(Rational.valueOf(left), Rational.valueOf(right))
+			case AdditionOp.MINUS : Rational.subtract(Rational.valueOf(left), Rational.valueOf(right))
+		}
+	} else { fail error "matrix add not implemented" }
 }
 
 rule IMultiplication
@@ -204,10 +240,11 @@ from {
 	G |- mult.left ~> var Object left
 	G |- mult.right ~> var Object right
 
-	{
-		(left instanceof Integer && right instanceof Integer)
+	if (left instanceof Integer && right instanceof Integer) {
 		result = (left as Integer) * (right as Integer)
-	} or fail error "matrix mult not implemented"
+	} else if (left instanceof Rational || right instanceof Rational) {
+		result = Rational.multiply(Rational.valueOf(left), Rational.valueOf(right))
+	} else { fail error "matrix / scalar mult not implemented" }
 }
 
 rule IFunctionCall

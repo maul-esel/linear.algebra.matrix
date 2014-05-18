@@ -31,6 +31,14 @@ class Rational extends Number implements Comparable<Rational> {
 		new Rational(denominator, numerator)
 	}
 
+	def static Rational valueOf(Object o) {
+		if (o instanceof Rational)
+			o
+		else if (o instanceof Integer)
+			new Rational(o)
+		else throw new IllegalStateException("Cannot create Rational from " + o)
+	}
+
 	// equals() etc.
 	override equals(Object other) {
 		if (other instanceof Rational)
@@ -41,6 +49,10 @@ class Rational extends Number implements Comparable<Rational> {
 
 	override hashCode() {
 		numerator / denominator
+	}
+
+	override toString() {
+		numerator + "/" + denominator
 	}
 
 	// IComparable<Fraction>
