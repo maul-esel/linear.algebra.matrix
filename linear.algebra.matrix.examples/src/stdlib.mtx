@@ -166,6 +166,14 @@ def rk : (($n ° $m) A) -> int {
 	return r;
 }
 
+def column : (($n ° $m) A, int c) -> ($n ° 1) {
+	return init (int i..$n, int j..1) ~> A[i,c];
+}
+
+def line : (($n ° $m) A, int l) -> (1 ° $m) {
+	return init (int i..1, int j..$m) ~> A[l, j];
+}
+
 §§def rational_canonical : (($n ° $m) A) -> ($n ° $m) {
 	§ TODO
 }§§
