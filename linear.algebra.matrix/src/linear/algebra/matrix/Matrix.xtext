@@ -93,7 +93,7 @@ MathematicalType :
 ;
 
 MatrixType :
-	'(' height=(POSITIVE_INTEGER|GENERIC_VAR) '°' width=(POSITIVE_INTEGER|GENERIC_VAR) ')'
+	entryType=MathematicalType? '(' height=(POSITIVE_INTEGER|GENERIC_VAR) '°' width=(POSITIVE_INTEGER|GENERIC_VAR) ')'
 ;
 
 Type :
@@ -120,11 +120,11 @@ SimpleLiteral :
 
 // III. a) (i) Matrix literals
 MatrixInit :
-	'init' '(' line=TypedVarDeclaration '..' lineMax=(POSITIVE_INTEGER|GENERIC_VAR) ',' column=TypedVarDeclaration '..' colMax=(POSITIVE_INTEGER|GENERIC_VAR) ')' '~>' entry=Expression
+	'init' entryType=MathematicalType? '(' line=TypedVarDeclaration '..' lineMax=(POSITIVE_INTEGER|GENERIC_VAR) ',' column=TypedVarDeclaration '..' colMax=(POSITIVE_INTEGER|GENERIC_VAR) ')' '~>' entry=Expression
 ;
 
 MultiLineMatrixLiteral hidden(WHITESPACE, SL_COMMENT, ML_COMMENT) :
-	type=MathematicalType? dot=Dotting?
+	entryType=MathematicalType? dot=Dotting?
 	'{' NEWLINE
 		(lines+=MatrixLiteralLine)+
 	'}'

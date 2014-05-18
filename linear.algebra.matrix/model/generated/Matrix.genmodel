@@ -87,6 +87,7 @@
     <genClasses ecoreClass="Matrix.ecore#//SimpleType"/>
     <genClasses ecoreClass="Matrix.ecore#//MathematicalType"/>
     <genClasses ecoreClass="Matrix.ecore#//MatrixType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//MatrixType/entryType"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//MatrixType/height"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//MatrixType/width"/>
     </genClasses>
@@ -100,6 +101,7 @@
     <genClasses ecoreClass="Matrix.ecore#//MathematicalLiteral"/>
     <genClasses ecoreClass="Matrix.ecore#//SimpleLiteral"/>
     <genClasses ecoreClass="Matrix.ecore#//MatrixInit">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//MatrixInit/entryType"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//MatrixInit/line"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//MatrixInit/lineMax"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//MatrixInit/column"/>
@@ -107,7 +109,7 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//MatrixInit/entry"/>
     </genClasses>
     <genClasses ecoreClass="Matrix.ecore#//MultiLineMatrixLiteral">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//MultiLineMatrixLiteral/type"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//MultiLineMatrixLiteral/entryType"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//MultiLineMatrixLiteral/dot"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//MultiLineMatrixLiteral/lines"/>
     </genClasses>
