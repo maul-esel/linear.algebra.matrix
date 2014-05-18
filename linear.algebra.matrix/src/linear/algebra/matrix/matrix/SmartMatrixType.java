@@ -67,22 +67,6 @@ public class SmartMatrixType extends MatrixTypeImpl {
 
 	// overridden Object methods
 	@Override
-	@Deprecated
-	public boolean equals(Object other) {
-		if (!(other instanceof MatrixType))
-			return false;
-
-		MatrixType otherType = (MatrixType)other;
-		return dimensionsEqual(otherType) && entryType.eClass().equals(otherType.getEntryType().eClass());
-	}
-
-	@Override
-	@Deprecated
-	public int hashCode() {
-		return height.hashCode() + width.hashCode() + entryType.eClass().hashCode();
-	}
-
-	@Override
 	public String toString() {
 		return entryType.toString() + "(" + height + "°" + width + ")";
 	}
