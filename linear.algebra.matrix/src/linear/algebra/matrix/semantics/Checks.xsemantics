@@ -137,9 +137,17 @@ checkrule CMatrixLiteralHashValidEntries
 	for MultiLineMatrixLiteral lit
 from {
 	empty |- lit : var MatrixType type
+
+	if (lit.dot != null) {
+		empty |- lit.dot.fill : var Type dotType
+		empty |- dotType <: type.entryType
+		or fail error "Matrix entry placeholder is of incompatible type"
+			source lit.dot
+	}
+
 	for (line : lit.lines)
 		for (entry : line.entries)
-			if (entry instanceof MathematicalLiteral) {// i.e. not a placeholder
+			if (entry instanceof MathematicalLiteral) { // i.e. not a placeholder
 				empty |- entry : var Type entryType
 				empty |- entryType <: type.entryType
 				or fail error "Matrix entry is of incompatible type"

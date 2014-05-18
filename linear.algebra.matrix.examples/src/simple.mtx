@@ -1,8 +1,8 @@
 import stdlib;
 
 int myvar := 5;
-(2 ° 3) matr := {
-	1 0 0
+(2 ° 3) matr := (dot 0) {
+	1 . .
 	0 1 0
 };
 
@@ -13,6 +13,10 @@ var matr2 := init (int i..2, int j..2) ~> i + j;
 int other := myvar * 4;
 int e := matr[1,1];
 e := 4;
+
+rational cde := 4 + <3/2>;
+var gre := <4/2> < 4;
+var equ := 4 == <4/1>;
 
 if (true) {
 	boolean e;
