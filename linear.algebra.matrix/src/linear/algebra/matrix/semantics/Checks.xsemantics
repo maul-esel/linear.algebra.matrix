@@ -363,3 +363,12 @@ from {
 			source imp
 	]
 }
+
+checkrule CFractionNoDivisionByZero
+	for FractionLiteral frac
+from {
+	Integer.parseInt(frac.denominator) != 0
+	or fail error "Division by zero is not allowed"
+		source frac
+		feature MatrixPackage.eINSTANCE.fractionLiteral_Denominator
+}
