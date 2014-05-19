@@ -156,6 +156,9 @@
     <genClasses ecoreClass="Matrix.ecore#//BooleanType"/>
     <genClasses ecoreClass="Matrix.ecore#//IntegerType"/>
     <genClasses ecoreClass="Matrix.ecore#//RationalType"/>
+    <genClasses ecoreClass="Matrix.ecore#//GenericType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//GenericType/name"/>
+    </genClasses>
     <genClasses ecoreClass="Matrix.ecore#//EntryAccess">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//EntryAccess/matr"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//EntryAccess/line"/>

@@ -89,7 +89,7 @@ SimpleType :
 ;
 
 MathematicalType :
-	{IntegerType} INT | {RationalType} 'rational'
+	{IntegerType} INT | {RationalType} 'rational' | {GenericType} name=GENERIC_TYPE
 ;
 
 MatrixType :
@@ -282,6 +282,7 @@ terminal NEWLINE  : '\n';
 terminal WHITESPACE : (' '|'\t')+;
 terminal ID : (LETTER|'_')(LETTER|'_'|DIGIT_WITHOUT_ZERO|'0')*;
 terminal GENERIC_VAR : '$' ID;
+terminal GENERIC_TYPE : '%' ID;
 terminal PROC_NAME : '@' ID;
 
 terminal fragment DIGIT_WITHOUT_ZERO : '1'..'9';
