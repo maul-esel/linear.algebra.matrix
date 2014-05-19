@@ -368,6 +368,20 @@ from {
 	]
 }
 
+checkrule CNoDivisionByZero
+	for Division div
+from {
+	if (div.right instanceof IntLiteral) {
+		Integer.parseInt((div.right as IntLiteral).value) != 0
+		or fail error "Cannot divide by zero"
+			source div.right
+	} else if (div.right instanceof RationalLiteral) {
+		Integer.parseInt((div.right as RationalLiteral).numerator) != 0
+		or fail error "Cannot divide by zero"
+			source div.right
+	}
+}
+
 checkrule CRationalNoDivisionByZero
 	for RationalLiteral frac
 from {
