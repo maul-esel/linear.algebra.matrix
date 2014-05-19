@@ -232,6 +232,26 @@ from {
 			source decl
 }
 
+checkrule CFuncDeclarationIsUnique // currently no overloads allowed
+	for FuncDeclaration decl
+from {
+	val container = decl.eContainer // should be a Code instance
+	for (other : container.eContents)
+		{ !(other instanceof FuncDeclaration) || ((other as FuncDeclaration).name != decl.name) || (other == decl) }
+		or fail error "function names must be unique"
+			source decl
+}
+
+checkrule CProcDeclarationIsUnique // currently no overloads allowed
+	for ProcDeclaration decl
+from {
+	val container = decl.eContainer // should be a Code instance
+	for (other : container.eContents)
+		{ !(other instanceof ProcDeclaration) || ((other as ProcDeclaration).name != decl.name) || (other == decl) }
+		or fail error "proc names must be unique"
+			source decl
+}
+
 checkrule CFunctionCallHasValidParameters
 	for FunctionCall call
 from {
