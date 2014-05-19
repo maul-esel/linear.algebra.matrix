@@ -234,6 +234,17 @@ from {
 	} else { fail error "matrix add not implemented" }
 }
 
+rule IDivision
+	G |- Division div ~> Rational result
+from {
+	G |- div.left ~> var Object left
+	G |- div.right ~> var Object right
+
+	val divisor = Rational.valueOf(right)
+	(!divisor.equals(Rational.ZERO)) or fail error "Division by zero" source div.right
+	result = Rational.divide(Rational.valueOf(left), divisor)
+}
+
 rule IMultiplication
 	G |- Multiplication mult ~> Object result
 from {
