@@ -7,8 +7,10 @@ import linear.algebra.matrix.interpreter.VariableRegister
 import java.util.List
 
 auxiliary {
+	smartType(Type in) : Type
 	genericVarMatches(VariableRegister genReg, String variable, String value) : boolean
 	checkParamTypes(VariableRegister genReg, List<VarDeclaration> declaredParams, List<Expression> suppliedParams)
+	genericTypeMatches(VariableRegister genReg, GenericType generic, MathematicalType value) : boolean
 	isGeneric(String size) : boolean
 	consistentLineWidth(MultiLineMatrixLiteral lit) : boolean
 	isSquare(SmartMatrixType type) : boolean
@@ -25,6 +27,13 @@ judgments {
 		source expr
 	subtype |- Type sub <: Type sup
     vartype ||- VarDeclaration decl : output Type
+}
+
+auxiliary smartType(Type in) {
+	if (in instanceof MatrixType && !(in instanceof SmartMatrixType))
+		SmartMatrixType.copy(in as MatrixType)
+	else
+		in
 }
 
 auxiliary matrixMultiplicationDefined(SmartMatrixType left, SmartMatrixType right) {
@@ -80,7 +89,16 @@ auxiliary checkParamTypes(VariableRegister genReg, List<VarDeclaration> declared
 			val exactType = valueType as MatrixType;
 			(genericVarMatches(genReg, generic.height, exactType.height)
 				&& (genericVarMatches(genReg, generic.width, exactType.width)))
-			 or fail error "generic param type does not match" source suppliedParams.get(i)
+			 or fail error "generic param type does not match"
+				source suppliedParams.get(i)
+
+			(!(generic.entryType instanceof GenericType) || genericTypeMatches(genReg, generic.entryType as GenericType, (valueType as MatrixType).entryType))
+			or fail error "generic param matzrix entry type does not match"
+				source suppliedParams.get(i)
+		} else if (paramType instanceof GenericType && valueType instanceof MathematicalType) {
+			genericTypeMatches(genReg, paramType as GenericType, valueType as MathematicalType)
+			or fail error "generic param type does not match"
+				source suppliedParams.get(i)
 		} else {
 			empty |- valueType <: paramType
 			or fail error "param type " + stringRep(valueType) + " does not match " + stringRep(paramType)
@@ -97,6 +115,15 @@ auxiliary genericVarMatches(VariableRegister genReg, String variable, String val
 		} else
 			(genReg.get(variable) == value)
 	} else true
+}
+
+auxiliary genericTypeMatches(VariableRegister genReg, GenericType generic, MathematicalType value) {
+	if (!genReg.exists(generic.name)) {
+		genReg.add(generic.name, value, true)
+		true
+	} else {
+		empty |- value <: genReg.get(generic.name) as MathematicalType
+	}
 }
 
 auxiliary scalarMultType(MathematicalType scalar, MatrixType matr) {
@@ -122,6 +149,12 @@ from {
 	{ G |- smartSub.entryType <: smartSup.entryType }
 }
 
+rule SGenericTypes
+	derives G |- GenericType sub <: GenericType sup
+from {
+	sub.name == sup.name
+}
+
 axiom SIntFraction
 	G |-IntegerType sub <: RationalType sup
 
@@ -135,9 +168,7 @@ from {
 rule TTypedVarDecl
 	G ||- TypedVarDeclaration variable : Type type
 from {
-	if (variable.type instanceof MatrixType)
-		type = SmartMatrixType.copy(variable.type as MatrixType)
-	else type = variable.type
+	type = smartType(variable.type) // XSemantics does not allow this in an axiom
 }
 
 rule TInferredVarDecl
@@ -167,22 +198,25 @@ from {
 rule TFunctionCall
 	G |- FunctionCall call : Type type
 from {
-	if (!(call.func.ref.returnType instanceof MatrixType)) {
-		type = call.func.ref.returnType;
-	} else {
-		val retType = SmartMatrixType.copy(call.func.ref.returnType as MatrixType)
-		type = retType
+	val genericRegister = new VariableRegister();
+	checkParamTypes(genericRegister, call.func.ref.params.params, call.params)
 
-		val genericRegister = new VariableRegister();
-		checkParamTypes(genericRegister, call.func.ref.params.params, call.params)
-
+	val retType = smartType(call.func.ref.returnType)
+	type = if (retType instanceof SmartMatrixType) { // after the previous line, any MatrixType goes in here
 		if (retType.isGeneric())
-			type = new SmartMatrixType(
+			new SmartMatrixType(
 				if (isGeneric(retType.height)) genericRegister.get(retType.height).toString() else retType.height,
 				if (isGeneric(retType.width))  genericRegister.get(retType.width).toString()  else retType.width,
-				retType.entryType // TODO: handle generic entry types once allowed
-			);
-	}
+				if (retType.entryType instanceof GenericType)
+					genericRegister.get((retType.entryType as GenericType).name) as MathematicalType
+				else retType.entryType
+			)
+		else
+			retType
+	} else if (retType instanceof GenericType)
+		genericRegister.get(retType.name) as MathematicalType
+	else
+		retType
 }
 
 rule TMultiLineMatrixLiteral
@@ -297,13 +331,13 @@ from {
 		type = multipliedMatrixType(leftType as SmartMatrixType, rightType as SmartMatrixType)
 	}
 	else if (leftType instanceof SmartMatrixType) {
-		(rightType instanceof MathematicalType) // right scalar multiplication // change for other entry types
+		(rightType instanceof MathematicalType) // right scalar multiplication
 		or fail error "Scalar multiplication not defined"
 			source mult
 		type = scalarMultType(rightType as MathematicalType, leftType)
 	}
 	else if (rightType instanceof SmartMatrixType) {
-		(leftType instanceof MathematicalType) // left scalar multiplication // change for other entry types
+		(leftType instanceof MathematicalType) // left scalar multiplication
 		or fail error "Scalar multiplication not defined"
 			source mult
 		type = scalarMultType(leftType as MathematicalType, rightType)
