@@ -155,8 +155,8 @@ from {
 	sub.name == sup.name
 }
 
-axiom SIntFraction
-	G |-IntegerType sub <: RationalType sup
+axiom SIntMathematical
+	G |-IntegerType sub <: MathematicalType sup // integers are a subset of any number set used here
 
 rule SDefault
 	G |- Type sub <: Type sup
