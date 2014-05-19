@@ -132,7 +132,7 @@ public class InterpreterImpl implements Interpreter {
 		return variables.peek()
 	}
 
-	def private Object executeWithParams(List<VarDeclaration> declared,
+	def private Object executeWithParams(List<TypedVarDeclaration> declared,
 		List<Expression> supplied, Block exec) {
 		val execScope = new VariableRegister()
 		for (i : 0..<supplied.size)

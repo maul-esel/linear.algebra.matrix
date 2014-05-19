@@ -80,7 +80,7 @@ ProcDeclaration :
 ;
 
 ParameterList :
-	{ParameterList} '(' (params+=VarDeclaration (',' params+=VarDeclaration)*)? ')'
+	{ParameterList} '(' (params+=TypedVarDeclaration (',' params+=TypedVarDeclaration)*)? ')'
 ;
 
 // II. types

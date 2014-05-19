@@ -9,7 +9,7 @@ import java.util.List
 auxiliary {
 	smartType(Type in) : Type
 	genericVarMatches(VariableRegister genReg, String variable, String value) : boolean
-	checkParamTypes(VariableRegister genReg, List<VarDeclaration> declaredParams, List<Expression> suppliedParams)
+	checkParamTypes(VariableRegister genReg, List<TypedVarDeclaration> declaredParams, List<Expression> suppliedParams)
 	genericTypeMatches(VariableRegister genReg, GenericType generic, MathematicalType value) : boolean
 	isGeneric(String size) : boolean
 	consistentLineWidth(MultiLineMatrixLiteral lit) : boolean
@@ -77,7 +77,7 @@ auxiliary isGeneric(String size) {
 	size.charAt(0).toString() == '$'
 }
 
-auxiliary checkParamTypes(VariableRegister genReg, List<VarDeclaration> declaredParams, List<Expression> suppliedParams) {
+auxiliary checkParamTypes(VariableRegister genReg, List<TypedVarDeclaration> declaredParams, List<Expression> suppliedParams) {
 	{ (suppliedParams.size() == declaredParams.size) }
 
 	for (i : 0 ..< suppliedParams.size) {
