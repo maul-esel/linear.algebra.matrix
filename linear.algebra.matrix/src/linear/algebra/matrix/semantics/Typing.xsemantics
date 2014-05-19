@@ -216,7 +216,7 @@ rule TVariableAssignment
 from {
 	G |- assign.variable : vartype
 	G |- assign.value : var Type valtype
-	G |- vartype <: valtype or fail error "value cannot be assigned" source assign.value
+	G |- valtype <: vartype or fail error "value cannot be assigned" source assign.value
 }
 
 rule TMatrixEntryAssignment
