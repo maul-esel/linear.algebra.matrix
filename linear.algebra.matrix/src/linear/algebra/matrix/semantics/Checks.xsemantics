@@ -6,6 +6,7 @@ import linear.algebra.matrix.interpreter.VariableRegister
 
 auxiliary {
 	hasPlaceholders(MultiLineMatrixLiteral lit) : boolean
+	isTypeDefinedByParams(Type type, ParameterList list) : boolean
 	isGenericInParamList(SmartMatrixType type, ParameterList list) : boolean
 	isGenericVariableDefined(String generic, ParameterList list) : boolean
 	alwaysReturns(EObject obj) : boolean
@@ -19,6 +20,34 @@ auxiliary hasPlaceholders(MultiLineMatrixLiteral lit) {
 		}
 	}
 	placeholders
+}
+
+auxiliary isTypeDefinedByParams(Type type, ParameterList list) {
+	val paramTypes = list.params.map [ param | param.type ]
+
+	val dimensionsDefined = if (type instanceof MatrixType) {
+		val definedDimensions = paramTypes.filter [ paramType | paramType instanceof MatrixType ]
+			.map [ matrType | newArrayList((matrType as MatrixType).height, (matrType as MatrixType).width) ]
+			.flatten.filter [ dim | isGeneric(dim) ].toSet()
+		(!isGeneric(type.height) || definedDimensions.contains(type.height))
+			&& (!isGeneric(type.width) || definedDimensions.contains(type.width))
+	} else true
+
+	val typeDefined = if (type instanceof GenericType
+		|| (type instanceof MatrixType && (type as MatrixType).entryType instanceof GenericType)) {
+		val definedTypes = (paramTypes.filter [ paramType | paramType instanceof GenericType ]
+				.map [ paramType | (paramType as GenericType).name ]
+			+ paramTypes.filter [ paramType | paramType instanceof MatrixType ]
+				.map [ paramType | (paramType as MatrixType).entryType ]
+				.filter [ entryType | entryType instanceof GenericType ]
+				.map [ entryType | (entryType as GenericType).name ]).toSet
+		if (type instanceof GenericType)
+			definedTypes.contains(type.name)
+		else
+			definedTypes.contains(((type as MatrixType).entryType as GenericType).name)
+	} else true
+
+	dimensionsDefined && typeDefined
 }
 
 auxiliary isGenericInParamList(SmartMatrixType type, ParameterList list) {
@@ -197,12 +226,14 @@ from {
 	while (container != null && !(container instanceof FuncDeclaration) && !(container instanceof ProcDeclaration))
 		container = container.eContainer;
 
-	if ((vartype instanceof MatrixType) && (vartype as SmartMatrixType).isGeneric()) {
-		(container != null) && 	(
-			(container instanceof FuncDeclaration && (isGenericInParamList(vartype as SmartMatrixType, (container as FuncDeclaration).params)))
-			|| (container instanceof ProcDeclaration && (isGenericInParamList(vartype as SmartMatrixType, (container as ProcDeclaration).params)))
-		)
-		or fail error "Variable definition references unknown generic types"
+	if (vartype instanceof GenericType || ((vartype instanceof MatrixType) && (vartype as SmartMatrixType).isGeneric())) {
+		(container != null)
+		or fail error "Generic variable definitions may only occur in functions and procs"
+			source variable
+
+		{ (container instanceof FuncDeclaration && (isTypeDefinedByParams(vartype, (container as FuncDeclaration).params))) }
+		or { (container instanceof ProcDeclaration && (isTypeDefinedByParams(vartype, (container as ProcDeclaration).params))) }
+		or fail error "Variable definition references unknown generic type"
 			source variable
 	}
 }
@@ -273,14 +304,10 @@ from {
 checkrule CFuncDeclarationGenericReturnTypeDefined
 	for FuncDeclaration func
 from {
-	if (func.returnType instanceof MatrixType) {
-		val retType = SmartMatrixType.copy(func.returnType as MatrixType);
-		if (retType.isGeneric()) {
-			(isGenericInParamList(retType, func.params))
-			or fail error "Generic return type " + stringRep(retType) + " is not defined"
-				source func.returnType
-		}
-	}
+	val retType = smartType(func.returnType)
+	(isTypeDefinedByParams(retType, func.params))
+	or fail error "Generic return type " + stringRep(retType) + " is not defined"
+		source func.returnType
 }
 
 checkrule CFuncDeclarationAlwaysReturns
