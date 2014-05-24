@@ -12,6 +12,8 @@ import linear.algebra.matrix.core.IntegerMatrix
 import linear.algebra.matrix.core.RationalMatrix
 import linear.algebra.matrix.core.Rational
 
+inject StdlibUtil util
+
 auxiliary {
 	makeExactFromGeneric(VariableRegister generics, MatrixType matrType) : MatrixType
 }
@@ -207,7 +209,7 @@ from {
 	else if (base instanceof Rational) {
 		result = Rational.exp(base, exp)
 	} else if (base instanceof Matrix<?>) {
-		val func = env(G, "util", StdlibUtil).createMatrixExp(expr)
+		val func = util.createMatrixExp(expr)
 		G |- func ~> result
 	} else {
 		fail error "unsupported exponentiation" source expr
@@ -222,7 +224,7 @@ from {
 		Integer  : result = -obj
 		Rational : result = obj.negative
 		Matrix<?>: {
-			val func = env(G, "util", StdlibUtil).createMatrixNegative(minus.expr)
+			val func = util.createMatrixNegative(minus.expr)
 			G |- func ~> result
 		}
 		default  : { fail error "unsupported unary minus" source minus }
@@ -249,8 +251,8 @@ from {
 		}
 	} else if (left instanceof Matrix<?> && right instanceof Matrix<?>) {
 		val func = switch (add.op) { // TODO: possible implicit cast
-			case AdditionOp.PLUS : env(G, "util", StdlibUtil).createMatrixAddition(add)
-			case AdditionOp.MINUS : env(G, "util", StdlibUtil).createMatrixSubtraction(add)
+			case AdditionOp.PLUS : util.createMatrixAddition(add)
+			case AdditionOp.MINUS : util.createMatrixSubtraction(add)
 			default : null
 		}
 		G |- func ~> result
@@ -276,10 +278,10 @@ from {
 	G |- mult.right ~> var Object right
 
 	if (left instanceof Matrix<?> && right instanceof Matrix<?>) {
-		val func = env(G, "util", StdlibUtil).createMatrixMultiplication(mult)
+		val func = util.createMatrixMultiplication(mult)
 		G |- func ~> result // TODO: possible implicit cast
 	} else if (left instanceof Matrix<?> || right instanceof Matrix<?>) {
-		val func = env(G, "util", StdlibUtil).createScalarMultiplication(mult,
+		val func = util.createScalarMultiplication(mult,
 			if (left instanceof Matrix) mult.right else mult.left)
 		G |- func ~> result // TODO: possible implicit cast
 	} else if (left instanceof Integer && right instanceof Integer) {
@@ -314,7 +316,7 @@ rule IDeterminantOrAbsoluteValue
 from {
 	G |- expr.inner ~> var Object inner
 	if (inner instanceof Matrix<?>) {
-		val func = env(G, "util", StdlibUtil).createDeterminant(expr)
+		val func = util.createDeterminant(expr)
 		G |- func ~> result
 	} else if (inner instanceof Integer)
 		result = Math.abs(inner)
@@ -325,13 +327,13 @@ from {
 rule ITransposition
 	G |- Transposition trans ~> Matrix<?> result
 from {
-	val func = env(G, "util", StdlibUtil).createTransposition(trans)
+	val func = util.createTransposition(trans)
 	G |- func ~> result
 }
 
 rule IEquivalency
 	G |- Equivalency eq ~> Boolean result
 from {
-	val func = env(G, "util", StdlibUtil).createEquivalency(eq) // TODO: possible implicit cast
+	val func = util.createEquivalency(eq) // TODO: possible implicit cast
 	G |- func ~> result
 }

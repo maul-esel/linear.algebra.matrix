@@ -110,7 +110,6 @@ public class InterpreterImpl implements Interpreter {
 		env.add("variables", currentScope)
 		env.add("generics", generics.peek())
 		env.add("interpreter", this)
-		env.add("util", util)
 
 		val result = exprInterpreter.interpret(env, expr)
 		if (result.failed)

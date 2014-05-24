@@ -4,6 +4,9 @@ import org.eclipse.emf.ecore.EObject
 import linear.algebra.matrix.matrix.*
 import static extension linear.algebra.matrix.matrix.MatrixTypeUtil.*
 import linear.algebra.matrix.interpreter.VariableRegister
+import linear.algebra.matrix.imports.ImportManagerFactory
+
+inject ImportManagerFactory importFactory
 
 auxiliary {
 	hasPlaceholders(MultiLineMatrixLiteral lit) : boolean
@@ -436,4 +439,15 @@ from {
 	or fail error "Division by zero is not allowed"
 		source frac
 		feature MatrixPackage.eINSTANCE.rationalLiteral_Denominator
+}
+
+checkrule CImportIsValid
+	for Import imp
+from {
+	val manager = importFactory.create(imp.eResource)
+	if (!manager.isValidImport(imp.getSource)) {
+		fail error "Import is not valid"
+			source imp
+			feature MatrixPackage.eINSTANCE.import_Source
+	}
 }
