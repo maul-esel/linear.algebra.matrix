@@ -226,6 +226,7 @@ rule TMultiLineMatrixLiteral
 	G |- MultiLineMatrixLiteral lit : MatrixType type
 from {
 	(consistentLineWidth(lit))
+	or fail error "matrix lines must all have the same width" source lit
 
 	val lines = lit.lines.size()
 	val columns = lit.lines.get(0).getEntries().size()
