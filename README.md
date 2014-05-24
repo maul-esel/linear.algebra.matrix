@@ -37,9 +37,9 @@ A <span style="color:teal">:=</span> { <span style="color:green">§ easy-to-read
   0 1
   1 1
 };
-<span style="color:purple">var</span> product <span style="color:teal">:=</span> A <span style="color:teal">\*</span> D; <span style="color:green">§ multiply matrices (only works if dimensions are accordingly)</span>
-<span style="color:purple">var</span> sum <span style="color:teal">:=</span> (A <span style="color:teal">\*</span> D <span style="color:teal">+</span> A <span style="color:teal">\*</span> D) <span style="color:teal">\*</span> 3 <span style="color:teal">-</span> (A <span style="color:teal">\*</span> D)<span style="color:teal">^</span>2; <span style="color:green">§ add, subtract, exponentiate (square) matrices</span>
-<span style="color:purple">ℤ ∋</span> d <span style="color:teal">:=</span> <span style="color:teal">|</span>A <span style="color:teal">\*</span> D<span style="color:teal">|</span>; <span style="color:green">§ calculate determinant</span>
+<span style="color:purple">var</span> product <span style="color:teal">:=</span> A <span style="color:teal">*</span> D; <span style="color:green">§ multiply matrices (only works if dimensions are accordingly)</span>
+<span style="color:purple">var</span> sum <span style="color:teal">:=</span> (A <span style="color:teal">*</span> D <span style="color:teal">+</span> A <span style="color:teal">*</span> D) <span style="color:teal">*</span> 3 <span style="color:teal">-</span> (A <span style="color:teal">*</span> D)<span style="color:teal">^</span>2; <span style="color:green">§ add, subtract, exponentiate (square) matrices</span>
+<span style="color:purple">ℤ ∋</span> d <span style="color:teal">:=</span> <span style="color:teal">|</span>A <span style="color:teal">*</span> D<span style="color:teal">|</span>; <span style="color:green">§ calculate determinant</span>
 
 <span style="color:blue">if</span> (<span style="color:teal">¬</span>(C <span style="color:teal">~</span> A)) { <span style="color:green">§ test for (non-) equivalence</span>
     C <span style="color:teal">:=</span> stdlib::strictly_diagonalize(A); <span style="color:green">§ use builtin stdlib functions</span>
@@ -57,7 +57,7 @@ A <span style="color:teal">:=</span> { <span style="color:green">§ easy-to-read
   §§</span>
   <span style="color:blue">return</span> A[1,1] <span style="color:teal">=</span> a;
 }
-var result <span style="color:teal">:=</span> myfunc(A <span style="color:teal">\*</span> D, 1);
+var result <span style="color:teal">:=</span> myfunc(A <span style="color:teal">*</span> D, 1);
 
 <span style="color:blue">proc</span> @doSomething : () -> { <span style="color:green">§ functions without return value are called "proc"</span>
     <span style="color:green">§ TODO</span>
