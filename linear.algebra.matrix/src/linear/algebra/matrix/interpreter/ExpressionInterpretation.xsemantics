@@ -1,6 +1,7 @@
 system linear.algebra.matrix.interpreter.ExpressionInterpretation extends linear.algebra.matrix.semantics.Checks
 
 import linear.algebra.matrix.matrix.*
+import static extension linear.algebra.matrix.matrix.MatrixTypeUtil.*
 
 import linear.algebra.matrix.interpreter.VariableRegister
 import linear.algebra.matrix.interpreter.Interpreter
@@ -12,18 +13,18 @@ import linear.algebra.matrix.core.RationalMatrix
 import linear.algebra.matrix.core.Rational
 
 auxiliary {
-	makeExactFromGeneric(VariableRegister generics, SmartMatrixType matrType) : SmartMatrixType
+	makeExactFromGeneric(VariableRegister generics, MatrixType matrType) : MatrixType
 }
 
 judgments {
     interpret |- Expression expr ~> output Object
 }
 
-auxiliary makeExactFromGeneric(VariableRegister generics, SmartMatrixType matrType) {
-	new SmartMatrixType(
+auxiliary makeExactFromGeneric(VariableRegister generics, MatrixType matrType) {
+	MatrixTypeUtil.create(
 		if (isGeneric(matrType.height)) generics.get(matrType.height) as String else matrType.height,
 		if (isGeneric(matrType.width)) generics.get(matrType.width) as String else matrType.width,
-		matrType.entryType
+		matrType.actualEntryType
 	)
 }
 
@@ -105,15 +106,15 @@ from {
 rule IMultiLineMatrixLiteral
 	G |- MultiLineMatrixLiteral lit ~> Matrix<?> m
 from {
-	G |- lit : var SmartMatrixType matrType
+	G |- lit : var MatrixType matrType
 	if (!matrType.isExact()) {
 		val generics = env(G, 'generics', VariableRegister)
 		matrType = makeExactFromGeneric(generics, matrType)
 	}
 
-	m = if (matrType.entryType instanceof IntegerType)
+	m = if (matrType.actualEntryType instanceof IntegerType)
 		new IntegerMatrix(Integer.parseInt(matrType.height), Integer.parseInt(matrType.width))
-	else if (matrType.entryType instanceof RationalType)
+	else if (matrType.actualEntryType instanceof RationalType)
 		new RationalMatrix(Integer.parseInt(matrType.height), Integer.parseInt(matrType.width))
 
 	var i = 1
@@ -139,7 +140,7 @@ from {
 rule IMatrixInit
 	G |- MatrixInit init ~> Matrix<?> m
 from {
-	G |- init : var SmartMatrixType matrType
+	G |- init : var MatrixType matrType
 	if (!matrType.isExact()) {
 		val generics = env(G, 'generics', VariableRegister)
 		matrType = makeExactFromGeneric(generics, matrType)
@@ -152,9 +153,9 @@ from {
 	val lines = Integer.parseInt(matrType.height)
 	val columns = Integer.parseInt(matrType.width)
 
-	m = if (matrType.entryType instanceof IntegerType)
+	m = if (matrType.actualEntryType instanceof IntegerType)
 		new IntegerMatrix(lines, columns)
-	else if (matrType.entryType instanceof RationalType)
+	else if (matrType.actualEntryType instanceof RationalType)
 		new RationalMatrix(lines, columns)
 
 	for (i : 1..lines)

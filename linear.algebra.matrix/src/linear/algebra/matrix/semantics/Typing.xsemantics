@@ -3,20 +3,20 @@ system linear.algebra.matrix.semantics.Typing
 validatorExtends linear.algebra.matrix.validation.AbstractMatrixValidator
 
 import linear.algebra.matrix.matrix.*
+import static extension linear.algebra.matrix.matrix.MatrixTypeUtil.*
 import linear.algebra.matrix.interpreter.VariableRegister
 import java.util.List
 
 auxiliary {
-	smartType(Type in) : Type
 	genericVarMatches(VariableRegister genReg, String variable, String value) : boolean
 	checkParamTypes(VariableRegister genReg, List<TypedVarDeclaration> declaredParams, List<Expression> suppliedParams)
 	genericTypeMatches(VariableRegister genReg, GenericType generic, MathematicalType value) : boolean
 	isGeneric(String size) : boolean
 	consistentLineWidth(MultiLineMatrixLiteral lit) : boolean
-	isSquare(SmartMatrixType type) : boolean
-	matrixMultiplicationDefined(SmartMatrixType left, SmartMatrixType right) : boolean
-	multipliedMatrixType(SmartMatrixType left, SmartMatrixType right) : SmartMatrixType
-	transpose(SmartMatrixType type) : SmartMatrixType
+	isSquare(MatrixType type) : boolean
+	matrixMultiplicationDefined(MatrixType left, MatrixType right) : boolean
+	multipliedMatrixType(MatrixType left, MatrixType right) : MatrixType
+	transpose(MatrixType type) : MatrixType
 	superType(Type a, Type b) : Type
 	scalarMultType(MathematicalType scalar, MatrixType matr) : MatrixType
 }
@@ -29,19 +29,12 @@ judgments {
     vartype ||- VarDeclaration decl : output Type
 }
 
-auxiliary smartType(Type in) {
-	if (in instanceof MatrixType && !(in instanceof SmartMatrixType))
-		SmartMatrixType.copy(in as MatrixType)
-	else
-		in
-}
-
-auxiliary matrixMultiplicationDefined(SmartMatrixType left, SmartMatrixType right) {
+auxiliary matrixMultiplicationDefined(MatrixType left, MatrixType right) {
 	left.width == right.height
 }
 
-auxiliary multipliedMatrixType(SmartMatrixType left, SmartMatrixType right) {
-	new SmartMatrixType(left.height, right.width, superType(left.entryType, right.entryType) as MathematicalType)
+auxiliary multipliedMatrixType(MatrixType left, MatrixType right) {
+	MatrixTypeUtil.create(left.height, right.width, superType(left.actualEntryType, right.actualEntryType) as MathematicalType)
 }
 
 auxiliary superType(Type a, Type b) {
@@ -56,7 +49,7 @@ auxiliary superType(Type a, Type b) {
 	result
 }
 
-auxiliary isSquare(SmartMatrixType type) {
+auxiliary isSquare(MatrixType type) {
 	type.height == type.width
 }
 
@@ -69,8 +62,8 @@ auxiliary consistentLineWidth(MultiLineMatrixLiteral lit) {
 	consistent
 }
 
-auxiliary transpose(SmartMatrixType type) {
-	new SmartMatrixType(type.width, type.height, type.entryType)
+auxiliary transpose(MatrixType type) {
+	MatrixTypeUtil.create(type.width, type.height, type.actualEntryType)
 }
 
 auxiliary isGeneric(String size) {
@@ -84,15 +77,15 @@ auxiliary checkParamTypes(VariableRegister genReg, List<TypedVarDeclaration> dec
 		empty |- suppliedParams.get(i) : var Type valueType
 		empty ||- declaredParams.get(i) : var Type paramType;
 
-		var SmartMatrixType generic;
-		if (valueType instanceof MatrixType && paramType instanceof MatrixType && (generic = SmartMatrixType.copy(paramType as MatrixType)).isGeneric()) {
+		if (valueType instanceof MatrixType && paramType instanceof MatrixType && (paramType as MatrixType).isGeneric()) {
 			val exactType = valueType as MatrixType;
+			val generic = paramType as MatrixType
 			(genericVarMatches(genReg, generic.height, exactType.height)
 				&& (genericVarMatches(genReg, generic.width, exactType.width)))
 			 or fail error "generic param type does not match"
 				source suppliedParams.get(i)
 
-			(!(generic.entryType instanceof GenericType) || genericTypeMatches(genReg, generic.entryType as GenericType, (valueType as MatrixType).entryType))
+			(!(generic.actualEntryType instanceof GenericType) || genericTypeMatches(genReg, generic.actualEntryType as GenericType, (valueType as MatrixType).actualEntryType))
 			or fail error "generic param matzrix entry type does not match"
 				source suppliedParams.get(i)
 		} else if (paramType instanceof GenericType && valueType instanceof MathematicalType) {
@@ -129,11 +122,11 @@ auxiliary genericTypeMatches(VariableRegister genReg, GenericType generic, Mathe
 auxiliary scalarMultType(MathematicalType scalar, MatrixType matr) {
 	var MatrixType result
 	{
-		empty |- scalar <: matr.entryType
+		empty |- scalar <: matr.actualEntryType
 		result = matr
 	} or {
-		empty |- matr.entryType <: scalar
-		result = new SmartMatrixType(matr.height, matr.width, scalar)
+		empty |- matr.actualEntryType <: scalar
+		result = MatrixTypeUtil.create(matr.height, matr.width, scalar)
 	}
 	result
 }
@@ -142,11 +135,8 @@ auxiliary scalarMultType(MathematicalType scalar, MatrixType matr) {
 rule SMatrixType
 	derives G |- MatrixType sub <: MatrixType sup
 from {
-	val smartSub = SmartMatrixType.copy(sub)
-	val smartSup = SmartMatrixType.copy(sup)
-
-	{ smartSub.dimensionsEqual(smartSup) }
-	{ G |- smartSub.entryType <: smartSup.entryType }
+	{ sub.dimensionsEqual(sup) }
+	{ G |- sub.actualEntryType <: sup.actualEntryType }
 }
 
 rule SGenericTypes
@@ -165,11 +155,8 @@ from {
 }
 
 /* TYPING */
-rule TTypedVarDecl
-	G ||- TypedVarDeclaration variable : Type type
-from {
-	type = smartType(variable.type) // XSemantics does not allow this in an axiom
-}
+axiom TTypedVarDecl
+	G ||- TypedVarDeclaration variable : variable.type
 
 rule TInferredVarDecl
 	G ||- InferredVarDeclaration decl : Type type
@@ -201,15 +188,15 @@ from {
 	val genericRegister = new VariableRegister();
 	checkParamTypes(genericRegister, call.func.ref.params.params, call.params)
 
-	val retType = smartType(call.func.ref.returnType)
-	type = if (retType instanceof SmartMatrixType) { // after the previous line, any MatrixType goes in here
+	val retType = call.func.ref.returnType
+	type = if (retType instanceof MatrixType) {
 		if (retType.isGeneric())
-			new SmartMatrixType(
+			MatrixTypeUtil.create(
 				if (isGeneric(retType.height)) genericRegister.get(retType.height).toString() else retType.height,
 				if (isGeneric(retType.width))  genericRegister.get(retType.width).toString()  else retType.width,
-				if (retType.entryType instanceof GenericType)
-					genericRegister.get((retType.entryType as GenericType).name) as MathematicalType
-				else retType.entryType
+				if (retType.actualEntryType instanceof GenericType)
+					genericRegister.get((retType.actualEntryType as GenericType).name) as MathematicalType
+				else retType.actualEntryType
 			)
 		else
 			retType
@@ -220,23 +207,23 @@ from {
 }
 
 rule TMultiLineMatrixLiteral
-	G |- MultiLineMatrixLiteral lit : SmartMatrixType type
+	G |- MultiLineMatrixLiteral lit : MatrixType type
 from {
 	(consistentLineWidth(lit))
 
 	val lines = lit.lines.size()
 	val columns = lit.lines.get(0).getEntries().size()
-	type = new SmartMatrixType(Integer.toString(lines), Integer.toString(columns), lit.entryType) // TODO: if entryType is null, derive from entries
+	type = MatrixTypeUtil.create(Integer.toString(lines), Integer.toString(columns), lit.entryType) // TODO: if entryType is null, derive from entries
 }
 
 rule TMatrixInit
-	G |- MatrixInit init : SmartMatrixType type
+	G |- MatrixInit init : MatrixType type
 from {
 	var MathematicalType entryType = init.entryType
 	//if (entryType == null) // FIXME: enabling this somehow magically breaks the example code
 	//	G |- init.entry : entryType // (counter var j is properly typed at first, but suddenly its type is null)
 	// leading to a NullPointerException in TVariable
-	type = new SmartMatrixType(init.lineMax, init.colMax, entryType)
+	type = MatrixTypeUtil.create(init.lineMax, init.colMax, entryType)
 }
 
 rule TParenthesis
@@ -258,8 +245,8 @@ rule TMatrixEntryAssignment
 from {
 	G |- assign.matr : var MatrixType matrType
 	G |- assign.value : var Type valType
-	G |- valType <: matrType.entryType or fail error "entry cannot be assigned" source assign.value
-	type = matrType.entryType
+	G |- valType <: matrType.actualEntryType or fail error "entry cannot be assigned" source assign.value
+	type = matrType.actualEntryType
 }
 
 rule TLogical
@@ -291,7 +278,7 @@ rule TEquivalency
 from {
 	G |- eq.left : var Type leftType
 	G |- eq.right : var Type rightType
-	(leftType instanceof SmartMatrixType && rightType instanceof SmartMatrixType)
+	(leftType instanceof MatrixType && rightType instanceof MatrixType)
 	G|- leftType <: rightType
 }
 
@@ -324,19 +311,19 @@ from {
 	G |- mult.left  : var Type leftType
 	G |- mult.right : var Type rightType
 
-	if (leftType instanceof SmartMatrixType && rightType instanceof SmartMatrixType) { // matrix multiplication
-		(matrixMultiplicationDefined(leftType as SmartMatrixType, rightType as SmartMatrixType))
+	if (leftType instanceof MatrixType && rightType instanceof MatrixType) { // matrix multiplication
+		(matrixMultiplicationDefined(leftType as MatrixType, rightType as MatrixType))
 		or fail error "Matrix multiplication is not defined"
 			source mult
-		type = multipliedMatrixType(leftType as SmartMatrixType, rightType as SmartMatrixType)
+		type = multipliedMatrixType(leftType as MatrixType, rightType as MatrixType)
 	}
-	else if (leftType instanceof SmartMatrixType) {
+	else if (leftType instanceof MatrixType) {
 		(rightType instanceof MathematicalType) // right scalar multiplication
 		or fail error "Scalar multiplication not defined"
 			source mult
 		type = scalarMultType(rightType as MathematicalType, leftType)
 	}
-	else if (rightType instanceof SmartMatrixType) {
+	else if (rightType instanceof MatrixType) {
 		(leftType instanceof MathematicalType) // left scalar multiplication
 		or fail error "Scalar multiplication not defined"
 			source mult
@@ -357,9 +344,9 @@ from {
 }
 
 rule TTransposition
-	G |- Transposition t : SmartMatrixType type
+	G |- Transposition t : MatrixType type
 from {
-	G |- t.base : var SmartMatrixType baseType
+	G |- t.base : var MatrixType baseType
 	type = transpose(baseType)
 }
 
@@ -369,7 +356,7 @@ from {
 	G |- exp.base : baseType
 
 	{ (baseType instanceof MathematicalType) }
-	or { (baseType instanceof SmartMatrixType && isSquare(baseType as SmartMatrixType)) }
+	or { (baseType instanceof MatrixType && isSquare(baseType as MatrixType)) }
 
 	G |- exp.exp : var Type expType
 	(expType instanceof IntegerType)
@@ -401,8 +388,8 @@ rule TEntryAccess
 	G |- EntryAccess acc : MathematicalType type
 from {
 	var IntegerType intType
-	G |- acc.matr : var SmartMatrixType matrType
+	G |- acc.matr : var MatrixType matrType
 	G |- acc.line : intType
 	G |- acc.column : intType
-	type = matrType.entryType
+	type = matrType.actualEntryType
 }
