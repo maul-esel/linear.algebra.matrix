@@ -206,8 +206,8 @@ from {
 		retType
 }
 
-rule TDeterminantOrAbsoluteValueExpression
-	G |- DeterminantOrAbsoluteValueExpression expr : MathematicalType type
+rule TDeterminantOrAbsoluteValue
+	G |- DeterminantOrAbsoluteValue expr : MathematicalType type
 from {
 	G |- expr.inner : var Type innerType
 

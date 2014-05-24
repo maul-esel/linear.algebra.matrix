@@ -62,7 +62,7 @@ class StdlibUtil {
 		createFunctionCall(eq.eResource, Equivalency, #[eq.left, eq.right])
 	}
 
-	def createDeterminant(DeterminantOrAbsoluteValueExpression expr) {
+	def createDeterminant(DeterminantOrAbsoluteValue expr) {
 		createFunctionCall(expr.eResource, Determinant, #[expr.inner])
 	}
 

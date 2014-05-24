@@ -171,7 +171,7 @@ FunctionCall :
 	func=Function (params+=Expression (',' params+=Expression)*)? ')'
 ;
 
-DeterminantOrAbsoluteValueExpression :
+DeterminantOrAbsoluteValue :
 	'|' inner=Expression '|'
 ;
 
@@ -180,7 +180,7 @@ ParenthesizedExpression :
 ;
 
 AtomExpression returns Expression :
-	SimpleLiteral | MultiLineMatrixLiteral | MatrixInit | Variable | GenericVariable | ParenthesizedExpression | FunctionCall | DeterminantOrAbsoluteValueExpression
+	SimpleLiteral | MultiLineMatrixLiteral | MatrixInit | Variable | GenericVariable | ParenthesizedExpression | FunctionCall | DeterminantOrAbsoluteValue
 ;
 
 // III. c) complex expressions

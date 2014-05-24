@@ -309,8 +309,8 @@ from {
 	}
 }
 
-rule IDeterminantOrAbsoluteValueExpression
-	G |- DeterminantOrAbsoluteValueExpression expr ~> Object result
+rule IDeterminantOrAbsoluteValue
+	G |- DeterminantOrAbsoluteValue expr ~> Object result
 from {
 	G |- expr.inner ~> var Object inner
 	if (inner instanceof Matrix<?>) {
