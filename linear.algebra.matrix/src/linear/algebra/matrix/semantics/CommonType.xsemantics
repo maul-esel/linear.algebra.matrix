@@ -1,0 +1,23 @@
+system linear.algebra.matrix.semantics.CommonType
+	extends linear.algebra.matrix.semantics.Subtyping
+
+import linear.algebra.matrix.matrix.Type
+
+judgments {
+	generalType |- Type first ~~ Type second |> output Type
+		error "No common super type for types " + stringRep(first) + " and " + stringRep(second)
+}
+
+rule ADefault
+	G |- Type first ~~ Type second |> Type type
+from {
+	{
+		G |- first <: second
+		type = second
+	} or {
+		G |- second <: first
+		type = first
+	}
+}
+
+// That's all there is with the current types. More will come when more types are introduced.

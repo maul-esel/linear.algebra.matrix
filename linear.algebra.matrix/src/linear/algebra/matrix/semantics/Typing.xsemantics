@@ -1,5 +1,5 @@
 system linear.algebra.matrix.semantics.Typing
-	extends linear.algebra.matrix.semantics.Subtyping
+	extends linear.algebra.matrix.semantics.CommonType
 
 import linear.algebra.matrix.matrix.*
 import static extension linear.algebra.matrix.matrix.MatrixTypeUtil.*
@@ -16,7 +16,6 @@ auxiliary {
 	matrixMultiplicationDefined(MatrixType left, MatrixType right) : boolean
 	multipliedMatrixType(MatrixType left, MatrixType right) : MatrixType
 	transpose(MatrixType type) : MatrixType
-	superType(Type a, Type b) : Type
 	scalarMultType(MathematicalType scalar, MatrixType matr) : MatrixType
 }
 
@@ -32,19 +31,8 @@ auxiliary matrixMultiplicationDefined(MatrixType left, MatrixType right) {
 }
 
 auxiliary multipliedMatrixType(MatrixType left, MatrixType right) {
-	MatrixTypeUtil.create(left.height, right.width, superType(left.actualEntryType, right.actualEntryType) as MathematicalType)
-}
-
-auxiliary superType(Type a, Type b) {
-	var Type result
-	{
-		empty |- a <: b
-		result = b
-	} or {
-		empty |- b <: a
-		result = a
-	}
-	result
+	empty |- left.actualEntryType ~~ right.actualEntryType |> var MathematicalType superType
+	MatrixTypeUtil.create(left.height, right.width, superType)
 }
 
 auxiliary isSquare(MatrixType type) {
@@ -325,7 +313,7 @@ from {
 		(leftType instanceof MathematicalType && rightType instanceof MathematicalType)
 		or fail error "Multiplication undefined"
 			source mult
-		type = superType(leftType, rightType)
+		G |- leftType ~~ rightType |> type
 	}
 }
 
