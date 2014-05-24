@@ -2,67 +2,67 @@
 This project contains a small DSL (domain specific language) for working with matrices. It has an easy-to-read syntax and comes
 with many matrix operations already built in (such as calculating a determinant, finding an equialent diagonal matrix, testing
 matrices for equivalence, multiplying and adding matrices, ...). All the basic programming language constructs (loops, conditions,
-	user-defined functions) are supported as well.
+user-defined functions) are supported as well.
 
 # Example
 Let's dive right in with an example of the syntax:
 
-<pre><code>
-<span style="color:green">§ Single line comments</span>
+```
+§ Single line comments
 
-<span style="color:green">§§
+§§
   multi line comments
-§§</span>
+§§
 
-<span style="color:blue">import</span> mylib; <span style="color:green">§ import functions from other files</span>
+import mylib; § import functions from other files
 
-<span style="color:purple">int</span> x <span style="color:teal">:=</span> 3; <span style="color:green">§ every line must be ended with a semicolon</span>
-<span style="color:purple">ℤ ∋</span> y <span style="color:teal">:=</span> 7; <span style="color:green">§ you can also specify types using this more mathematical notation</span>
+int x := 3; § every line must be ended with a semicolon
+ℤ ∋ y := 7; § you can also specify types using this more mathematical notation
 
-<span style="color:purple">rational</span> z <span style="color:teal">:=</span> &lt;2/3&gt;; <span style="color:green">§ use this syntax for rational numbers</span>
-<span style="color:purple">ℚ ∋</span> r <span style="color:teal">:=</span> &lt;4/9&gt; <span style="color:green">§ element notation is available for rationals as well</span>
+rational z := &lt;2/3&gt;; § use this syntax for rational numbers
+ℚ ∋ r := &lt;4/9&gt; § element notation is available for rationals as well
 
-x <span style="color:teal">:=</span> 3 <span style="color:teal">*</span> 7 <span style="color:teal">+</span> 21 <span style="color:teal">-</span> 2<span style="color:teal">^</span>3; <span style="color:green">§ basic arithmetic, including exponentiation</span>
-<span style="color:purple">var</span> t <span style="color:teal">:=</span> x <span style="color:teal">/</span> y; <span style="color:green">§ variable types can be inferred, in this case it's a rational number</span>
+x := 3 * 7 + 21 - 2^3; § basic arithmetic, including exponentiation
+var t := x / y; § variable types can be inferred, in this case it's a rational number
 
-<span style="color:green">§§ So let's get to matrices: §§</span>
-<span style="color:purple">(2 ° 3)</span> A; <span style="color:green">§ specify matrix dimensions with "(&lt;lines&gt; ° &lt;columns&gt;)"</span>
-A <span style="color:teal">:=</span> { <span style="color:green">§ easy-to-read matrix syntax</span>
+§§ So let's get to matrices: §§
+(2 ° 3) A; § specify matrix dimensions with "(&lt;lines&gt; ° &lt;columns&gt;)"
+A := { § easy-to-read matrix syntax
   1 2 3
   0 0 1
 };
 
-<span style="color:purple">var</span> D <span style="color:teal">:=</span> { <span style="color:green">§ type inference works for matrices as well</span>
+var D := { § type inference works for matrices as well
   1 0
   0 1
   1 1
 };
-<span style="color:purple">var</span> product <span style="color:teal">:=</span> A <span style="color:teal">*</span> D; <span style="color:green">§ multiply matrices (only works if dimensions are accordingly)</span>
-<span style="color:purple">var</span> sum <span style="color:teal">:=</span> (A <span style="color:teal">*</span> D <span style="color:teal">+</span> A <span style="color:teal">*</span> D) <span style="color:teal">*</span> 3 <span style="color:teal">-</span> (A <span style="color:teal">*</span> D)<span style="color:teal">^</span>2; <span style="color:green">§ add, subtract, exponentiate (square) matrices</span>
-<span style="color:purple">ℤ ∋</span> d <span style="color:teal">:=</span> <span style="color:teal">|</span>A <span style="color:teal">*</span> D<span style="color:teal">|</span>; <span style="color:green">§ calculate determinant</span>
+var product := A * D; § multiply matrices (only works if dimensions are accordingly)
+var sum := (A * D + A * D) * 3 - (A * D)^2; § add, subtract, exponentiate (square) matrices
+ℤ ∋ d := |A * D|; § calculate determinant
 
-<span style="color:blue">if</span> (<span style="color:teal">¬</span>(C <span style="color:teal">~</span> A)) { <span style="color:green">§ test for (non-) equivalence</span>
-    C <span style="color:teal">:=</span> stdlib::strictly_diagonalize(A); <span style="color:green">§ use builtin stdlib functions</span>
+if (¬(C ~ A)) { § test for (non-) equivalence
+    C := stdlib::strictly_diagonalize(A); § use builtin stdlib functions
 }
 
-<span style="color:purple">var</span> L <span style="color:teal">:=</span> <span style="color:blue">init</span> (<span style="color:purple">int</span> i..3, <span style="color:purple">int</span> j..3) <span style="color:blue">~></span> i <span style="color:teal">*</span> j; <span style="color:green">§ calculate matrix entries from line and column number</span>
-<span style="color:purple">int</span> entry <span style="color:teal">:=</span> L[1,1]; <span style="color:green">§ access (and set) individual entries</span>
+var L := init (int i..3, int j..3) ~> i * j; § calculate matrix entries from line and column number
+int entry := L[1,1]; § access (and set) individual entries
 
-<span style="color:green">§ define custom functions</span>
-<span style="color:blue">def</span> myfunc : (<span style="color:purple">int</span> a, <span style="color:purple">(2 ° 2)</span> A) -> <span style="color:purple">boolean</span> {
-  <span style="color:green">§§
+§ define custom functions
+def myfunc : (int a, (2 ° 2) A) -> boolean {
+  §§
     NOTE:
     You can also define functions that take matrices of arbitrary sizes,
     or only square matrices, or only column vectors, or ....
-  §§</span>
-  <span style="color:blue">return</span> A[1,1] <span style="color:teal">=</span> a;
+  §§
+  return A[1,1] = a;
 }
-var result <span style="color:teal">:=</span> myfunc(A <span style="color:teal">*</span> D, 1);
+var result := myfunc(A * D, 1);
 
-<span style="color:blue">proc</span> @doSomething : () -> { <span style="color:green">§ functions without return value are called "proc"</span>
-    <span style="color:green">§ TODO</span>
+proc @doSomething : () -> { § functions without return value are called "proc"
+    § TODO
 }
-</code></pre>
+```
 
 # Full IDE support
 This DSL is realized with the XText framework, which gives you a complete integration into the Eclipse editor,
