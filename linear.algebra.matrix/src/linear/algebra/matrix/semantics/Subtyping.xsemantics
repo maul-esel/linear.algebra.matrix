@@ -1,0 +1,37 @@
+system linear.algebra.matrix.semantics.Subtyping
+
+validatorExtends linear.algebra.matrix.validation.AbstractMatrixValidator
+
+import linear.algebra.matrix.matrix.Type
+import linear.algebra.matrix.matrix.MatrixType
+import linear.algebra.matrix.matrix.MathematicalType
+import linear.algebra.matrix.matrix.IntegerType
+import linear.algebra.matrix.matrix.GenericType
+
+import static extension linear.algebra.matrix.matrix.MatrixTypeUtil.*
+
+judgments {
+	subtype |- Type sub <: Type sup
+}
+
+rule SMatrixType
+	derives G |- MatrixType sub <: MatrixType sup
+from {
+	{ sub.dimensionsEqual(sup) }
+	{ G |- sub.actualEntryType <: sup.actualEntryType }
+}
+
+rule SGenericTypes
+	derives G |- GenericType sub <: GenericType sup
+from {
+	sub.name == sup.name
+}
+
+axiom SIntMathematical
+	G |-IntegerType sub <: MathematicalType sup // integers are a subset of any number set used here
+
+rule SDefault
+	G |- Type sub <: Type sup
+from {
+	sup.eClass.isSuperTypeOf(sub.eClass)
+}

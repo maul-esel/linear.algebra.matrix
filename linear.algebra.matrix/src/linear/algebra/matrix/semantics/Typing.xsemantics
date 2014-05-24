@@ -1,6 +1,5 @@
 system linear.algebra.matrix.semantics.Typing
-
-validatorExtends linear.algebra.matrix.validation.AbstractMatrixValidator
+	extends linear.algebra.matrix.semantics.Subtyping
 
 import linear.algebra.matrix.matrix.*
 import static extension linear.algebra.matrix.matrix.MatrixTypeUtil.*
@@ -25,7 +24,6 @@ judgments {
 	type |- Expression expr : output Type
 		error "Cannot type " + stringRep(expr)
 		source expr
-	subtype |- Type sub <: Type sup
     vartype ||- VarDeclaration decl : output Type
 }
 
@@ -129,29 +127,6 @@ auxiliary scalarMultType(MathematicalType scalar, MatrixType matr) {
 		result = MatrixTypeUtil.create(matr.height, matr.width, scalar)
 	}
 	result
-}
-
-/* SUBTYPING */
-rule SMatrixType
-	derives G |- MatrixType sub <: MatrixType sup
-from {
-	{ sub.dimensionsEqual(sup) }
-	{ G |- sub.actualEntryType <: sup.actualEntryType }
-}
-
-rule SGenericTypes
-	derives G |- GenericType sub <: GenericType sup
-from {
-	sub.name == sup.name
-}
-
-axiom SIntMathematical
-	G |-IntegerType sub <: MathematicalType sup // integers are a subset of any number set used here
-
-rule SDefault
-	G |- Type sub <: Type sup
-from {
-	sub.eClass == sup.eClass
 }
 
 /* TYPING */
