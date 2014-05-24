@@ -204,7 +204,9 @@ from {
 	G |- expr.exp ~> var Integer exp
 	if (base instanceof Integer)
 		result = Math.pow(base, exp)
-	else {
+	else if (base instanceof Rational) {
+		result = Rational.exp(base, exp)
+	} else {
 		fail error "matr exp not yet implemented" // TODO : transform builtin function call and evaluate it
 	}
 }
