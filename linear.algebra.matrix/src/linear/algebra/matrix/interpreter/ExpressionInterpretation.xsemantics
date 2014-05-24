@@ -65,6 +65,7 @@ rule IEquals
 from {
 	G |- eq.left ~> var Object left
 	G |- eq.right ~> var Object right
+
 	value = if (left == null)
 		(right == null)
 	else if (left instanceof Rational && right instanceof Integer)
@@ -229,11 +230,13 @@ from {
 		result = switch (add.op) {
 			case AdditionOp.PLUS : (left as Integer) + (right as Integer)
 			case AdditionOp.MINUS : (left as Integer) - (right as Integer)
+			default : null
 		}
 	} else if (left instanceof Rational || right instanceof Rational) {
 		result = switch (add.op) {
 			case AdditionOp.PLUS : Rational.add(Rational.valueOf(left), Rational.valueOf(right))
 			case AdditionOp.MINUS : Rational.subtract(Rational.valueOf(left), Rational.valueOf(right))
+			default : null
 		}
 	} else { fail error "matrix add not implemented" }
 }
