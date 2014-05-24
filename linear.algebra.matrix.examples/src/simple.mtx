@@ -22,11 +22,6 @@ if (true) {
 	e := ¬true ∨ false;
 }
 
-def add : (($n ° $m) A, ($n ° $m) B) -> ($n ° $m) {
-	var c := A;
-	return init (int i..$n, int j..$m) ~> A[i,j] + B[i,j];
-}
-
 internal def test : (($n ° $m) A ) -> int {
 	return $n;
 }
@@ -43,7 +38,9 @@ var right := {
 	0 1
 	1 0
 };
-var result := stdlib::mult(left, right);
+var result := left * right;
+var all_one := left + right;
+var transposed := right^T;
 var gen := test(left) + 1;
 
 var zzz := {
@@ -59,4 +56,4 @@ var id := {
 	0 1
 };
 var equals := left = id;
-var equivalent := stdlib::equivalent(zzz, diagonal_zzz);
+var equivalent := zzz ~ diagonal_zzz;

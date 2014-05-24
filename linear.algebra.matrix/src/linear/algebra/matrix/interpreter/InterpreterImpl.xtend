@@ -19,6 +19,9 @@ public class InterpreterImpl implements Interpreter {
 	@Inject
 	private ExpressionInterpretation exprInterpreter
 
+	@Inject
+	private StdlibUtil util
+
 	private Resource resource
 
 	private Stack<VariableRegister> variables = new Stack<VariableRegister>()
@@ -107,6 +110,7 @@ public class InterpreterImpl implements Interpreter {
 		env.add("variables", currentScope)
 		env.add("generics", generics.peek())
 		env.add("interpreter", this)
+		env.add("util", util)
 
 		val result = exprInterpreter.interpret(env, expr)
 		if (result.failed)

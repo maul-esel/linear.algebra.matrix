@@ -206,8 +206,11 @@ from {
 		result = Math.pow(base, exp)
 	else if (base instanceof Rational) {
 		result = Rational.exp(base, exp)
+	} else if (base instanceof Matrix<?>) {
+		val func = env(G, "util", StdlibUtil).createMatrixExp(expr)
+		G |- func ~> result
 	} else {
-		fail error "matr exp not yet implemented" // TODO : transform builtin function call and evaluate it
+		fail error "unsupported exponentiation" source expr
 	}
 }
 
@@ -218,7 +221,11 @@ from {
 	switch (obj) {
 		Integer  : result = -obj
 		Rational : result = obj.negative
-		default  : { fail error "matr unary minus not implemented" }
+		Matrix<?>: {
+			val func = env(G, "util", StdlibUtil).createMatrixNegative(minus.expr)
+			G |- func ~> result
+		}
+		default  : { fail error "unsupported unary minus" source minus }
 	}
 }
 
@@ -240,7 +247,14 @@ from {
 			case AdditionOp.MINUS : Rational.subtract(Rational.valueOf(left), Rational.valueOf(right))
 			default : null
 		}
-	} else { fail error "matrix add not implemented" }
+	} else if (left instanceof Matrix<?> && right instanceof Matrix<?>) {
+		val func = switch (add.op) { // TODO: possible implicit cast
+			case AdditionOp.PLUS : env(G, "util", StdlibUtil).createMatrixAddition(add)
+			case AdditionOp.MINUS : env(G, "util", StdlibUtil).createMatrixSubtraction(add)
+			default : null
+		}
+		G |- func ~> result
+	} else { fail error "unsupported addition" source add }
 }
 
 rule IDivision
@@ -252,6 +266,7 @@ from {
 	val divisor = Rational.valueOf(right)
 	(!divisor.equals(Rational.ZERO)) or fail error "Division by zero" source div.right
 	result = Rational.divide(Rational.valueOf(left), divisor)
+	// TODO: matrix division by scalar (i.e. multiply by 1/scalar)
 }
 
 rule IMultiplication
@@ -260,11 +275,18 @@ from {
 	G |- mult.left ~> var Object left
 	G |- mult.right ~> var Object right
 
-	if (left instanceof Integer && right instanceof Integer) {
+	if (left instanceof Matrix<?> && right instanceof Matrix<?>) {
+		val func = env(G, "util", StdlibUtil).createMatrixMultiplication(mult)
+		G |- func ~> result // TODO: possible implicit cast
+	} else if (left instanceof Matrix<?> || right instanceof Matrix<?>) {
+		val func = env(G, "util", StdlibUtil).createScalarMultiplication(mult,
+			if (left instanceof Matrix) mult.right else mult.left)
+		G |- func ~> result // TODO: possible implicit cast
+	} else if (left instanceof Integer && right instanceof Integer) {
 		result = (left as Integer) * (right as Integer)
 	} else if (left instanceof Rational || right instanceof Rational) {
 		result = Rational.multiply(Rational.valueOf(left), Rational.valueOf(right))
-	} else { fail error "matrix / scalar mult not implemented" }
+	} else { fail error "unsupported multiplication" source mult }
 }
 
 rule IFunctionCall
@@ -285,4 +307,18 @@ from {
 	} else {
 		G |- ter.ifFalse ~> result
 	}
+}
+
+rule ITransposition
+	G |- Transposition trans ~> Matrix<?> result
+from {
+	val func = env(G, "util", StdlibUtil).createTransposition(trans)
+	G |- func ~> result
+}
+
+rule IEquivalency
+	G |- Equivalency eq ~> Boolean result
+from {
+	val func = env(G, "util", StdlibUtil).createEquivalency(eq) // TODO: possible implicit cast
+	G |- func ~> result
 }
