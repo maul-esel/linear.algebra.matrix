@@ -21,6 +21,7 @@ class StdlibUtil {
 	static val matrixExp     = QualifiedName.create('stdlib', 'exp')
 	static val Transposition = QualifiedName.create('stdlib', 'transpose')
 	static val Equivalency   = QualifiedName.create('stdlib', 'equivalent')
+	static val Determinant   = QualifiedName.create('stdlib', 'det')
 
 	@Inject
 	MatrixGlobalScopeFactory scopeFactory
@@ -59,6 +60,10 @@ class StdlibUtil {
 
 	def createEquivalency(Equivalency eq) {
 		createFunctionCall(eq.eResource, Equivalency, #[eq.left, eq.right])
+	}
+
+	def createDeterminant(DeterminantOrAbsoluteValueExpression expr) {
+		createFunctionCall(expr.eResource, Determinant, #[expr.inner])
 	}
 
 	def private createFunctionCall(Resource res, QualifiedName name, Expression[] params) {

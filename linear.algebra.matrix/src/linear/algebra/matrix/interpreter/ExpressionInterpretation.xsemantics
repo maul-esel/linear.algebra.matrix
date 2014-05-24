@@ -309,6 +309,19 @@ from {
 	}
 }
 
+rule IDeterminantOrAbsoluteValueExpression
+	G |- DeterminantOrAbsoluteValueExpression expr ~> Object result
+from {
+	G |- expr.inner ~> var Object inner
+	if (inner instanceof Matrix<?>) {
+		val func = env(G, "util", StdlibUtil).createDeterminant(expr)
+		G |- func ~> result
+	} else if (inner instanceof Integer)
+		result = Math.abs(inner)
+	else if (inner instanceof Rational)
+		result = inner.abs()
+}
+
 rule ITransposition
 	G |- Transposition trans ~> Matrix<?> result
 from {

@@ -55,5 +55,8 @@ var id := {
 	1 0
 	0 1
 };
+var abs := |-4|;
+var det := |left|;
+
 var equals := left = id;
 var equivalent := zzz ~ diagonal_zzz;

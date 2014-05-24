@@ -143,6 +143,9 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//FunctionCall/func"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//FunctionCall/params"/>
     </genClasses>
+    <genClasses ecoreClass="Matrix.ecore#//DeterminantOrAbsoluteValueExpression">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//DeterminantOrAbsoluteValueExpression/inner"/>
+    </genClasses>
     <genClasses ecoreClass="Matrix.ecore#//ParenthesizedExpression">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//ParenthesizedExpression/inner"/>
     </genClasses>

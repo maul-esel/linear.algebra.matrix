@@ -206,6 +206,22 @@ from {
 		retType
 }
 
+rule TDeterminantOrAbsoluteValueExpression
+	G |- DeterminantOrAbsoluteValueExpression expr : MathematicalType type
+from {
+	G |- expr.inner : var Type innerType
+
+	if (innerType instanceof MatrixType) {
+		{ isSquare(innerType) }
+		or fail error "Matrix determinant is only defined for square matrices" source expr
+		type = innerType.entryType
+	} else if (innerType instanceof MathematicalType)
+		type = innerType
+	else {
+		fail error "Cannot type determinant or absolute value of type " + stringRep(innerType) source expr
+	}
+}
+
 rule TMultiLineMatrixLiteral
 	G |- MultiLineMatrixLiteral lit : MatrixType type
 from {

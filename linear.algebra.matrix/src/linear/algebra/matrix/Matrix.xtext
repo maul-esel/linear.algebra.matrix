@@ -171,12 +171,16 @@ FunctionCall :
 	func=Function (params+=Expression (',' params+=Expression)*)? ')'
 ;
 
+DeterminantOrAbsoluteValueExpression :
+	'|' inner=Expression '|'
+;
+
 ParenthesizedExpression :
 	'(' inner=Expression ')'
 ;
 
 AtomExpression returns Expression :
-	SimpleLiteral | MultiLineMatrixLiteral | MatrixInit | Variable | GenericVariable | ParenthesizedExpression | FunctionCall
+	SimpleLiteral | MultiLineMatrixLiteral | MatrixInit | Variable | GenericVariable | ParenthesizedExpression | FunctionCall | DeterminantOrAbsoluteValueExpression
 ;
 
 // III. c) complex expressions

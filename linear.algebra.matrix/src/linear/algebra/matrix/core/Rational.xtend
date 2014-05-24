@@ -31,6 +31,10 @@ class Rational extends Number implements Comparable<Rational> {
 		new Rational(denominator, numerator)
 	}
 
+	def abs() {
+		new Rational(Math.abs(numerator), Math.abs(denominator))
+	}
+
 	def static Rational valueOf(Object o) {
 		if (o instanceof Rational)
 			o
