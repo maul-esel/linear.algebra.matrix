@@ -72,6 +72,9 @@ from {
 	else if (left instanceof Integer && right instanceof Rational)
 		right.equals(new Rational(left as Integer))
 	else (left.equals(right))
+
+	if (eq.op == EqualsOp.NOTEQUALS)
+		value = !value
 }
 
 rule IComparison

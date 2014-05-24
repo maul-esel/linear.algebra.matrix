@@ -16,10 +16,15 @@
       <genEnumLiterals ecoreEnumLiteral="Matrix.ecore#//ComparisonOp/GREATER"/>
       <genEnumLiterals ecoreEnumLiteral="Matrix.ecore#//ComparisonOp/LESSOREQUAL"/>
       <genEnumLiterals ecoreEnumLiteral="Matrix.ecore#//ComparisonOp/GREATEROREQUAL"/>
+      <genEnumLiterals ecoreEnumLiteral="Matrix.ecore#//ComparisonOp/GREATEROREQUALS"/>
     </genEnums>
     <genEnums typeSafeEnumCompatible="false" ecoreEnum="Matrix.ecore#//LogicalOp">
       <genEnumLiterals ecoreEnumLiteral="Matrix.ecore#//LogicalOp/AND"/>
       <genEnumLiterals ecoreEnumLiteral="Matrix.ecore#//LogicalOp/OR"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="Matrix.ecore#//EqualsOp">
+      <genEnumLiterals ecoreEnumLiteral="Matrix.ecore#//EqualsOp/EQUALS"/>
+      <genEnumLiterals ecoreEnumLiteral="Matrix.ecore#//EqualsOp/NOTEQUALS"/>
     </genEnums>
     <genClasses ecoreClass="Matrix.ecore#//Code">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//Code/imports"/>
@@ -201,6 +206,7 @@
     </genClasses>
     <genClasses ecoreClass="Matrix.ecore#//Equals">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//Equals/left"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//Equals/op"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//Equals/right"/>
     </genClasses>
     <genClasses ecoreClass="Matrix.ecore#//LogicalAndOr">

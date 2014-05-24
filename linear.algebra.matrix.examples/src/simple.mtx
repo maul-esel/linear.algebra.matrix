@@ -8,18 +8,18 @@ var matr2 := init (int i..2, int j..2) ~> i + j;
 
 (2 ° 3) mult := matr;
 
-int other := myvar * 4;
+ℤ ∋ other := myvar * 4;
 int e := matr[1,1];
 e := 4;
-rational r := e / <1/2>;
+ℚ ∋ r := e / <1/2>;
 
 rational cde := 4 + <3/2>;
 var gre := <4/2> < 4;
-var equ := 4 == <4/1>;
+var equ := 4 ≠ <4/1>;
 
 if (true) {
 	boolean e;
-	e := true;
+	e := ¬true ∨ false;
 }
 
 def add : (($n ° $m) A, ($n ° $m) B) -> ($n ° $m) {

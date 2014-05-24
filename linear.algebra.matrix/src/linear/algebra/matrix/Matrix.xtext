@@ -89,7 +89,7 @@ SimpleType :
 ;
 
 MathematicalType :
-	{IntegerType} INT | {RationalType} 'rational' | {GenericType} name=GENERIC_TYPE
+	{IntegerType} INT | {IntegerType} 'ℤ' '∋' | {RationalType} 'rational' | {RationalType} 'ℚ' '∋' | {GenericType} name=GENERIC_TYPE
 ;
 
 MatrixType :
@@ -197,7 +197,7 @@ EntryAccess returns Expression :
 ;
 
 Negation returns Expression :
-	EntryAccess | ({Negation} '!' expr=EntryAccess)
+	EntryAccess | ({Negation} ('!'|'¬') expr=EntryAccess)
 ;
 
 Exponentiation returns Expression :
@@ -233,7 +233,7 @@ Comparison returns Expression :
 ;
 
 Equals returns Expression :
-	Comparison ({Equals.left=current} ('='|'==') right=Comparison)*
+	Comparison ({Equals.left=current} op=EqualsOp right=Comparison)*
 ;
 
 LogicalAndOr returns Expression:
@@ -254,11 +254,15 @@ enum AdditionOp :
 ;
 
 enum ComparisonOp :
-	LESS='<' | GREATER='>' | LESSOREQUAL='<=' | GREATEROREQUAL='>='
+	LESS='<' | GREATER='>' | LESSOREQUAL='<=' | LESSOREQUAL='≤' | GREATEROREQUAL='>=' | GREATEROREQUALS='≥'
 ;
 
 enum LogicalOp :
-	AND='&&' | AND='and' | OR='||' | OR='or'
+	AND='&&' | AND='∧' | AND='and' | OR='||' | OR='∨' | OR='or'
+;
+
+enum EqualsOp :
+	EQUALS='=' | EQUALS='==' | NOTEQUALS='!=' | NOTEQUALS='≠'
 ;
 
 // IV. terminals

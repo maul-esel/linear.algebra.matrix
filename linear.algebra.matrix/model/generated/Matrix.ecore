@@ -182,10 +182,15 @@
     <eLiterals name="GREATER" value="1" literal=">"/>
     <eLiterals name="LESSOREQUAL" value="2" literal="&lt;="/>
     <eLiterals name="GREATEROREQUAL" value="3" literal=">="/>
+    <eLiterals name="GREATEROREQUALS" value="4" literal="≥"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="LogicalOp">
     <eLiterals name="AND" literal="&amp;&amp;"/>
     <eLiterals name="OR" value="1" literal="||"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="EqualsOp">
+    <eLiterals name="EQUALS" literal="="/>
+    <eLiterals name="NOTEQUALS" value="1" literal="!="/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="BooleanType" eSuperTypes="#//SimpleType"/>
   <eClassifiers xsi:type="ecore:EClass" name="IntegerType" eSuperTypes="#//MathematicalType"/>
@@ -254,6 +259,7 @@
   <eClassifiers xsi:type="ecore:EClass" name="Equals" eSuperTypes="#//Expression">
     <eStructuralFeatures xsi:type="ecore:EReference" name="left" eType="#//Expression"
         containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="op" eType="#//EqualsOp"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="right" eType="#//Expression"
         containment="true"/>
   </eClassifiers>
