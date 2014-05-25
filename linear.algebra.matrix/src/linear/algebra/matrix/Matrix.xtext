@@ -89,7 +89,13 @@ SimpleType :
 ;
 
 MathematicalType :
-	{IntegerType} INT | {IntegerType} 'ℤ' '∋' | {RationalType} 'rational' | {RationalType} 'ℚ' '∋' | {GenericType} name=GENERIC_TYPE
+	{IntegerType} INT
+	| {IntegerType} 'ℤ' '∋'
+	| {RationalType} 'rational'
+	| {RationalType} 'ℚ' '∋'
+	| {ComplexType} 'complex'
+	| {ComplexType} 'ℂ' '∋'
+	| {GenericType} name=GENERIC_TYPE
 ;
 
 MatrixType :
@@ -114,8 +120,16 @@ RationalLiteral hidden() :
 	'<' numerator=(POSITIVE_INTEGER | ZERO | NEGATIVE_INTEGER) '/' denominator=(POSITIVE_INTEGER | ZERO | NEGATIVE_INTEGER) '>'
 ;
 
-MathematicalLiteral :
+RealLiteral :
 	IntLiteral | RationalLiteral
+;
+
+ImaginaryLiteral hidden() :
+	coefficient=RealLiteral 'i'
+;
+
+MathematicalLiteral :
+	IntLiteral | RationalLiteral | ImaginaryLiteral
 ;
 
 SimpleLiteral :

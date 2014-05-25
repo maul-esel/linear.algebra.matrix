@@ -98,12 +98,17 @@
   <eClassifiers xsi:type="ecore:EClass" name="BooleanLiteral" eSuperTypes="#//SimpleLiteral">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="IntLiteral" eSuperTypes="#//MathematicalLiteral">
+  <eClassifiers xsi:type="ecore:EClass" name="IntLiteral" eSuperTypes="#//RealLiteral #//MathematicalLiteral">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="RationalLiteral" eSuperTypes="#//MathematicalLiteral">
+  <eClassifiers xsi:type="ecore:EClass" name="RationalLiteral" eSuperTypes="#//RealLiteral #//MathematicalLiteral">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="numerator" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="denominator" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RealLiteral"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ImaginaryLiteral" eSuperTypes="#//MathematicalLiteral">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="coefficient" eType="#//RealLiteral"
+        containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="MathematicalLiteral" eSuperTypes="#//SimpleLiteral #//MatrixEntry"/>
   <eClassifiers xsi:type="ecore:EClass" name="SimpleLiteral" eSuperTypes="#//Expression"/>
@@ -199,6 +204,7 @@
   <eClassifiers xsi:type="ecore:EClass" name="BooleanType" eSuperTypes="#//SimpleType"/>
   <eClassifiers xsi:type="ecore:EClass" name="IntegerType" eSuperTypes="#//MathematicalType"/>
   <eClassifiers xsi:type="ecore:EClass" name="RationalType" eSuperTypes="#//MathematicalType"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ComplexType" eSuperTypes="#//MathematicalType"/>
   <eClassifiers xsi:type="ecore:EClass" name="GenericType" eSuperTypes="#//MathematicalType">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>

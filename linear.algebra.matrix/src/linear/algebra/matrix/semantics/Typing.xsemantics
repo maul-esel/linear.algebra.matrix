@@ -139,6 +139,9 @@ axiom TGenericVariable
 axiom TRationalLiteral
 	G |- RationalLiteral frac : MatrixFactory.eINSTANCE.createRationalType()
 
+axiom TImaginaryLiteral
+	G |- ImaginaryLiteral im : MatrixFactory.eINSTANCE.createComplexType()
+
 rule TVariable
 	G |- Variable variable : Type type
 from {
@@ -178,8 +181,10 @@ from {
 		{ isSquare(innerType) }
 		or fail error "Matrix determinant is only defined for square matrices" source expr
 		type = innerType.entryType
-	} else if (innerType instanceof MathematicalType)
-		type = innerType
+	} /*else if (innerType instanceof ComplexType)
+		type = MatrixFactory.eINSTANCE.createRealType()*/ // TODO: enable when real numbers are introduced
+	else if (innerType instanceof IntegerType || innerType instanceof RationalType)
+		type = innerType as MathematicalType
 	else {
 		fail error "Cannot type determinant or absolute value of type " + stringRep(innerType) source expr
 	}
@@ -251,6 +256,7 @@ from {
 	G |- comp.left : var Type leftType
 	G |- comp.right : var Type rightType
 	(leftType instanceof MathematicalType) && (rightType instanceof MathematicalType) // matrices and booleans cannot be compared
+	!(leftType instanceof ComplexType) && !(rightType instanceof ComplexType) // complex numbers are not ordered
 }
 
 rule TEquivalency
@@ -279,10 +285,14 @@ from  {
 }
 
 rule TDivision
-	G |- Division div : MatrixFactory.eINSTANCE.createRationalType()
+	G |- Division div : MathematicalType type
 from {
 	G |- div.left : var MathematicalType leftType
 	G |- div.right : var MathematicalType rightType
+	if (leftType instanceof ComplexType || rightType instanceof ComplexType)
+		type = MatrixFactory.eINSTANCE.createComplexType()
+	else
+		type = MatrixFactory.eINSTANCE.createRationalType()
 }
 
 rule TMultiplication

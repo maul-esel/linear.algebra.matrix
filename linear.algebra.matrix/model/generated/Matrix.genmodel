@@ -4,7 +4,7 @@
     editorDirectory="/linear.algebra.matrix.editor/src" modelPluginID="linear.algebra.matrix"
     forceOverwrite="true" modelName="Matrix" updateClasspath="false" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
     complianceLevel="5.0" copyrightFields="false" editPluginID="linear.algebra.matrix.edit"
-    editorPluginID="linear.algebra.matrix.editor" runtimeVersion="2.9">
+    editorPluginID="linear.algebra.matrix.editor" runtimeVersion="2.10">
   <genPackages prefix="Matrix" basePackage="linear.algebra.matrix" disposableProviderFactory="true"
       fileExtensions="mtx" ecorePackage="Matrix.ecore#/">
     <genEnums typeSafeEnumCompatible="false" ecoreEnum="Matrix.ecore#//AdditionOp">
@@ -107,6 +107,10 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//RationalLiteral/numerator"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//RationalLiteral/denominator"/>
     </genClasses>
+    <genClasses ecoreClass="Matrix.ecore#//RealLiteral"/>
+    <genClasses ecoreClass="Matrix.ecore#//ImaginaryLiteral">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Matrix.ecore#//ImaginaryLiteral/coefficient"/>
+    </genClasses>
     <genClasses ecoreClass="Matrix.ecore#//MathematicalLiteral"/>
     <genClasses ecoreClass="Matrix.ecore#//SimpleLiteral"/>
     <genClasses ecoreClass="Matrix.ecore#//MatrixInit">
@@ -164,6 +168,7 @@
     <genClasses ecoreClass="Matrix.ecore#//BooleanType"/>
     <genClasses ecoreClass="Matrix.ecore#//IntegerType"/>
     <genClasses ecoreClass="Matrix.ecore#//RationalType"/>
+    <genClasses ecoreClass="Matrix.ecore#//ComplexType"/>
     <genClasses ecoreClass="Matrix.ecore#//GenericType">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Matrix.ecore#//GenericType/name"/>
     </genClasses>

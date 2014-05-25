@@ -6,6 +6,8 @@ import linear.algebra.matrix.matrix.Type
 import linear.algebra.matrix.matrix.MatrixType
 import linear.algebra.matrix.matrix.MathematicalType
 import linear.algebra.matrix.matrix.IntegerType
+import linear.algebra.matrix.matrix.RationalType
+import linear.algebra.matrix.matrix.ComplexType
 import linear.algebra.matrix.matrix.GenericType
 
 import static extension linear.algebra.matrix.matrix.MatrixTypeUtil.*
@@ -29,6 +31,9 @@ from {
 
 axiom SIntMathematical
 	G |-IntegerType sub <: MathematicalType sup // integers are a subset of any number set used here
+
+axiom SRationalComplex
+	G |- RationalType sub <: ComplexType sup // rational numbers can be seen as a subset of the complex numbers
 
 rule SDefault
 	G |- Type sub <: Type sup
