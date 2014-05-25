@@ -1,5 +1,6 @@
 package linear.algebra.matrix.matrix
 
+@Deprecated
 static class MatrixTypeUtil {
 	def static boolean isExact(MatrixType type) {
 		try {
