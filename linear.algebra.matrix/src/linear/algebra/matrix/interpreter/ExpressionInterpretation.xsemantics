@@ -136,7 +136,7 @@ from {
 			if (m instanceof IntegerMatrix)
 				m.setEntry(i, j, value as Integer)
 			else if (m instanceof RationalMatrix)
-				m.setEntry(i, j, value as Rational)
+				m.setEntry(i, j, Rational.valueOf(value))
 			j = j + 1
 		}
 		i = i + 1
