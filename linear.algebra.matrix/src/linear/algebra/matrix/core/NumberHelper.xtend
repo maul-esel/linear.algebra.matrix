@@ -15,6 +15,15 @@ package class NumberHelper {
 		[ a | Complex.multiply(a, a) ]
 	)
 
+	public static def Number exp(Number base, int exp) {
+		new UnaryDispatch(
+			[ a | (a**exp) as int ],
+			[ a | Rational.exp(a, exp) ],
+			[ a | a**exp ],
+			[ a | Complex.exp(a, exp) ]
+		).of(base)
+	}
+
 	public static val sum = new BinaryDispatch(
 		[ a, b | a + b ],
 		[ a, b | Rational.add(a, b) ],

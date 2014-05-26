@@ -97,4 +97,15 @@ class Complex extends Number {
 	def static Complex divide(Complex a, Complex b) {
 		multiply(a, b.inverse)
 	}
+
+	def static Complex exp(Complex b, int e) {
+		var base = if (e < 0) b.inverse else b
+		var exp = if (e < 0) -e else e
+
+		var result = base;
+		for (i : 2..exp)
+			result = multiply(result, base);
+
+		result
+	}
 }
