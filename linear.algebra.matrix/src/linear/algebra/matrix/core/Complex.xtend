@@ -33,16 +33,12 @@ class Complex extends Number {
 		Math.sqrt(sum.of(square.of(re), square.of(im)).doubleValue())
 	}
 
-	def static Complex valueOf(Integer i) {
-		new Complex(i, 0)
-	}
-
-	def static Complex valueOf(Rational r) {
-		new Complex(r, 0)
-	}
-
-	def static Complex valueOf(Double r) {
-		new Complex(r, 0)
+	def static Complex valueOf(Object n) {
+		if (n instanceof Complex)
+			n
+		else if (n instanceof Number)
+			new Complex(n, 0)
+		else throw new IllegalStateException("Cannot create Complex from " + n)
 	}
 
 	// equals() etc.
