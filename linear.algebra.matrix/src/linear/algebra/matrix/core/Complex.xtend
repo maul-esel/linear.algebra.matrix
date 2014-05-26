@@ -29,13 +29,19 @@ class Complex extends Number {
 		new Complex(re, negative.of(im))
 	}
 
-	// TODO: abs(), once real numbers are introduced
+	def Double abs() {
+		Math.sqrt(sum.of(square.of(re), square.of(im)).doubleValue())
+	}
 
 	def static Complex valueOf(Integer i) {
 		new Complex(i, 0)
 	}
 
 	def static Complex valueOf(Rational r) {
+		new Complex(r, 0)
+	}
+
+	def static Complex valueOf(Double r) {
 		new Complex(r, 0)
 	}
 
