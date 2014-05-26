@@ -72,7 +72,7 @@ auxiliary checkParamTypes(VariableRegister genReg, List<TypedVarDeclaration> dec
 				source suppliedParams.get(i)
 
 			(!(generic.actualEntryType instanceof GenericType) || genericTypeMatches(genReg, generic.actualEntryType as GenericType, (valueType as MatrixType).actualEntryType))
-			or fail error "generic param matzrix entry type does not match"
+			or fail error "generic param matrix entry type does not match"
 				source suppliedParams.get(i)
 		} else if (paramType instanceof GenericType && valueType instanceof MathematicalType) {
 			genericTypeMatches(genReg, paramType as GenericType, valueType as MathematicalType)
