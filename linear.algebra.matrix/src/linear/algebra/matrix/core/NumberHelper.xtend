@@ -1,6 +1,13 @@
 package linear.algebra.matrix.core
 
 package class NumberHelper {
+	public static val abs = new UnaryDispatch(
+		[ a | Math.abs(a) ],
+		[ a | a.abs() ],
+		[ a | Math.abs(a) ],
+		[ a | a.abs() ]
+	)
+
 	public static val negative = new UnaryDispatch(
 		[ a | -a ],
 		[ a | a.negative ],
@@ -56,7 +63,7 @@ package class NumberHelper {
 		(Integer)=>Integer intCallback
 		(Rational)=>Rational rationalCallback
 		(Double)=>Double realCallback
-		(Complex)=>Complex complexCallback
+		(Complex)=>Number complexCallback
 
 		def dispatch Number of(Integer i) {
 			intCallback.apply(i)
