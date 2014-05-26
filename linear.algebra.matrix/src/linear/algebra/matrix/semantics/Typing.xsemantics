@@ -253,19 +253,17 @@ from {
 rule TComparison
 	G |- Comparison comp : MatrixFactory.eINSTANCE.createBooleanType()
 from {
-	G |- comp.left : var Type leftType
-	G |- comp.right : var Type rightType
-	(leftType instanceof MathematicalType) && (rightType instanceof MathematicalType) // matrices and booleans cannot be compared
+	G |- comp.left : var MathematicalType leftType
+	G |- comp.right : var MathematicalType rightType
 	!(leftType instanceof ComplexType) && !(rightType instanceof ComplexType) // complex numbers are not ordered
 }
 
 rule TEquivalency
 	G |- Equivalency eq : MatrixFactory.eINSTANCE.createBooleanType()
 from {
-	G |- eq.left : var Type leftType
-	G |- eq.right : var Type rightType
-	(leftType instanceof MatrixType && rightType instanceof MatrixType)
-	G|- leftType <: rightType
+	G |- eq.left : var MatrixType leftType
+	G |- eq.right : var MatrixType rightType
+	G |- leftType <: rightType
 }
 
 rule TAddition
@@ -274,12 +272,14 @@ from  {
 	G |- add.left  : var Type leftType
 	G |- add.right : var Type rightType
 
+	!(leftType instanceof BooleanType) && !(rightType instanceof BooleanType)
+
 	{
 		G |- leftType <: rightType
 		type = rightType
 	}
 	or {
-		G|- rightType <: leftType
+		G |- rightType <: leftType
 		type = leftType
 	}
 }
