@@ -7,13 +7,13 @@ import linear.algebra.matrix.interpreter.VariableRegister
 import java.util.List
 
 auxiliary {
-	genericVarMatches(VariableRegister genReg, String variable, String value) : boolean
+	genericVarMatches(VariableRegister genReg, String variable, String value) : Boolean
 	checkParamTypes(VariableRegister genReg, List<TypedVarDeclaration> declaredParams, List<Expression> suppliedParams)
-	genericTypeMatches(VariableRegister genReg, GenericType generic, MathematicalType value) : boolean
-	isGeneric(String size) : boolean
-	consistentLineWidth(MultiLineMatrixLiteral lit) : boolean
-	isSquare(MatrixType type) : boolean
-	matrixMultiplicationDefined(MatrixType left, MatrixType right) : boolean
+	genericTypeMatches(VariableRegister genReg, GenericType generic, MathematicalType value) : Boolean
+	isGeneric(String size) : Boolean
+	consistentLineWidth(MultiLineMatrixLiteral lit) : Boolean
+	isSquare(MatrixType type) : Boolean
+	matrixMultiplicationDefined(MatrixType left, MatrixType right) : Boolean
 	multipliedMatrixType(MatrixType left, MatrixType right) : MatrixType
 	transpose(MatrixType type) : MatrixType
 	scalarMultType(MathematicalType scalar, MatrixType matr) : MatrixType

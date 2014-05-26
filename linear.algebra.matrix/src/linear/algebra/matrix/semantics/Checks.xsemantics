@@ -9,11 +9,11 @@ import linear.algebra.matrix.imports.ImportManagerFactory
 inject ImportManagerFactory importFactory
 
 auxiliary {
-	hasPlaceholders(MultiLineMatrixLiteral lit) : boolean
-	isTypeDefinedByParams(Type type, ParameterList list) : boolean
-	isGenericInParamList(MatrixType type, ParameterList list) : boolean
-	isGenericVariableDefined(String generic, ParameterList list) : boolean
-	alwaysReturns(EObject obj) : boolean
+	hasPlaceholders(MultiLineMatrixLiteral lit) : Boolean
+	isTypeDefinedByParams(Type type, ParameterList list) : Boolean
+	isGenericInParamList(MatrixType type, ParameterList list) : Boolean
+	isGenericVariableDefined(String generic, ParameterList list) : Boolean
+	alwaysReturns(EObject obj) : Boolean
 }
 
 auxiliary hasPlaceholders(MultiLineMatrixLiteral lit) {

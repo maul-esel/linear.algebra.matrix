@@ -2,7 +2,7 @@ package linear.algebra.matrix.interpreter
 
 import linear.algebra.matrix.matrix.ComparisonOp
 
-static class CompareUtil {
+class CompareUtil {
 	def static <T> boolean compare(Comparable<T> left, T right, ComparisonOp op) {
 		switch op {
 			case ComparisonOp.LESS: left < right

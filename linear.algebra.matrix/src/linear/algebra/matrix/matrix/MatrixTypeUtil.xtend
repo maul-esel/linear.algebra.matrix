@@ -1,7 +1,7 @@
 package linear.algebra.matrix.matrix
 
 @Deprecated
-static class MatrixTypeUtil {
+class MatrixTypeUtil {
 	def static boolean isExact(MatrixType type) {
 		try {
 			Integer.parseInt(type.height)
