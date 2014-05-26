@@ -7,6 +7,7 @@ import linear.algebra.matrix.matrix.MatrixType
 import linear.algebra.matrix.matrix.MathematicalType
 import linear.algebra.matrix.matrix.IntegerType
 import linear.algebra.matrix.matrix.RationalType
+import linear.algebra.matrix.matrix.RealType
 import linear.algebra.matrix.matrix.ComplexType
 import linear.algebra.matrix.matrix.GenericType
 
@@ -32,8 +33,14 @@ from {
 axiom SIntMathematical
 	G |-IntegerType sub <: MathematicalType sup // integers are a subset of any number set used here
 
+axiom SRationalReal
+	G |- RationalType sub <: RealType sup
+
 axiom SRationalComplex
 	G |- RationalType sub <: ComplexType sup // rational numbers can be seen as a subset of the complex numbers
+
+axiom SRealComplex
+	G |- RealType sub <: ComplexType sup
 
 rule SDefault
 	G |- Type sub <: Type sup

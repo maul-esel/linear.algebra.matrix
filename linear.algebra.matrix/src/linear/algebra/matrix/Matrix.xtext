@@ -93,6 +93,8 @@ MathematicalType :
 	| {IntegerType} 'ℤ' '∋'
 	| {RationalType} 'rational'
 	| {RationalType} 'ℚ' '∋'
+	| {RealType} 'real'
+	| {RealType} 'ℝ' '∋'
 	| {ComplexType} 'complex'
 	| {ComplexType} 'ℂ' '∋'
 	| {GenericType} name=GENERIC_TYPE
@@ -121,15 +123,19 @@ RationalLiteral hidden() :
 ;
 
 RealLiteral :
-	IntLiteral | RationalLiteral
+	value=DOUBLE
+;
+
+CoefficientLiteral :
+	IntLiteral | RationalLiteral | RealLiteral
 ;
 
 ImaginaryLiteral hidden() :
-	coefficient=RealLiteral 'i'
+	coefficient=CoefficientLiteral 'i'
 ;
 
 MathematicalLiteral :
-	IntLiteral | RationalLiteral | ImaginaryLiteral
+	IntLiteral | RationalLiteral | RealLiteral | ImaginaryLiteral
 ;
 
 SimpleLiteral :
@@ -314,6 +320,8 @@ terminal fragment LETTER : ('a'..'z'|'A'..'Z');
 terminal ZERO : '0';
 terminal POSITIVE_INTEGER : DIGIT_WITHOUT_ZERO (DIGIT_WITHOUT_ZERO|ZERO)*;
 terminal NEGATIVE_INTEGER : '-' POSITIVE_INTEGER;
+
+terminal DOUBLE : '-'? (DIGIT_WITHOUT_ZERO | ZERO)+ '.' (DIGIT_WITHOUT_ZERO | ZERO)+;
 
 // IV. d) comments
 terminal SL_COMMENT : '§' !('§') !(NEWLINE)* NEWLINE?;
