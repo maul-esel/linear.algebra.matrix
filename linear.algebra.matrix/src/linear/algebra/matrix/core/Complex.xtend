@@ -6,23 +6,11 @@ class Complex extends Number {
 	val Number re
 	val Number im
 
-	new(Integer real, Integer imaginary) {
-		this(real as Number, imaginary as Number)
-	}
-
-	new(Rational real, Rational imaginary) {
-		this(real as Number, imaginary as Number)
-	}
-
-	new(Integer real, Rational imaginary) {
-		this(real as Number, imaginary as Number)
-	}
-
-	new(Rational real, Integer imaginary) {
-		this(real as Number, imaginary as Number)
-	}
-
-	private new(Number real, Number imaginary) {
+	new(Number real, Number imaginary) {
+		if (!(re instanceof Integer || re instanceof Rational || re instanceof Double))
+			throw new UnsupportedOperationException()
+		if (!(im instanceof Integer || im instanceof Rational || im instanceof Double))
+			throw new UnsupportedOperationException()
 		re = real
 		im = imaginary
 	}
