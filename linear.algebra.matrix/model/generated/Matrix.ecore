@@ -98,17 +98,17 @@
   <eClassifiers xsi:type="ecore:EClass" name="BooleanLiteral" eSuperTypes="#//SimpleLiteral">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="IntLiteral" eSuperTypes="#//CoefficientLiteral #//MathematicalLiteral">
+  <eClassifiers xsi:type="ecore:EClass" name="IntLiteral" eSuperTypes="#//CoefficientLiteral">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="RationalLiteral" eSuperTypes="#//CoefficientLiteral #//MathematicalLiteral">
+  <eClassifiers xsi:type="ecore:EClass" name="RationalLiteral" eSuperTypes="#//CoefficientLiteral">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="numerator" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="denominator" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="RealLiteral" eSuperTypes="#//CoefficientLiteral #//MathematicalLiteral">
+  <eClassifiers xsi:type="ecore:EClass" name="RealLiteral" eSuperTypes="#//CoefficientLiteral">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="CoefficientLiteral"/>
+  <eClassifiers xsi:type="ecore:EClass" name="CoefficientLiteral" eSuperTypes="#//MathematicalLiteral"/>
   <eClassifiers xsi:type="ecore:EClass" name="ImaginaryLiteral" eSuperTypes="#//MathematicalLiteral">
     <eStructuralFeatures xsi:type="ecore:EReference" name="coefficient" eType="#//CoefficientLiteral"
         containment="true"/>

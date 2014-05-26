@@ -135,7 +135,7 @@ ImaginaryLiteral hidden() :
 ;
 
 MathematicalLiteral :
-	IntLiteral | RationalLiteral | RealLiteral | ImaginaryLiteral
+	CoefficientLiteral | ImaginaryLiteral
 ;
 
 SimpleLiteral :
