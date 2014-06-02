@@ -225,16 +225,16 @@ Negation returns Expression :
 	EntryAccess | ({Negation} ('!'|'¬') expr=EntryAccess)
 ;
 
-Exponentiation returns Expression :
-	Negation ({Exponentiation.base=current} '^' exp=Negation)*
+Transposition returns Expression :
+	Negation ({Transposition.base=current} '^' TRANSPOS)?
 ;
 
-Transposition returns Expression :
-	Exponentiation ({Transposition.base=current} '^' TRANSPOS)?
+Exponentiation returns Expression :
+	Transposition ({Exponentiation.base=current} '^' exp=Transposition)*
 ;
 
 UnaryMinus returns Expression :
-	Transposition | {UnaryMinus} ('-' expr=Transposition)
+	Exponentiation | {UnaryMinus} ('-' expr=Exponentiation)
 ;
 
 Division returns Expression :
@@ -293,7 +293,7 @@ enum EqualsOp :
 ;
 
 ID :
-	ID_PATTERN | IMAGINARY_UNIT
+	ID_PATTERN | IMAGINARY_UNIT | TRANSPOS
 ;
 
 // IV. terminals

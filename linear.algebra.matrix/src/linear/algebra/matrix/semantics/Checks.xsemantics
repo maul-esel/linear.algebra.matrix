@@ -4,8 +4,11 @@ import org.eclipse.emf.ecore.EObject
 import linear.algebra.matrix.matrix.*
 import linear.algebra.matrix.interpreter.VariableRegister
 import linear.algebra.matrix.imports.ImportManagerFactory
+import linear.algebra.matrix.scoping.MatrixScopeProvider
+import org.eclipse.xtext.naming.QualifiedName
 
 inject ImportManagerFactory importFactory
+inject MatrixScopeProvider scopeProvider
 
 auxiliary {
 	isTypeDefinedByParams(Type type, ParameterList list) : Boolean
@@ -437,5 +440,15 @@ from {
 		fail error "Import is not valid"
 			source imp
 			feature MatrixPackage.eINSTANCE.import_Source
+	}
+}
+
+checkrule CTranspositionAmbiguous
+	for Transposition trans
+from {
+	val scope = scopeProvider.getScope(trans, MatrixPackage.eINSTANCE.variable_Ref)
+	if (scope.getSingleElement(QualifiedName.create("T")) != null) {
+		fail error "Ambiguous expression due to existence of variable 'T' (rename variable to make clear it's a transposition)"
+			source trans
 	}
 }
