@@ -7,7 +7,7 @@
     <package 
        uri = "http://www.algebra.linear/matrix/Matrix" 
        class = "linear.algebra.matrix.matrix.MatrixPackage"
-       genModel = "model/generated/Matrix.genmodel" /> 
+       genModel = "model/Matrix.xcore" /> 
 	
   </extension>
 

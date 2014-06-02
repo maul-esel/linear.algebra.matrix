@@ -1,0 +1,314 @@
+@Ecore(nsURI="http://www.algebra.linear/matrix/Matrix")
+@GenModel(fileExtensions="mtx", editDirectory="/linear.algebra.matrix.edit/src", editorDirectory="/linear.algebra.matrix.editor/src", forceOverwrite="true", updateClasspath="false", editorPluginID="linear.algebra.matrix.editor")
+package linear.algebra.matrix.matrix
+
+class Code {
+	contains Import[] imports
+	contains Line[] lines
+}
+
+class Import {
+	String source
+}
+
+class Line {
+}
+
+class Action extends Line , IfBody {
+}
+
+class VarDeclaration extends Action {
+	boolean const
+	String name
+	contains Expression value
+}
+
+class TypedVarDeclaration extends VarDeclaration {
+	contains Type ^type
+}
+
+class InferredVarDeclaration extends VarDeclaration {
+}
+
+class ReturnStatement extends Action {
+	contains Expression value
+}
+
+class ProcRef {
+	refers ProcDeclaration ref
+}
+
+class ProcCall extends Action {
+	contains ProcRef proc
+	contains Expression[] params
+}
+
+class FromToLoop extends Action {
+	contains Variable ^var
+	contains Expression init
+	contains Expression end
+	contains Block body
+}
+
+class WhileLoop extends Action {
+	contains Expression cond
+	contains Block body
+}
+
+class Block extends IfBody {
+	contains Action[] lines
+}
+
+class IfBody {
+}
+
+class IfElse extends Action {
+	contains Expression cond
+	contains IfBody ifTrue
+	contains IfBody ^else
+}
+
+class FuncDeclaration extends Line {
+	boolean internal
+	String name
+	contains ParameterList params
+	contains Type returnType
+	contains Block body
+}
+
+class ProcDeclaration extends Line {
+	boolean internal
+	String name
+	contains ParameterList params
+	contains Block body
+}
+
+class ParameterList {
+	contains TypedVarDeclaration[] params
+}
+
+class SimpleType extends Type {
+}
+
+class MathematicalType extends SimpleType {
+}
+
+class MatrixType extends Type {
+	contains MathematicalType entryType
+	String height
+	String width
+}
+
+class Type {
+}
+
+class BooleanLiteral extends SimpleLiteral {
+	String value
+}
+
+class IntLiteral extends CoefficientLiteral {
+	String value
+}
+
+class RationalLiteral extends CoefficientLiteral {
+	String numerator
+	String denominator
+}
+
+class RealLiteral extends CoefficientLiteral {
+	String value
+}
+
+class CoefficientLiteral extends MathematicalLiteral {
+}
+
+class ImaginaryLiteral extends MathematicalLiteral {
+	contains CoefficientLiteral coefficient
+}
+
+class MathematicalLiteral extends SimpleLiteral , MatrixEntry {
+}
+
+class SimpleLiteral extends Expression {
+}
+
+class MatrixInit extends Expression {
+	contains MathematicalType entryType
+	contains TypedVarDeclaration line
+	String lineMax
+	contains TypedVarDeclaration column
+	String colMax
+	contains Expression entry
+}
+
+class MultiLineMatrixLiteral extends Expression {
+	contains MathematicalType entryType
+	contains Dotting dot
+	contains MatrixLiteralLine[] lines
+}
+
+class PlaceholderEntry extends MatrixEntry {
+}
+
+class MatrixEntry {
+}
+
+class MatrixLiteralLine {
+	contains MatrixEntry[] entries
+}
+
+class Dotting {
+	contains Expression fill
+}
+
+class GenericVariable extends Expression {
+	String name
+}
+
+class Variable extends Expression {
+	refers VarDeclaration ref
+}
+
+class Function {
+	refers FuncDeclaration ref
+}
+
+class FunctionCall extends Action , Expression {
+	contains Function func
+	contains Expression[] params
+}
+
+class DeterminantOrAbsoluteValue extends Expression {
+	contains Expression inner
+}
+
+class ParenthesizedExpression extends Expression {
+	contains Expression inner
+}
+
+class Expression {
+}
+
+class Assignment extends Action , Expression {
+	contains Expression value
+}
+
+class VariableAssignment extends Assignment {
+	contains Variable variable
+}
+
+class MatrixEntryAssignment extends Assignment {
+	contains Expression matr
+	contains Expression line
+	contains Expression column
+}
+
+enum AdditionOp {
+	PLUS as "+"
+	MINUS as "-" = 1
+}
+
+enum ComparisonOp {
+	LESS as "<"
+	GREATER as ">" = 1
+	LESSOREQUAL as "<=" = 2
+	GREATEROREQUAL as ">=" = 3
+	GREATEROREQUALS as "≥" = 4
+}
+
+enum LogicalOp {
+	AND as "&&"
+	OR as "||" = 1
+}
+
+enum EqualsOp {
+	EQUALS as "="
+	NOTEQUALS as "!=" = 1
+}
+
+class BooleanType extends SimpleType {
+}
+
+class IntegerType extends MathematicalType {
+}
+
+class RationalType extends MathematicalType {
+}
+
+class RealType extends MathematicalType {
+}
+
+class ComplexType extends MathematicalType {
+}
+
+class GenericType extends MathematicalType {
+	String name
+}
+
+class EntryAccess extends Expression {
+	contains Expression matr
+	contains Expression line
+	contains Expression column
+}
+
+class Negation extends Expression {
+	contains Expression expr
+}
+
+class Exponentiation extends Expression {
+	contains Expression base
+	contains Expression exp
+}
+
+class Transposition extends Expression {
+	contains Expression base
+}
+
+class UnaryMinus extends Expression {
+	contains Expression expr
+}
+
+class Division extends Expression {
+	contains Expression left
+	contains Expression right
+}
+
+class Multiplication extends Expression {
+	contains Expression left
+	contains Expression right
+}
+
+class Addition extends Expression {
+	contains Expression left
+	AdditionOp ^op
+	contains Expression right
+}
+
+class Equivalency extends Expression {
+	contains Expression left
+	contains Expression right
+}
+
+class Comparison extends Expression {
+	contains Expression left
+	ComparisonOp ^op
+	contains Expression right
+}
+
+class Equals extends Expression {
+	contains Expression left
+	EqualsOp ^op
+	contains Expression right
+}
+
+class LogicalAndOr extends Expression {
+	contains Expression left
+	LogicalOp ^op
+	contains Expression right
+}
+
+class Ternary extends Expression {
+	contains Expression cond
+	contains Expression ifTrue
+	contains Expression ifFalse
+}

@@ -6,6 +6,7 @@
 	<classpathentry kind="src" path="xsemantics-gen"/>
 	<classpathentry kind="src" path="src-gen"/>
 	<classpathentry kind="src" path="xtend-gen"/>
+	<classpathentry kind="src" path="emf-gen"/>
 	<classpathentry kind="lib" path="/opt/eclipse/plugins/guice-assistedinject-3.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
