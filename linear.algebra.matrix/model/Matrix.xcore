@@ -87,10 +87,7 @@ class ParameterList {
 	contains TypedVarDeclaration[] params
 }
 
-class SimpleType extends Type {
-}
-
-class MathematicalType extends SimpleType {
+class MathematicalType extends Type {
 }
 
 class MatrixType extends Type {
@@ -138,7 +135,7 @@ class MatrixType extends Type {
 class Type {
 }
 
-class BooleanLiteral extends SimpleLiteral {
+class BooleanLiteral extends Expression {
 	String value
 }
 
@@ -162,10 +159,7 @@ class ImaginaryLiteral extends MathematicalLiteral {
 	contains CoefficientLiteral coefficient
 }
 
-class MathematicalLiteral extends SimpleLiteral , MatrixEntry {
-}
-
-class SimpleLiteral extends Expression {
+class MathematicalLiteral extends Expression , MatrixEntry {
 }
 
 class MatrixInit extends Expression {
@@ -270,7 +264,7 @@ enum EqualsOp {
 	NOTEQUALS as "!=" = 1
 }
 
-class BooleanType extends SimpleType {
+class BooleanType extends Type {
 }
 
 class IntegerType extends MathematicalType {

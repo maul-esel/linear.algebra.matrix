@@ -17,11 +17,16 @@ Line :
 ;
 
 Action :
-	(VarDeclaration ';') | (Assignment ';') | (FunctionCall ';') | ReturnStatement | IfElse | ProcCall | FromToLoop | WhileLoop // TODO: solve proc/func conflict without backtracking
-;
-
-VarDeclaration :
-	TypedVarDeclaration | InferredVarDeclaration
+	(TypedVarDeclaration ';')
+	| (InferredVarDeclaration ';')
+	| (VariableAssignment ';')
+	| (MatrixEntryAssignment ';')
+	| (FunctionCall ';')
+	| ReturnStatement
+	| IfElse
+	| ProcCall
+	| FromToLoop
+	| WhileLoop // TODO: solve proc/func conflict without backtracking
 ;
 
 TypedVarDeclaration :
@@ -84,10 +89,6 @@ ParameterList :
 ;
 
 // II. types
-SimpleType :
-	MathematicalType | {BooleanType} BOOL
-;
-
 MathematicalType :
 	{IntegerType} INT
 	| {IntegerType} 'ℤ' '∋'
@@ -105,7 +106,7 @@ MatrixType :
 ;
 
 Type :
-	SimpleType | MatrixType
+	MathematicalType | {BooleanType} BOOL | MatrixType
 ;
 
 // III. Expressions
@@ -136,10 +137,6 @@ ImaginaryLiteral hidden() :
 
 MathematicalLiteral :
 	CoefficientLiteral | ImaginaryLiteral
-;
-
-SimpleLiteral :
-	MathematicalLiteral | BooleanLiteral
 ;
 
 // III. a) (i) Matrix literals
@@ -200,14 +197,18 @@ ParenthesizedExpression :
 ;
 
 AtomExpression returns Expression :
-	SimpleLiteral | MultiLineMatrixLiteral | MatrixInit | Variable | GenericVariable | ParenthesizedExpression | FunctionCall | DeterminantOrAbsoluteValue
+	MathematicalLiteral
+	| BooleanLiteral
+	| MultiLineMatrixLiteral
+	| MatrixInit
+	| Variable
+	| GenericVariable
+	| ParenthesizedExpression
+	| FunctionCall
+	| DeterminantOrAbsoluteValue
 ;
 
 // III. c) complex expressions
-Assignment :
-	VariableAssignment | MatrixEntryAssignment
-;
-
 VariableAssignment :
 	variable=Variable OP_ASSIGN value=Expression
 ;
@@ -269,7 +270,9 @@ Ternary returns Expression :
 ;
 
 Expression returns Expression :
-	Ternary | Assignment
+	Ternary
+	| VariableAssignment
+	| MatrixEntryAssignment
 ;
 
 // III. d) operator enums
