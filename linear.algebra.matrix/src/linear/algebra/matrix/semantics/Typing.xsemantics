@@ -102,7 +102,7 @@ auxiliary createMatrixType(String height, String width, MathematicalType entryTy
 	val newType = MatrixFactory.eINSTANCE.createMatrixType()
 	newType.height = height
 	newType.width  = width
-	newType.entryType = entryType
+	newType.entryType = entryType.copy
 	newType
 }
 
@@ -201,10 +201,9 @@ rule TMatrixInit
 	G |- MatrixInit init : MatrixType type
 from {
 	var MathematicalType entryType = init.entryType
-	//if (entryType == null) // FIXME: enabling this somehow magically breaks the example code
-	//	G |- init.entry : entryType // (counter var j is properly typed at first, but suddenly its type is null)
-	// leading to a NullPointerException in TVariable
-	type = createMatrixType(init.lineMax, init.colMax, entryType ?: MatrixFactory.eINSTANCE.createIntegerType())
+	if (entryType == null)
+		G |- init.entry : entryType
+	type = createMatrixType(init.lineMax, init.colMax, entryType)
 }
 
 rule TParenthesis
@@ -277,7 +276,8 @@ from  {
 	or {
 		G |- rightType <: leftType
 		type = leftType
-	}
+	} or fail error "cannot type addition of type " + stringRep(leftType) + " and " + stringRep(rightType)
+		source add
 }
 
 rule TDivision

@@ -88,6 +88,9 @@ class ParameterList {
 }
 
 class MathematicalType extends Type {
+	op MathematicalType copy() {
+		MatrixFactory.eINSTANCE.^create(eClass) as MathematicalType
+	}
 }
 
 class MatrixType extends Type {
@@ -281,6 +284,12 @@ class ComplexType extends MathematicalType {
 
 class GenericType extends MathematicalType {
 	String name
+
+	op MathematicalType copy() {
+		val result = super.copy() as GenericType
+		result.name = name
+		result
+	}
 }
 
 class EntryAccess extends Expression {
