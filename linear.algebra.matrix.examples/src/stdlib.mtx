@@ -1,29 +1,29 @@
-def add : (($n ° $m) A, ($n ° $m) B) -> ($n ° $m) {
+def add : (%t($n ° $m) A, %t($n ° $m) B) -> %t($n ° $m) {
 	return init (int i..$n, int j..$m) ~> A[i,j] + B[i,j];
 }
 
-def mult : (($n ° $m) A, ($m ° $k) B) -> ($n ° $k) {
+def mult : (%t($n ° $m) A, %t($m ° $k) B) -> %t($n ° $k) {
 	return init (int i..$n, int j..$k) ~> mult_vectors(A, B, i, j);
 }
 
-internal def mult_vectors : (($n ° $m) A, ($m ° $k) B, int line, int column) -> int {
+internal def mult_vectors : (%t($n ° $m) A, %t($m ° $k) B, int line, int column) -> %t {
 	int i;
-	int sum := 0;
+	%t sum := 0;
 	from i=1 to $m {
 		sum := sum + A[line,i] * B[i,column];
 	}
 	return sum;
 }
 
-def minus : (($n ° $m) A) -> ($n ° $m) {
+def minus : (%t($n ° $m) A) -> %t($n ° $m) {
 	return init (int i..$n, int j..$m) ~> -A[i,j];
 }
 
-def transpose : (($n ° $m) A) -> ($m ° $n) {
+def transpose : (%t($n ° $m) A) -> %t($m ° $n) {
 	return init (int i..$m, int j..$n) ~> A[j,i];
 }
 
-def exp : (($n ° $n) A, int exp) -> ($n ° $n) {
+def exp : (%t($n ° $n) A, int exp) -> %t($n ° $n) {
 	if (exp == 0) § identity matrix
 		return init (int i..$n, int j..$n) ~> i == j ? 1 : 0;
 	if (exp < 0) {
@@ -37,11 +37,11 @@ def exp : (($n ° $n) A, int exp) -> ($n ° $n) {
 	return A;
 }
 
-def scalar_mult : (($n ° $m) A, int scalar) -> ($n ° $m) {
+def scalar_mult : (%t($n ° $m) A, %t scalar) -> %t($n ° $m) {
 	return init (int i..$n, int j..$m) ~> scalar * A[i,j];
 }
 
-def diagonal : (($n ° $m) A) -> boolean {
+def diagonal : (%t($n ° $m) A) -> boolean {
 	boolean diagonal := true;
 	int i; int j;
 	from i=1 to $n {
@@ -52,7 +52,7 @@ def diagonal : (($n ° $m) A) -> boolean {
 	return diagonal;
 }
 
-def diagonalize : (($n ° $m) A) -> ($n ° $m) {
+def diagonalize : (%t($n ° $m) A) -> %t($n ° $m) {
 	while !(diagonal(A)) {
 		int i := 1; int j := $m;
 		while i = j || A[i,j] = 0 { § find highest priority index
@@ -73,7 +73,7 @@ def diagonalize : (($n ° $m) A) -> ($n ° $m) {
 	return A;
 }
 
-internal def columnDiagonalizeHelper : (($n ° $m) A, int l, int c) -> ($n ° $m) {
+internal def columnDiagonalizeHelper : (%t($n ° $m) A, int l, int c) -> %t($n ° $m) {
 	($m ° $m) Tilt;
 	if (A[l,c] = A[l,c - 1])
 		Tilt := init (int i..$m, int j..$m) ~> i = j ? 1 : ((i = c - 1 && j = c) ? -1 : 0);
@@ -139,25 +139,25 @@ def equivalent : (($n ° $m) A, ($n ° $m) B) -> boolean {
 	§ TODO
 }§§
 
-def det : (($n ° $n) A) -> int {
+def det : (%t($n ° $n) A) -> %t {
 	A := diagonalize(A);
-	int d := 1; int i;
+	%t d := 1; int i;
 	from i=1 to $n {
 		d := d * A[i,i];
 	}
 	return d;
 }
 
-def tr : (($n ° $m) A) -> int {
+def tr : (%t($n ° $m) A) -> %t {
 	A := diagonalize(A);
-	int t := 0; int i;
+	%t t := 0; int i;
 	from i=1 to min($n,$m) {
 		t := t + A[i,i];
 	}
 	return t;
 }
 
-def rk : (($n ° $m) A) -> int {
+def rk : (%t($n ° $m) A) -> int {
 	A := diagonalize(A);
 	int r := 0; int i;
 	from i=1 to min($n,$m) {
@@ -166,11 +166,11 @@ def rk : (($n ° $m) A) -> int {
 	return r;
 }
 
-def column : (($n ° $m) A, int c) -> ($n ° 1) {
+def column : (%t($n ° $m) A, int c) -> %t($n ° 1) {
 	return init (int i..$n, int j..1) ~> A[i,c];
 }
 
-def line : (($n ° $m) A, int l) -> (1 ° $m) {
+def line : (%t($n ° $m) A, int l) -> %t(1 ° $m) {
 	return init (int i..1, int j..$m) ~> A[l, j];
 }
 
