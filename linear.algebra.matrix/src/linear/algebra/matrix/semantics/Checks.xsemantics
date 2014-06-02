@@ -2,7 +2,6 @@ system linear.algebra.matrix.semantics.Checks extends linear.algebra.matrix.sema
 
 import org.eclipse.emf.ecore.EObject
 import linear.algebra.matrix.matrix.*
-import static extension linear.algebra.matrix.matrix.MatrixTypeUtil.*
 import linear.algebra.matrix.interpreter.VariableRegister
 import linear.algebra.matrix.imports.ImportManagerFactory
 
@@ -38,17 +37,17 @@ auxiliary isTypeDefinedByParams(Type type, ParameterList list) {
 	} else true
 
 	val typeDefined = if (type instanceof GenericType
-		|| (type instanceof MatrixType && (type as MatrixType).actualEntryType instanceof GenericType)) {
+		|| (type instanceof MatrixType && (type as MatrixType).realEntryType instanceof GenericType)) {
 		val definedTypes = (paramTypes.filter [ paramType | paramType instanceof GenericType ]
 				.map [ paramType | (paramType as GenericType).name ]
 			+ paramTypes.filter [ paramType | paramType instanceof MatrixType ]
-				.map [ paramType | (paramType as MatrixType).actualEntryType ]
+				.map [ paramType | (paramType as MatrixType).realEntryType ]
 				.filter [ entryType | entryType instanceof GenericType ]
 				.map [ entryType | (entryType as GenericType).name ]).toSet
 		if (type instanceof GenericType)
 			definedTypes.contains(type.name)
 		else
-			definedTypes.contains(((type as MatrixType).actualEntryType as GenericType).name)
+			definedTypes.contains(((type as MatrixType).realEntryType as GenericType).name)
 	} else true
 
 	dimensionsDefined && typeDefined
@@ -157,7 +156,7 @@ from {
 	empty |- init : var MatrixType type
 	{
 		empty |- init.entry : var Type entryType
-		empty |- entryType <: type.actualEntryType
+		empty |- entryType <: type.realEntryType
 	} or fail error "Matrix initialization expression is of incompatible type"
 		source init.entry
 }
@@ -169,7 +168,7 @@ from {
 
 	if (lit.dot != null) {
 		empty |- lit.dot.fill : var Type dotType
-		empty |- dotType <: type.actualEntryType
+		empty |- dotType <: type.realEntryType
 		or fail error "Matrix entry placeholder is of incompatible type"
 			source lit.dot
 	}
@@ -178,7 +177,7 @@ from {
 		for (entry : line.entries)
 			if (entry instanceof MathematicalLiteral) { // i.e. not a placeholder
 				empty |- entry : var Type entryType
-				empty |- entryType <: type.actualEntryType
+				empty |- entryType <: type.realEntryType
 				or fail error "Matrix entry is of incompatible type"
 					source entry
 			}

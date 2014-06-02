@@ -2,7 +2,6 @@ system linear.algebra.matrix.semantics.Typing
 	extends linear.algebra.matrix.semantics.CommonType
 
 import linear.algebra.matrix.matrix.*
-import static extension linear.algebra.matrix.matrix.MatrixTypeUtil.*
 import linear.algebra.matrix.interpreter.VariableRegister
 import java.util.List
 
@@ -17,6 +16,8 @@ auxiliary {
 	multipliedMatrixType(MatrixType left, MatrixType right) : MatrixType
 	transpose(MatrixType type) : MatrixType
 	scalarMultType(MathematicalType scalar, MatrixType matr) : MatrixType
+	createMatrixType(String height, String width, MathematicalType entryType) : MatrixType
+	makeExactFromGeneric(VariableRegister generics, MatrixType matrType) : MatrixType
 }
 
 judgments {
@@ -31,8 +32,8 @@ auxiliary matrixMultiplicationDefined(MatrixType left, MatrixType right) {
 }
 
 auxiliary multipliedMatrixType(MatrixType left, MatrixType right) {
-	empty |- left.actualEntryType ~~ right.actualEntryType |> var MathematicalType superType
-	MatrixTypeUtil.create(left.height, right.width, superType)
+	empty |- left.realEntryType ~~ right.realEntryType |> var MathematicalType superType
+	createMatrixType(left.height, right.width, superType)
 }
 
 auxiliary isSquare(MatrixType type) {
@@ -49,7 +50,7 @@ auxiliary consistentLineWidth(MultiLineMatrixLiteral lit) {
 }
 
 auxiliary transpose(MatrixType type) {
-	MatrixTypeUtil.create(type.width, type.height, type.actualEntryType)
+	createMatrixType(type.width, type.height, type.realEntryType)
 }
 
 auxiliary isGeneric(String size) {
@@ -71,7 +72,7 @@ auxiliary checkParamTypes(VariableRegister genReg, List<TypedVarDeclaration> dec
 			 or fail error "generic param type does not match"
 				source suppliedParams.get(i)
 
-			(!(generic.actualEntryType instanceof GenericType) || genericTypeMatches(genReg, generic.actualEntryType as GenericType, (valueType as MatrixType).actualEntryType))
+			(!(generic.realEntryType instanceof GenericType) || genericTypeMatches(genReg, generic.realEntryType as GenericType, (valueType as MatrixType).realEntryType))
 			or fail error "generic param matrix entry type does not match"
 				source suppliedParams.get(i)
 		} else if (paramType instanceof GenericType && valueType instanceof MathematicalType) {
@@ -108,13 +109,31 @@ auxiliary genericTypeMatches(VariableRegister genReg, GenericType generic, Mathe
 auxiliary scalarMultType(MathematicalType scalar, MatrixType matr) {
 	var MatrixType result
 	{
-		empty |- scalar <: matr.actualEntryType
+		empty |- scalar <: matr.realEntryType
 		result = matr
 	} or {
-		empty |- matr.actualEntryType <: scalar
-		result = MatrixTypeUtil.create(matr.height, matr.width, scalar)
+		empty |- matr.realEntryType <: scalar
+		result = createMatrixType(matr.height, matr.width, scalar)
 	}
 	result
+}
+
+auxiliary createMatrixType(String height, String width, MathematicalType entryType) {
+	val newType = MatrixFactory.eINSTANCE.createMatrixType()
+	newType.height = height
+	newType.width  = width
+	newType.entryType = entryType
+	newType
+}
+
+auxiliary makeExactFromGeneric(VariableRegister generics, MatrixType matrType) {
+	createMatrixType(
+		if (isGeneric(matrType.height)) generics.get(matrType.height).toString() else matrType.height,
+		if (isGeneric(matrType.width))  generics.get(matrType.width).toString()  else matrType.width,
+		if (matrType.realEntryType instanceof GenericType)
+			generics.get((matrType.realEntryType as GenericType).name) as MathematicalType
+		else matrType.realEntryType
+	)
 }
 
 /* TYPING */
@@ -160,13 +179,7 @@ from {
 	val retType = call.func.ref.returnType
 	type = if (retType instanceof MatrixType) {
 		if (retType.isGeneric())
-			MatrixTypeUtil.create(
-				if (isGeneric(retType.height)) genericRegister.get(retType.height).toString() else retType.height,
-				if (isGeneric(retType.width))  genericRegister.get(retType.width).toString()  else retType.width,
-				if (retType.actualEntryType instanceof GenericType)
-					genericRegister.get((retType.actualEntryType as GenericType).name) as MathematicalType
-				else retType.actualEntryType
-			)
+			makeExactFromGeneric(genericRegister, retType)
 		else
 			retType
 	} else if (retType instanceof GenericType)
@@ -201,7 +214,7 @@ from {
 
 	val lines = lit.lines.size()
 	val columns = lit.lines.get(0).getEntries().size()
-	type = MatrixTypeUtil.create(Integer.toString(lines), Integer.toString(columns), lit.entryType) // TODO: if entryType is null, derive from entries
+	type = createMatrixType(Integer.toString(lines), Integer.toString(columns), lit.entryType) // TODO: if entryType is null, derive from entries
 }
 
 rule TMatrixInit
@@ -211,7 +224,7 @@ from {
 	//if (entryType == null) // FIXME: enabling this somehow magically breaks the example code
 	//	G |- init.entry : entryType // (counter var j is properly typed at first, but suddenly its type is null)
 	// leading to a NullPointerException in TVariable
-	type = MatrixTypeUtil.create(init.lineMax, init.colMax, entryType)
+	type = createMatrixType(init.lineMax, init.colMax, entryType)
 }
 
 rule TParenthesis
@@ -233,8 +246,8 @@ rule TMatrixEntryAssignment
 from {
 	G |- assign.matr : var MatrixType matrType
 	G |- assign.value : var Type valType
-	G |- valType <: matrType.actualEntryType or fail error "entry cannot be assigned" source assign.value
-	type = matrType.actualEntryType
+	G |- valType <: matrType.realEntryType or fail error "entry cannot be assigned" source assign.value
+	type = matrType.realEntryType
 }
 
 rule TLogical
@@ -386,5 +399,5 @@ from {
 	G |- acc.matr : var MatrixType matrType
 	G |- acc.line : intType
 	G |- acc.column : intType
-	type = matrType.actualEntryType
+	type = matrType.realEntryType
 }

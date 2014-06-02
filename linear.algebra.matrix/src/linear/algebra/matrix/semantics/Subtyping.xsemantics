@@ -11,8 +11,6 @@ import linear.algebra.matrix.matrix.RealType
 import linear.algebra.matrix.matrix.ComplexType
 import linear.algebra.matrix.matrix.GenericType
 
-import static extension linear.algebra.matrix.matrix.MatrixTypeUtil.*
-
 judgments {
 	subtype |- Type sub <: Type sup
 }
@@ -21,7 +19,7 @@ rule SMatrixType
 	derives G |- MatrixType sub <: MatrixType sup
 from {
 	{ sub.dimensionsEqual(sup) }
-	{ G |- sub.actualEntryType <: sup.actualEntryType }
+	{ G |- sub.realEntryType <: sup.realEntryType }
 }
 
 rule SGenericTypes

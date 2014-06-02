@@ -97,6 +97,34 @@ class MatrixType extends Type {
 	contains MathematicalType entryType
 	String height
 	String width
+
+	op MathematicalType getRealEntryType() {
+		entryType ?: MatrixFactory.eINSTANCE.createIntegerType()
+	}
+
+	op boolean isExact() {
+		try {
+			Integer.parseInt(height)
+			Integer.parseInt(width)
+		} catch (NumberFormatException e) {
+			return false
+		}
+		true
+	}
+
+	op boolean isGeneric() {
+		try {
+			Integer.parseInt(height)
+			Integer.parseInt(width)
+		} catch (NumberFormatException e) {
+			return true
+		}
+		false
+	}
+
+	op boolean dimensionsEqual(MatrixType other) {
+		height.contentEquals(other.height) && width.contentEquals(other.width)
+	}
 }
 
 class Type {

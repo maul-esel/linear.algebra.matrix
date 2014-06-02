@@ -1,7 +1,6 @@
 system linear.algebra.matrix.interpreter.ExpressionInterpretation extends linear.algebra.matrix.semantics.Checks
 
 import linear.algebra.matrix.matrix.*
-import static extension linear.algebra.matrix.matrix.MatrixTypeUtil.*
 
 import linear.algebra.matrix.interpreter.VariableRegister
 import linear.algebra.matrix.interpreter.Interpreter
@@ -19,21 +18,12 @@ import static extension linear.algebra.matrix.core.NumberHelper.*
 inject StdlibUtil util
 
 auxiliary {
-	makeExactFromGeneric(VariableRegister generics, MatrixType matrType) : MatrixType
 	createMatrix(MathematicalType entries, Integer lines, Integer columns) : Matrix<?>
 	setMatrixEntry(Matrix<?> m, Integer i, Integer j, Number entry)
 }
 
 judgments {
     interpret |- Expression expr ~> output Object
-}
-
-auxiliary makeExactFromGeneric(VariableRegister generics, MatrixType matrType) {
-	MatrixTypeUtil.create(
-		if (isGeneric(matrType.height)) generics.get(matrType.height) as String else matrType.height,
-		if (isGeneric(matrType.width)) generics.get(matrType.width) as String else matrType.width,
-		matrType.actualEntryType
-	)
 }
 
 auxiliary createMatrix(MathematicalType entries, Integer lines, Integer columns) {
@@ -153,7 +143,7 @@ from {
 		matrType = makeExactFromGeneric(generics, matrType)
 	}
 
-	m = createMatrix(matrType.actualEntryType, Integer.parseInt(matrType.height), Integer.parseInt(matrType.width))
+	m = createMatrix(matrType.realEntryType, Integer.parseInt(matrType.height), Integer.parseInt(matrType.width))
 
 	var i = 1
 	for (line : lit.lines) {
@@ -188,7 +178,7 @@ from {
 	val lines = Integer.parseInt(matrType.height)
 	val columns = Integer.parseInt(matrType.width)
 
-	m = createMatrix(matrType.actualEntryType, lines, columns)
+	m = createMatrix(matrType.realEntryType, lines, columns)
 
 	for (i : 1..lines)
 		for (j : 1..columns) {
