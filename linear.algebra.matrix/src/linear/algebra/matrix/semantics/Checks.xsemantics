@@ -8,21 +8,10 @@ import linear.algebra.matrix.imports.ImportManagerFactory
 inject ImportManagerFactory importFactory
 
 auxiliary {
-	hasPlaceholders(MultiLineMatrixLiteral lit) : Boolean
 	isTypeDefinedByParams(Type type, ParameterList list) : Boolean
 	isGenericInParamList(MatrixType type, ParameterList list) : Boolean
 	isGenericVariableDefined(String generic, ParameterList list) : Boolean
 	alwaysReturns(EObject obj) : Boolean
-}
-
-auxiliary hasPlaceholders(MultiLineMatrixLiteral lit) {
-	var placeholders = false;
-	for (line : lit.lines) {
-		for (entry : line.entries) {
-			placeholders = placeholders || (entry instanceof PlaceholderEntry)
-		}
-	}
-	placeholders
 }
 
 auxiliary isTypeDefinedByParams(Type type, ParameterList list) {
@@ -145,7 +134,7 @@ from {
 checkrule CMatrixLiteralHasDot
 	for MultiLineMatrixLiteral lit
 from {
-	{ lit.dot != null || !hasPlaceholders(lit) }
+	{ lit.dot != null || !lit.hasPlaceholders }
 	or fail error "Literal references undefined placeholder '.'"
 		source lit
 }

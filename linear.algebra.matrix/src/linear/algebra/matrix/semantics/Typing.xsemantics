@@ -10,9 +10,6 @@ auxiliary {
 	checkParamTypes(VariableRegister genReg, List<TypedVarDeclaration> declaredParams, List<Expression> suppliedParams)
 	genericTypeMatches(VariableRegister genReg, GenericType generic, MathematicalType value) : Boolean
 	isGeneric(String size) : Boolean
-	consistentLineWidth(MultiLineMatrixLiteral lit) : Boolean
-	isSquare(MatrixType type) : Boolean
-	matrixMultiplicationDefined(MatrixType left, MatrixType right) : Boolean
 	multipliedMatrixType(MatrixType left, MatrixType right) : MatrixType
 	transpose(MatrixType type) : MatrixType
 	scalarMultType(MathematicalType scalar, MatrixType matr) : MatrixType
@@ -27,26 +24,9 @@ judgments {
     vartype ||- VarDeclaration decl : output Type
 }
 
-auxiliary matrixMultiplicationDefined(MatrixType left, MatrixType right) {
-	left.width == right.height
-}
-
 auxiliary multipliedMatrixType(MatrixType left, MatrixType right) {
 	empty |- left.realEntryType ~~ right.realEntryType |> var MathematicalType superType
 	createMatrixType(left.height, right.width, superType)
-}
-
-auxiliary isSquare(MatrixType type) {
-	type.height == type.width
-}
-
-auxiliary consistentLineWidth(MultiLineMatrixLiteral lit) {
-	val width = lit.lines.get(0).getEntries().size()
-	var consistent = true
-	for (line : lit.lines) {
-		consistent = consistent && line.getEntries().size() == width
-	}
-	consistent
 }
 
 auxiliary transpose(MatrixType type) {
@@ -194,7 +174,7 @@ from {
 	G |- expr.inner : var Type innerType
 
 	if (innerType instanceof MatrixType) {
-		{ isSquare(innerType) }
+		{ innerType.isSquare }
 		or fail error "Matrix determinant is only defined for square matrices" source expr
 		type = innerType.entryType
 	} else if (innerType instanceof ComplexType)
@@ -209,7 +189,7 @@ from {
 rule TMultiLineMatrixLiteral
 	G |- MultiLineMatrixLiteral lit : MatrixType type
 from {
-	(consistentLineWidth(lit))
+	(lit.hasConsistentLineWidth)
 	or fail error "matrix lines must all have the same width" source lit
 
 	val lines = lit.lines.size()
@@ -320,7 +300,7 @@ from {
 	G |- mult.right : var Type rightType
 
 	if (leftType instanceof MatrixType && rightType instanceof MatrixType) { // matrix multiplication
-		(matrixMultiplicationDefined(leftType as MatrixType, rightType as MatrixType))
+		((leftType as MatrixType).canMultiply(rightType as MatrixType))
 		or fail error "Matrix multiplication is not defined"
 			source mult
 		type = multipliedMatrixType(leftType as MatrixType, rightType as MatrixType)
@@ -364,7 +344,7 @@ from {
 	G |- exp.base : baseType
 
 	{ (baseType instanceof MathematicalType) }
-	or { (baseType instanceof MatrixType && isSquare(baseType as MatrixType)) }
+	or { (baseType instanceof MatrixType && (baseType as MatrixType).isSquare) }
 
 	G |- exp.exp : var Type expType
 	(expType instanceof IntegerType)

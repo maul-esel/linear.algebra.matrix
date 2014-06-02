@@ -125,6 +125,14 @@ class MatrixType extends Type {
 	op boolean dimensionsEqual(MatrixType other) {
 		height.contentEquals(other.height) && width.contentEquals(other.width)
 	}
+
+	op boolean isSquare() {
+		height == width
+	}
+
+	op boolean canMultiply(MatrixType right) {
+		width == right.height
+	}
 }
 
 class Type {
@@ -173,6 +181,14 @@ class MultiLineMatrixLiteral extends Expression {
 	contains MathematicalType entryType
 	contains Dotting dot
 	contains MatrixLiteralLine[] lines
+
+	op boolean hasPlaceholders() {
+		lines.map [ entries ].flatten.filter(PlaceholderEntry).size > 0
+	}
+
+	op boolean hasConsistentLineWidth() {
+		lines.map [ entries.size ].toSet.size == 1
+	}
 }
 
 class PlaceholderEntry extends MatrixEntry {
