@@ -109,12 +109,8 @@ from {
 
 	value = if (left == null)
 		(right == null)
-	else if (left instanceof Complex || right instanceof Complex)
-		Complex.valueOf(left).equals(Complex.valueOf(right))
-	else if (left instanceof Double || right instanceof Double)
-		(left as Number).doubleValue().equals((right as Number).doubleValue())
-	else if (left instanceof Rational || right instanceof Rational)
-		Rational.valueOf(left).equals(Rational.valueOf(right))
+	else if (left instanceof Number && right instanceof Number)
+		equality.of(left as Number, right as Number)
 	else (left.equals(right))
 
 	if (eq.op == EqualsOp.NOTEQUALS)

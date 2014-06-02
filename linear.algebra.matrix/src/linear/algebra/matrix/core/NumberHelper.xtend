@@ -59,6 +59,13 @@ public class NumberHelper {
 		[ a, b | Complex.divide(a, b) ]
 	)
 
+	public static val equality = new BinaryDispatch(
+		[ a, b | a == b ],
+		[ a, b | a.equals(b) ],
+		[ a, b | a == b ],
+		[ a, b | a.equals(b) ]
+	)
+
 	@Data public static class UnaryDispatch {
 		(Integer)=>Integer intCallback
 		(Rational)=>Rational rationalCallback
@@ -82,73 +89,73 @@ public class NumberHelper {
 		}
 	}
 
-	@Data public static class BinaryDispatch {
-		(Integer, Integer)=>Number intCallback
-		(Rational, Rational)=>Number rationalCallback
-		(Double, Double)=>Number realCallback
-		(Complex, Complex)=>Number complexCallback
+	@Data public static class BinaryDispatch<Result> {
+		(Integer, Integer)=>Result intCallback
+		(Rational, Rational)=>Result rationalCallback
+		(Double, Double)=>Result realCallback
+		(Complex, Complex)=>Result complexCallback
 
-		def dispatch Number of(Integer a, Integer b) {
+		def dispatch Result of(Integer a, Integer b) {
 			intCallback.apply(a, b)
 		}
 
-		def dispatch Number of(Rational a, Rational b) {
+		def dispatch Result of(Rational a, Rational b) {
 			rationalCallback.apply(a, b)
 		}
 
-		def dispatch Number of(Rational a, Integer b) {
+		def dispatch Result of(Rational a, Integer b) {
 			of(a, Rational.valueOf(b))
 		}
 
-		def dispatch Number of(Integer a, Rational b) {
+		def dispatch Result of(Integer a, Rational b) {
 			of(Rational.valueOf(a), b)
 		}
 
-		def dispatch Number of(Double a, Double b) {
+		def dispatch Result of(Double a, Double b) {
 			realCallback.apply(a, b)
 		}
 
-		def dispatch Number of(Double a, Integer b) {
+		def dispatch Result of(Double a, Integer b) {
 			of(a, b.doubleValue())
 		}
 
-		def dispatch Number of(Integer a, Double b) {
+		def dispatch Result of(Integer a, Double b) {
 			of(a.doubleValue(), b)
 		}
 
-		def dispatch Number of(Double a, Rational b) {
+		def dispatch Result of(Double a, Rational b) {
 			of(a, b.doubleValue())
 		}
 
-		def dispatch Number of(Rational a, Double b) {
+		def dispatch Result of(Rational a, Double b) {
 			of(a.doubleValue(), b)
 		}
 
-		def dispatch Number of(Complex a, Complex b) {
+		def dispatch Result of(Complex a, Complex b) {
 			complexCallback.apply(a, b)
 		}
 
-		def dispatch Number of(Complex a, Integer b) {
+		def dispatch Result of(Complex a, Integer b) {
 			of(a, Complex.valueOf(b))
 		}
 
-		def dispatch Number of(Integer a, Complex b) {
+		def dispatch Result of(Integer a, Complex b) {
 			of(Complex.valueOf(a), b)
 		}
 
-		def dispatch Number of(Complex a, Rational b) {
+		def dispatch Result of(Complex a, Rational b) {
 			of(a, Complex.valueOf(b))
 		}
 
-		def dispatch Number of(Rational a, Complex b) {
+		def dispatch Result of(Rational a, Complex b) {
 			of(Complex.valueOf(a), b)
 		}
 
-		def dispatch Number of(Complex a, Double b) {
+		def dispatch Result of(Complex a, Double b) {
 			of(a, Complex.valueOf(b))
 		}
 
-		def dispatch Number of(Double a, Complex b) {
+		def dispatch Result of(Double a, Complex b) {
 			of(Complex.valueOf(a), b)
 		}
 	}
