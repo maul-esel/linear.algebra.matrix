@@ -1,6 +1,6 @@
 package linear.algebra.matrix.core
 
-package class NumberHelper {
+public class NumberHelper {
 	public static val abs = new UnaryDispatch(
 		[ a | Math.abs(a) ],
 		[ a | a.abs() ],
@@ -59,7 +59,7 @@ package class NumberHelper {
 		[ a, b | Complex.divide(a, b) ]
 	)
 
-	@Data package static class UnaryDispatch {
+	@Data public static class UnaryDispatch {
 		(Integer)=>Integer intCallback
 		(Rational)=>Rational rationalCallback
 		(Double)=>Double realCallback
@@ -82,7 +82,7 @@ package class NumberHelper {
 		}
 	}
 
-	@Data package static class BinaryDispatch {
+	@Data public static class BinaryDispatch {
 		(Integer, Integer)=>Number intCallback
 		(Rational, Rational)=>Number rationalCallback
 		(Double, Double)=>Number realCallback
