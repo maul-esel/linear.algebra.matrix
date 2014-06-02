@@ -102,8 +102,8 @@ class Complex extends Number {
 		var base = if (e < 0) b.inverse else b
 		var exp = if (e < 0) -e else e
 
-		var result = base;
-		for (i : 2..exp)
+		var result = ONE;
+		for (i : 1..exp)
 			result = multiply(result, base);
 
 		result
