@@ -40,7 +40,7 @@ class MatrixScopeProvider extends org.eclipse.xtext.scoping.impl.AbstractDeclara
 	}
 
 	def scope_Variable_ref(Code code, EReference ref) {
-		localScopeFactory.create(MatrixPackage.eINSTANCE.varDeclaration, code, globalVarScope(code), #[])
+		localScopeFactory.create(MatrixPackage.eINSTANCE.varDeclaration, code, IScope.NULLSCOPE, #[])
 	}
 
 	def scope_Variable_ref(FuncDeclaration decl, EReference ref) {
@@ -57,9 +57,5 @@ class MatrixScopeProvider extends org.eclipse.xtext.scoping.impl.AbstractDeclara
 
 	def private globalProcScope(EObject obj) {
 		globalScopeFactory.create(MatrixPackage.eINSTANCE.procDeclaration, importFactory.create(obj.eResource))
-	}
-
-	def private globalVarScope(EObject obj) {
-		globalScopeFactory.create(MatrixPackage.eINSTANCE.varDeclaration, importFactory.create(obj.eResource))
 	}
 }
