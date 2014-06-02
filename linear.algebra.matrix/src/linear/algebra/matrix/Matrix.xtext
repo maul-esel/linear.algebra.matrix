@@ -131,7 +131,7 @@ CoefficientLiteral :
 ;
 
 ImaginaryLiteral hidden() :
-	coefficient=CoefficientLiteral 'i'
+	coefficient=CoefficientLiteral IMAGINARY_UNIT
 ;
 
 MathematicalLiteral :
@@ -289,29 +289,34 @@ enum EqualsOp :
 	EQUALS='=' | EQUALS='==' | NOTEQUALS='!=' | NOTEQUALS='≠'
 ;
 
+ID :
+	ID_PATTERN | IMAGINARY_UNIT
+;
+
 // IV. terminals
 terminal OP_ASSIGN : ':=';
 
 // IV. a) keywords:
-terminal IF : 'if';
-terminal ELSE : 'else';
-terminal INT : 'int';
-terminal BOOL : 'bool' 'ean'?;
-terminal RETURN : 'return';
-terminal DEF : 'def';
-terminal PROC : 'proc';
-terminal DOT : 'dot';
-terminal CONST : 'const';
-terminal TRANSPOS : 'T';
-terminal INTERNAL : 'internal';
+terminal IF             : 'if';
+terminal ELSE           : 'else';
+terminal INT            : 'int';
+terminal BOOL           : 'bool' 'ean'?;
+terminal RETURN         : 'return';
+terminal DEF            : 'def';
+terminal PROC           : 'proc';
+terminal DOT            : 'dot';
+terminal CONST          : 'const';
+terminal TRANSPOS       : 'T';
+terminal IMAGINARY_UNIT : 'i';
+terminal INTERNAL       : 'internal';
 
 // IV. b) misc 
-terminal NEWLINE  : '\n';
-terminal WHITESPACE : (' '|'\t')+;
-terminal ID : (LETTER|'_')(LETTER|'_'|DIGIT_WITHOUT_ZERO|'0')*;
-terminal GENERIC_VAR : '$' ID;
-terminal GENERIC_TYPE : '%' ID;
-terminal PROC_NAME : '@' ID;
+terminal NEWLINE      : '\n';
+terminal WHITESPACE   : (' '|'\t')+;
+terminal ID_PATTERN   : (LETTER|'_')(LETTER|'_'|DIGIT_WITHOUT_ZERO|'0')*;
+terminal GENERIC_VAR  : '$' ID_PATTERN;
+terminal GENERIC_TYPE : '%' ID_PATTERN;
+terminal PROC_NAME    : '@' ID_PATTERN;
 
 terminal fragment DIGIT_WITHOUT_ZERO : '1'..'9';
 terminal fragment LETTER : ('a'..'z'|'A'..'Z');
