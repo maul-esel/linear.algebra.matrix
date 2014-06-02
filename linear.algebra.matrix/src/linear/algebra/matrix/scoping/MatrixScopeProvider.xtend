@@ -44,11 +44,11 @@ class MatrixScopeProvider extends org.eclipse.xtext.scoping.impl.AbstractDeclara
 	}
 
 	def scope_Variable_ref(FuncDeclaration decl, EReference ref) {
-		localScopeFactory.create(MatrixPackage.eINSTANCE.varDeclaration, decl, IScope.NULLSCOPE, decl.params.params.map [ obj | obj ])
+		localScopeFactory.create(MatrixPackage.eINSTANCE.varDeclaration, decl, IScope.NULLSCOPE, decl.params.params.filter(EObject))
 	}
 
 	def scope_Variable_ref(ProcDeclaration proc, EReference ref) {
-		localScopeFactory.create(MatrixPackage.eINSTANCE.varDeclaration, proc, IScope.NULLSCOPE, proc.params.params.map [ obj | obj ])
+		localScopeFactory.create(MatrixPackage.eINSTANCE.varDeclaration, proc, IScope.NULLSCOPE, proc.params.params.filter(EObject))
 	}
 
 	def private globalFuncScope(EObject obj) {
