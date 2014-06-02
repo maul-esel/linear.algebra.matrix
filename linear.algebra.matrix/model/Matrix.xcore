@@ -1,5 +1,5 @@
 @Ecore(nsURI="http://www.algebra.linear/matrix/Matrix")
-@GenModel(fileExtensions="mtx", editDirectory="/linear.algebra.matrix.edit/src", editorDirectory="/linear.algebra.matrix.editor/src", forceOverwrite="true", updateClasspath="false", editorPluginID="linear.algebra.matrix.editor")
+@GenModel(fileExtensions="mtx", forceOverwrite="true", updateClasspath="false")
 package linear.algebra.matrix.matrix
 
 class Code {
