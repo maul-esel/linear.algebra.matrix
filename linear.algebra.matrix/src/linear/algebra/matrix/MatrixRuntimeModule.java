@@ -37,5 +37,9 @@ public class MatrixRuntimeModule extends linear.algebra.matrix.AbstractMatrixRun
 			.implement(linear.algebra.matrix.imports.ImportManager.class,
 				linear.algebra.matrix.imports.ImportManagerImpl.class)
 			.build(linear.algebra.matrix.imports.ImportManagerFactory.class));
+		binder.install(new FactoryModuleBuilder()
+			.implement(linear.algebra.matrix.scoping.providers.CodeProvider.class,
+				linear.algebra.matrix.scoping.providers.BuiltinCodeProvider.class)
+			.build(linear.algebra.matrix.scoping.providers.CodeProviderFactory.class));
 	}
 }
