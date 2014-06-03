@@ -51,9 +51,10 @@ public abstract class Matrix<T> {
 		T[][] entries = getEntries();
 		String str = "";
 		for (int i = 0; i < height; ++i) {
+			str = str + "[";
 			for (int j = 0; j < width; ++j)
 				str = str + entries[i][j] + " ";
-			str = str.trim() + "\n";
+			str = str.trim() + "]\n";
 		}
 		return str.trim();
 	}
