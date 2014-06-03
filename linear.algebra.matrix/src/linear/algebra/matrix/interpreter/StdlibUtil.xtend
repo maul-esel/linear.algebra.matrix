@@ -3,6 +3,7 @@ package linear.algebra.matrix.interpreter
 import linear.algebra.matrix.matrix.*
 
 import linear.algebra.matrix.scoping.MatrixGlobalScopeFactory
+import linear.algebra.matrix.scoping.providers.CodeProviderFactory
 import linear.algebra.matrix.imports.ImportManagerFactory
 
 import org.eclipse.xtext.naming.QualifiedName
@@ -28,6 +29,9 @@ class StdlibUtil {
 
 	@Inject
 	ImportManagerFactory importFactory
+
+	@Inject
+	CodeProviderFactory providerFactory
 
 	def createMatrixMultiplication(Multiplication mult) {
 		createFunctionCall(mult.eResource, matrixMult, #[mult.left, mult.right])
@@ -80,7 +84,8 @@ class StdlibUtil {
 
 	def private EObject query(Resource res, EClass type, QualifiedName name) {
 		val manager = importFactory.create(res) // get an importManager
-		val scope = scopeFactory.create(type, manager) // get a global scope
+		val provider = providerFactory.create(res.resourceSet)
+		val scope = scopeFactory.create(type, manager, provider) // get a global scope
 		var objOrProxy = scope.getSingleElement(name).EObjectOrProxy // query global scope
 		if (objOrProxy.eIsProxy)
 			objOrProxy = EcoreUtil.resolve(objOrProxy, res.resourceSet)
