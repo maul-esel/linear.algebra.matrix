@@ -7,9 +7,9 @@ class Complex extends Number {
 	val Number im
 
 	new(Number real, Number imaginary) {
-		if (!(re instanceof Integer || re instanceof Rational || re instanceof Double))
+		if (!(real instanceof Integer || real instanceof Rational || real instanceof Double))
 			throw new UnsupportedOperationException()
-		if (!(im instanceof Integer || im instanceof Rational || im instanceof Double))
+		if (!(imaginary instanceof Integer || imaginary instanceof Rational || imaginary instanceof Double))
 			throw new UnsupportedOperationException()
 		re = real
 		im = imaginary
