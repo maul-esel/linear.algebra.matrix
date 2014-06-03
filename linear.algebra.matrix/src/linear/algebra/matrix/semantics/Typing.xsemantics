@@ -61,7 +61,7 @@ auxiliary checkParamTypes(VariableRegister genReg, List<TypedVarDeclaration> dec
 				source suppliedParams.get(i)
 		} else {
 			empty |- valueType <: paramType
-			or fail error "param type " + stringRep(valueType) + " does not match " + stringRep(paramType)
+			or fail error "type " + stringRep(valueType) + " does not match param of type " + stringRep(paramType)
 				source suppliedParams.get(i)
 		}
 	}
