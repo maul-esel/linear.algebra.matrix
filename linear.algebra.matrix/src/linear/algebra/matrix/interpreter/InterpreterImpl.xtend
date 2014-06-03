@@ -19,8 +19,6 @@ public class InterpreterImpl implements Interpreter {
 	@Inject
 	private ExpressionInterpretation exprInterpreter
 
-	@Inject
-	private StdlibUtil util
 
 	private Resource resource
 
