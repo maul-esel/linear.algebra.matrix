@@ -39,11 +39,8 @@ public class InterpreterImpl implements Interpreter {
 	override void interpret() {
 		val code = resource.contents.get(0) as Code;
 
-		for (line : code.lines) {
+		for (line : code.lines)
 			interpret(line)
-		}
-		for (variable : currentScope.variables)
-			System.out.println(variable + " = " + currentScope.get(variable))
 	}
 
 	def dispatch void interpret(VarDeclaration decl) {
