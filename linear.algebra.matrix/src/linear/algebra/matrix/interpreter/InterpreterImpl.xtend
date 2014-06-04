@@ -5,12 +5,17 @@ import it.xsemantics.runtime.RuleEnvironment;
 import java.util.Stack;
 import java.util.List
 
+import linear.algebra.matrix.scoping.providers.CodeProvider
+import linear.algebra.matrix.scoping.providers.CodeProviderFactory
+import linear.algebra.matrix.scoping.providers.InterpretationMethod
+
 import linear.algebra.matrix.matrix.*
 
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.emf.ecore.util.Diagnostician
 import org.eclipse.emf.common.util.Diagnostic
+import org.eclipse.xtext.naming.IQualifiedNameProvider
 
 import com.google.inject.Inject
 import com.google.inject.assistedinject.Assisted
@@ -19,7 +24,13 @@ public class InterpreterImpl implements Interpreter {
 	@Inject
 	private ExpressionInterpretation exprInterpreter
 
+	@Inject
+	IQualifiedNameProvider nameProvider
 
+	@Inject
+	private CodeProviderFactory providerFactory
+
+	private var CodeProvider provider
 	private Resource resource
 
 	private Stack<VariableRegister> variables = new Stack<VariableRegister>()
@@ -34,6 +45,12 @@ public class InterpreterImpl implements Interpreter {
 		resource = res;
 		variables.push(new VariableRegister())
 		generics.push(new VariableRegister());
+	}
+
+	def private provider() {
+		if (provider == null)
+			provider = providerFactory.create(resource.resourceSet)
+		provider
 	}
 
 	override void interpret() {
@@ -57,7 +74,14 @@ public class InterpreterImpl implements Interpreter {
 	}
 
 	def dispatch void interpret(ProcCall call) {
-		executeWithParams(call.proc.ref.params.params, call.params, call.proc.ref.body)
+		val providerProc = provider().procs.findFirst [
+			name.equals(nameProvider.getFullyQualifiedName(call.proc.ref))
+			&& interpretationMethod == InterpretationMethod.Provider
+		]
+		if (providerProc != null)
+			provider().interpretProc(providerProc, call.params.map [ evaluate ])
+		else
+			executeWithParams(call.proc.ref.params.params, call.params, call.proc.ref.body)
 	}
 
 	def dispatch void interpret(ProcDeclaration proc) {} // doesn't do anything
@@ -113,7 +137,14 @@ public class InterpreterImpl implements Interpreter {
 	}
 
 	def dispatch Object evaluate(FunctionCall call) { // special handling for func calls!
-		executeWithParams(call.func.ref.params.params, call.params, call.func.ref.body)
+		val providerFunc = provider().functions.findFirst [
+			name.equals(nameProvider.getFullyQualifiedName(call.func.ref))
+			&& interpretationMethod == InterpretationMethod.Provider
+		]
+		if (providerFunc != null)
+			provider().interpretFunction(providerFunc, call.params.map [ evaluate ])
+		else
+			executeWithParams(call.func.ref.params.params, call.params, call.func.ref.body)
 	}
 
 	override Object evaluate(Expression expr, VariableRegister vars, VariableRegister gen) {
