@@ -18,8 +18,6 @@ class ImportManagerImpl implements ImportManager {
 	@Inject
 	IResourceDescription.Manager descrManager
 
-	val defaultImports = #[ 'stdlib' ] // always import stdlib // TODO: later adjust path
-
 	@Inject
 	new(@Assisted Resource resource) {
 		this.resource = resource
@@ -28,7 +26,6 @@ class ImportManagerImpl implements ImportManager {
 
 	def private readImportNames() {
 		(resource.contents.get(0) as Code).imports.forEach [ imp | imports.put(imp.source, null) ]
-		defaultImports.forEach [ imp | imports.put(imp, null) ]
 	}
 
 	def private importURI(String name) {
