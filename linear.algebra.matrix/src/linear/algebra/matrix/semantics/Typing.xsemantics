@@ -8,6 +8,7 @@ import java.util.List
 auxiliary {
 	genericVarMatches(VariableRegister genReg, String variable, String value) : Boolean
 	checkParamTypes(VariableRegister genReg, List<TypedVarDeclaration> declaredParams, List<Expression> suppliedParams)
+	checkGenericMatrixType(VariableRegister genReg, MatrixType paramType, MatrixType valueType, Expression param)
 	genericTypeMatches(VariableRegister genReg, GenericType generic, MathematicalType value) : Boolean
 	isGeneric(String size) : Boolean
 	multipliedMatrixType(MatrixType left, MatrixType right) : MatrixType
@@ -44,18 +45,12 @@ auxiliary checkParamTypes(VariableRegister genReg, List<TypedVarDeclaration> dec
 		empty |- suppliedParams.get(i) : var Type valueType
 		empty ||- declaredParams.get(i) : var Type paramType;
 
-		if (valueType instanceof MatrixType && paramType instanceof MatrixType && (paramType as MatrixType).isGeneric()) {
-			val exactType = valueType as MatrixType;
-			val generic = paramType as MatrixType
-			(genericVarMatches(genReg, generic.height, exactType.height)
-				&& (genericVarMatches(genReg, generic.width, exactType.width)))
-			 or fail error "generic param type does not match"
-				source suppliedParams.get(i)
-
-			(!(generic.realEntryType instanceof GenericType) || genericTypeMatches(genReg, generic.realEntryType as GenericType, (valueType as MatrixType).realEntryType))
-			or fail error "generic param matrix entry type does not match"
-				source suppliedParams.get(i)
-		} else if (paramType instanceof GenericType && valueType instanceof MathematicalType) {
+		if (valueType instanceof MatrixType && paramType instanceof MatrixType && (paramType as MatrixType).isGeneric())
+			checkGenericMatrixType(genReg,
+				paramType as MatrixType,
+				valueType as MatrixType,
+				suppliedParams.get(i))
+		else if (paramType instanceof GenericType && valueType instanceof MathematicalType) {
 			genericTypeMatches(genReg, paramType as GenericType, valueType as MathematicalType)
 			or fail error "generic param type does not match"
 				source suppliedParams.get(i)
@@ -64,6 +59,19 @@ auxiliary checkParamTypes(VariableRegister genReg, List<TypedVarDeclaration> dec
 			or fail error "type " + stringRep(valueType) + " does not match param of type " + stringRep(paramType)
 				source suppliedParams.get(i)
 		}
+	}
+}
+
+auxiliary checkGenericMatrixType(VariableRegister genReg, MatrixType paramType, MatrixType valueType, Expression param) {
+	(genericVarMatches(genReg, paramType.height, valueType.height)
+		&& genericVarMatches(genReg, paramType.width, valueType.width))
+	 or fail error "generic param matrix type dimensions do not match"
+		source param
+
+	if (paramType.realEntryType instanceof GenericType) {
+		genericTypeMatches(genReg, paramType.realEntryType as GenericType, valueType.realEntryType)
+		or fail error "generic param matrix entry type does not match"
+			source param
 	}
 }
 
