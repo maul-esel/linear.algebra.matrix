@@ -5,6 +5,7 @@ package linear.algebra.matrix.scoping
 
 import linear.algebra.matrix.matrix.Code
 import linear.algebra.matrix.matrix.Block
+import linear.algebra.matrix.matrix.Variable
 import linear.algebra.matrix.matrix.FuncDeclaration
 import linear.algebra.matrix.matrix.ProcDeclaration
 import linear.algebra.matrix.matrix.MatrixInit
@@ -24,31 +25,39 @@ class MatrixScopeProvider extends org.eclipse.xtext.scoping.impl.AbstractDeclara
 	@Inject ImportManagerFactory importFactory
 
 	def scope_Function_ref(Code code, EReference ref) {
-		localScopeFactory.create(MatrixPackage.eINSTANCE.funcDeclaration, code, globalFuncScope(code), #[])
+		localScopeFactory.create(MatrixPackage.eINSTANCE.funcDeclaration, code, null, globalFuncScope(code), #[])
 	}
 
 	def scope_ProcRef_ref(Code code, EReference ref) {
-		localScopeFactory.create(MatrixPackage.eINSTANCE.procDeclaration, code, globalProcScope(code), #[])
+		localScopeFactory.create(MatrixPackage.eINSTANCE.procDeclaration, code, null, globalProcScope(code), #[])
 	}
 
-	def scope_Variable_ref(Block block, EReference ref) {
-		localScopeFactory.create(MatrixPackage.eINSTANCE.varDeclaration, block, getScope(block.eContainer, ref), #[])
+	def scope_Variable_ref(Variable variable, EReference ref) {
+		scopeVariable(variable, variable, ref)
 	}
 
-	def scope_Variable_ref(MatrixInit init, EReference ref) {
-		localScopeFactory.create(MatrixPackage.eINSTANCE.varDeclaration, init, getScope(init.eContainer, ref), #[])
+	def private dispatch IScope scopeVariable(EObject context, EObject before, EReference ref) {
+		scopeVariable(context.eContainer, context, ref)
 	}
 
-	def scope_Variable_ref(Code code, EReference ref) {
-		localScopeFactory.create(MatrixPackage.eINSTANCE.varDeclaration, code, IScope.NULLSCOPE, #[])
+	def private dispatch IScope scopeVariable(Block block, EObject before, EReference ref) {
+		localScopeFactory.create(MatrixPackage.eINSTANCE.varDeclaration, block, before, scopeVariable(block.eContainer, block, ref), #[])
 	}
 
-	def scope_Variable_ref(FuncDeclaration decl, EReference ref) {
-		localScopeFactory.create(MatrixPackage.eINSTANCE.varDeclaration, decl, IScope.NULLSCOPE, decl.params.params.filter(EObject))
+	def private dispatch IScope scopeVariable(MatrixInit init, EObject before, EReference ref) {
+		localScopeFactory.create(MatrixPackage.eINSTANCE.varDeclaration, init, before, getScope(init.eContainer, ref), #[])
 	}
 
-	def scope_Variable_ref(ProcDeclaration proc, EReference ref) {
-		localScopeFactory.create(MatrixPackage.eINSTANCE.varDeclaration, proc, IScope.NULLSCOPE, proc.params.params.filter(EObject))
+	def private dispatch IScope scopeVariable(Code code, EObject before, EReference ref) {
+		localScopeFactory.create(MatrixPackage.eINSTANCE.varDeclaration, code, before, IScope.NULLSCOPE, #[])
+	}
+
+	def private dispatch IScope scopeVariable(FuncDeclaration decl, EObject before, EReference ref) {
+		localScopeFactory.create(MatrixPackage.eINSTANCE.varDeclaration, decl, before, IScope.NULLSCOPE, decl.params.params.filter(EObject))
+	}
+
+	def private dispatch IScope scopeVariable(ProcDeclaration proc, EObject before, EReference ref) {
+		localScopeFactory.create(MatrixPackage.eINSTANCE.varDeclaration, proc, before, IScope.NULLSCOPE, proc.params.params.filter(EObject))
 	}
 
 	def private globalFuncScope(EObject obj) {

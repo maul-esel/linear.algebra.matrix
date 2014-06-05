@@ -1,5 +1,7 @@
 package linear.algebra.matrix.scoping
 
+import java.util.ArrayList
+
 import org.eclipse.xtext.scoping.IScope
 import org.eclipse.xtext.resource.EObjectDescription
 import org.eclipse.xtext.naming.QualifiedName
@@ -13,6 +15,7 @@ import com.google.inject.assistedinject.Assisted
 class MatrixLocalScope implements IScope {
 	val EClass type
 	val EObject context
+	val EObject before
 	val IScope parentScope
 	val Iterable<EObject> additional
 
@@ -21,17 +24,30 @@ class MatrixLocalScope implements IScope {
 	@Inject IQualifiedNameProvider prov
 
 	@Inject
-	new(@Assisted EClass type, @Assisted EObject context, @Assisted IScope parentScope, @Assisted Iterable<EObject> additional) {
+	new(@Assisted EClass type,
+		@Assisted("context") EObject context,
+		@Assisted("before") EObject before,
+		@Assisted IScope parentScope,
+		@Assisted Iterable<EObject> additional
+	) {
 		this.type = type
 		this.context = context
 		this.parentScope = parentScope
 		this.additional = additional
+		this.before = before
 	}
 
 	def private traverse() {
 		if (objects == null)
-			objects = (context.eContents + additional).filter [ obj | type.isSuperTypeOf(obj.eClass) ]
+			objects = (filterBefore(context.eContents) + additional).filter [ obj | type.isSuperTypeOf(obj.eClass) ]
 		objects
+	}
+
+	def private filterBefore(Iterable<EObject> list) {
+		val newList = new ArrayList<EObject>()
+		for (var i = 0; i < list.size && list.get(i) != before; i++)
+			newList.add(list.get(i))
+		newList
 	}
 
 	override getAllElements() {
