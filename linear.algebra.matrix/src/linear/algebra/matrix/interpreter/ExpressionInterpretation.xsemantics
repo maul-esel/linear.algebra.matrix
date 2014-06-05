@@ -192,7 +192,7 @@ from {
 rule IParenthesis
 	G |- ParenthesizedExpression par ~> Object o
 from {
-	G |- par.inner ~> o
+	G |- par.expr ~> o
 }
 
 rule IEntryAccess
@@ -314,7 +314,7 @@ from {
 rule IDeterminantOrAbsoluteValue
 	G |- DeterminantOrAbsoluteValue expr ~> Object result
 from {
-	G |- expr.inner ~> var Object inner
+	G |- expr.expr ~> var Object inner
 	if (inner instanceof Matrix<?>) {
 		val func = util.createDeterminant(expr)
 		G |- func ~> result

@@ -221,15 +221,26 @@ class FunctionCall extends Action , Expression {
 	contains Expression[] params
 }
 
-class DeterminantOrAbsoluteValue extends Expression {
-	contains Expression inner
-}
-
-class ParenthesizedExpression extends Expression {
-	contains Expression inner
-}
-
 class Expression extends MatrixSyntaxElement {
+}
+
+class UnaryExpression extends Expression {
+	contains Expression expr
+}
+
+class DeterminantOrAbsoluteValue extends UnaryExpression {
+}
+
+class ParenthesizedExpression extends UnaryExpression {
+}
+
+class Negation extends UnaryExpression {
+}
+
+class Transposition extends UnaryExpression {
+}
+
+class UnaryMinus extends UnaryExpression {
 }
 
 class Assignment extends Action , Expression {
@@ -299,21 +310,9 @@ class EntryAccess extends Expression {
 	contains Expression column
 }
 
-class Negation extends Expression {
-	contains Expression expr
-}
-
 class Exponentiation extends Expression {
 	contains Expression base
 	contains Expression exp
-}
-
-class Transposition extends Expression {
-	contains Expression base
-}
-
-class UnaryMinus extends Expression {
-	contains Expression expr
 }
 
 class Division extends Expression {

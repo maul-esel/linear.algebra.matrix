@@ -55,7 +55,7 @@ class StdlibUtil {
 	}
 
 	def createTransposition(Transposition trans) {
-		createFunctionCall(trans.eResource, Transposition, #[trans.base])
+		createFunctionCall(trans.eResource, Transposition, #[trans.expr])
 	}
 
 	def createEquivalency(Equivalency eq) {
@@ -63,7 +63,7 @@ class StdlibUtil {
 	}
 
 	def createDeterminant(DeterminantOrAbsoluteValue expr) {
-		createFunctionCall(expr.eResource, Determinant, #[expr.inner])
+		createFunctionCall(expr.eResource, Determinant, #[expr.expr])
 	}
 
 	def private createFunctionCall(Resource res, QualifiedName name, Expression[] params) {

@@ -179,7 +179,7 @@ from {
 rule TDeterminantOrAbsoluteValue
 	G |- DeterminantOrAbsoluteValue expr : MathematicalType type
 from {
-	G |- expr.inner : var Type innerType
+	G |- expr.expr : var Type innerType
 
 	if (innerType instanceof MatrixType) {
 		{ innerType.isSquare }
@@ -217,7 +217,7 @@ from {
 rule TParenthesis
 	G |- ParenthesizedExpression expr : Type type
 from {
-	G |- expr.inner : type
+	G |- expr.expr : type
 }
 
 rule TVariableAssignment
@@ -342,7 +342,7 @@ from {
 rule TTransposition
 	G |- Transposition t : MatrixType type
 from {
-	G |- t.base : var MatrixType baseType
+	G |- t.expr : var MatrixType baseType
 	type = transpose(baseType)
 }
 

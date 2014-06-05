@@ -189,11 +189,11 @@ FunctionCall :
 ;
 
 DeterminantOrAbsoluteValue :
-	'|' inner=Expression '|'
+	'|' expr=Expression '|'
 ;
 
 ParenthesizedExpression :
-	'(' inner=Expression ')'
+	'(' expr=Expression ')'
 ;
 
 AtomExpression returns Expression :
@@ -226,7 +226,7 @@ Negation returns Expression :
 ;
 
 Transposition returns Expression :
-	Negation ({Transposition.base=current} '^' TRANSPOS)?
+	Negation ({Transposition.expr=current} '^' TRANSPOS)?
 ;
 
 Exponentiation returns Expression :
