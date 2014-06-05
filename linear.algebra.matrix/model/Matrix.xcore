@@ -1,5 +1,5 @@
 @Ecore(nsURI="http://www.algebra.linear/matrix/Matrix")
-@GenModel(fileExtensions="mtx", forceOverwrite="true", updateClasspath="false")
+@GenModel(fileExtensions="mtx", forceOverwrite="true", updateClasspath="false", modelDirectory="/linear.algebra.matrix/emf-gen")
 package linear.algebra.matrix.matrix
 
 class MatrixSyntaxElement {
