@@ -1,6 +1,6 @@
 package linear.algebra.matrix.interpreter
 
-import it.xsemantics.runtime.RuleEnvironment;
+import it.xsemantics.runtime.RuleEnvironment
 
 import java.util.Stack;
 import java.util.List
@@ -18,7 +18,6 @@ import com.google.inject.assistedinject.Assisted
 public class InterpreterImpl implements Interpreter {
 	@Inject
 	private ExpressionInterpretation exprInterpreter
-
 
 	private Resource resource
 
@@ -139,13 +138,10 @@ public class InterpreterImpl implements Interpreter {
 
 		val computed = new VariableRegister()
 		exprInterpreter.checkParamTypes(computed, declared, supplied) // call only to compute generics
+
 		val generic = new VariableRegister()
-		for (variable : computed.variables) {
-			val value = computed.get(variable);
-			generic.add(variable,
-				if (value instanceof String && exprInterpreter.isGeneric(value as String)) generics.peek().get(value as String) else value,
-				true) // replaces callers own generics with value
-		}
+		for (variable : computed.variables) // replaces callers own generics with value
+			generic.add(variable, genericVariableOrValue(computed.get(variable)), true)
 		generics.push(generic)
 
 		var Object retVal = null;
@@ -155,6 +151,15 @@ public class InterpreterImpl implements Interpreter {
 		variables.pop() // remove exec scope
 		generics.pop() // remove generic sope
 		retVal
+	}
+
+	def private genericVariableOrValue(Object value) {
+		if (value instanceof String && exprInterpreter.isGeneric(value as String))
+			generics.peek().get(value as String)
+		else if (value instanceof GenericType)
+			generics.peek().get(value.name)
+		else
+			value
 	}
 }
 
