@@ -103,17 +103,7 @@ class MatrixType extends Type {
 		entryType
 	}
 
-	op boolean isExact() {
-		try {
-			Integer.parseInt(height)
-			Integer.parseInt(width)
-		} catch (NumberFormatException e) {
-			return false
-		}
-		true
-	}
-
-	op boolean isGeneric() {
+	op boolean hasGenericDimensions() {
 		try {
 			Integer.parseInt(height)
 			Integer.parseInt(width)
@@ -121,6 +111,14 @@ class MatrixType extends Type {
 			return true
 		}
 		false
+	}
+
+	op boolean hasGenericEntryType() {
+		entryType instanceof GenericType
+	}
+
+	op boolean isGeneric() {
+		hasGenericDimensions() || hasGenericEntryType()
 	}
 
 	op boolean dimensionsEqual(MatrixType other) {

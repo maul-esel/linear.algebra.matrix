@@ -138,7 +138,7 @@ rule IMultiLineMatrixLiteral
 	G |- MultiLineMatrixLiteral lit ~> Matrix<?> m
 from {
 	G |- lit : var MatrixType matrType
-	if (!matrType.isExact()) {
+	if (matrType.isGeneric()) {
 		val generics = env(G, 'generics', VariableRegister)
 		matrType = makeExactFromGeneric(generics, matrType)
 	}
@@ -166,7 +166,7 @@ rule IMatrixInit
 	G |- MatrixInit init ~> Matrix<?> m
 from {
 	G |- init : var MatrixType matrType
-	if (!matrType.isExact()) {
+	if (matrType.isGeneric()) {
 		val generics = env(G, 'generics', VariableRegister)
 		matrType = makeExactFromGeneric(generics, matrType)
 	}
