@@ -49,7 +49,7 @@ class MatrixLocalScope implements IScope {
 	}
 
 	override getSingleElement(QualifiedName name) {
-		getElements(name).findFirst [ true ] ?: parentScope.getSingleElement(name)
+		getElements(name).head ?: parentScope.getSingleElement(name)
 	}
 
 	override getSingleElement(EObject object) {
