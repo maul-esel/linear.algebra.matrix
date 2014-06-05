@@ -281,7 +281,7 @@ enum AdditionOp :
 ;
 
 enum ComparisonOp :
-	LESS='<' | GREATER='>' | LESSOREQUAL='<=' | LESSOREQUAL='≤' | GREATEROREQUAL='>=' | GREATEROREQUALS='≥'
+	LESS='<' | GREATER='>' | LESSOREQUAL='<=' | LESSOREQUAL='≤' | GREATEROREQUAL='>=' | GREATEROREQUAL='≥'
 ;
 
 enum LogicalOp :

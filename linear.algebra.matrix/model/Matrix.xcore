@@ -256,7 +256,6 @@ enum ComparisonOp {
 	GREATER as ">" = 1
 	LESSOREQUAL as "<=" = 2
 	GREATEROREQUAL as ">=" = 3
-	GREATEROREQUALS as "≥" = 4
 }
 
 enum LogicalOp {
