@@ -99,7 +99,8 @@ class MatrixType extends Type {
 	String width
 
 	op MathematicalType getRealEntryType() {
-		entryType ?: MatrixFactory.eINSTANCE.createIntegerType()
+		entryType = entryType ?: MatrixFactory.eINSTANCE.createIntegerType()
+		entryType
 	}
 
 	op boolean isExact() {
