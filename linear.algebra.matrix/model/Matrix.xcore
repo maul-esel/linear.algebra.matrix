@@ -2,16 +2,19 @@
 @GenModel(fileExtensions="mtx", forceOverwrite="true", updateClasspath="false")
 package linear.algebra.matrix.matrix
 
-class Code {
+class MatrixSyntaxElement {
+}
+
+class Code extends MatrixSyntaxElement {
 	contains Import[] imports
 	contains Line[] lines
 }
 
-class Import {
+class Import extends MatrixSyntaxElement {
 	String source
 }
 
-class Line {
+class Line extends MatrixSyntaxElement {
 }
 
 class Action extends Line , IfBody {
@@ -34,7 +37,7 @@ class ReturnStatement extends Action {
 	contains Expression value
 }
 
-class ProcRef {
+class ProcRef extends MatrixSyntaxElement {
 	refers ProcDeclaration ref
 }
 
@@ -59,7 +62,7 @@ class Block extends IfBody {
 	contains Action[] lines
 }
 
-class IfBody {
+class IfBody extends MatrixSyntaxElement {
 }
 
 class IfElse extends Action {
@@ -83,7 +86,7 @@ class ProcDeclaration extends Line {
 	contains Block body
 }
 
-class ParameterList {
+class ParameterList extends MatrixSyntaxElement {
 	contains TypedVarDeclaration[] params
 }
 
@@ -134,7 +137,7 @@ class MatrixType extends Type {
 	}
 }
 
-class Type {
+class Type extends MatrixSyntaxElement {
 }
 
 class BooleanLiteral extends Expression {
@@ -190,14 +193,14 @@ class MultiLineMatrixLiteral extends Expression {
 class PlaceholderEntry extends MatrixEntry {
 }
 
-class MatrixEntry {
+class MatrixEntry extends MatrixSyntaxElement {
 }
 
-class MatrixLiteralLine {
+class MatrixLiteralLine extends MatrixSyntaxElement {
 	contains MatrixEntry[] entries
 }
 
-class Dotting {
+class Dotting extends MatrixSyntaxElement {
 	contains Expression fill
 }
 
@@ -209,7 +212,7 @@ class Variable extends Expression {
 	refers VarDeclaration ref
 }
 
-class Function {
+class Function extends MatrixSyntaxElement {
 	refers FuncDeclaration ref
 }
 
@@ -226,7 +229,7 @@ class ParenthesizedExpression extends Expression {
 	contains Expression inner
 }
 
-class Expression {
+class Expression extends MatrixSyntaxElement {
 }
 
 class Assignment extends Action , Expression {
