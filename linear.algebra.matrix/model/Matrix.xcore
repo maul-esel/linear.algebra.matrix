@@ -243,6 +243,46 @@ class Transposition extends UnaryExpression {
 class UnaryMinus extends UnaryExpression {
 }
 
+class BinaryExpression extends Expression {
+	contains Expression left
+	contains Expression right
+}
+
+class Exponentiation extends BinaryExpression {
+	op Expression getBase() {
+		left
+	}
+
+	op Expression getExp() {
+		right
+	}
+}
+
+class Division extends BinaryExpression {
+}
+
+class Multiplication extends BinaryExpression {
+}
+
+class Addition extends BinaryExpression {
+	AdditionOp ^op
+}
+
+class Equivalency extends BinaryExpression {
+}
+
+class Comparison extends BinaryExpression {
+	ComparisonOp ^op
+}
+
+class Equals extends BinaryExpression {
+	EqualsOp ^op
+}
+
+class LogicalAndOr extends BinaryExpression {
+	LogicalOp ^op
+}
+
 class Assignment extends Action , Expression {
 	contains Expression value
 }
@@ -308,50 +348,6 @@ class EntryAccess extends Expression {
 	contains Expression matr
 	contains Expression line
 	contains Expression column
-}
-
-class Exponentiation extends Expression {
-	contains Expression base
-	contains Expression exp
-}
-
-class Division extends Expression {
-	contains Expression left
-	contains Expression right
-}
-
-class Multiplication extends Expression {
-	contains Expression left
-	contains Expression right
-}
-
-class Addition extends Expression {
-	contains Expression left
-	AdditionOp ^op
-	contains Expression right
-}
-
-class Equivalency extends Expression {
-	contains Expression left
-	contains Expression right
-}
-
-class Comparison extends Expression {
-	contains Expression left
-	ComparisonOp ^op
-	contains Expression right
-}
-
-class Equals extends Expression {
-	contains Expression left
-	EqualsOp ^op
-	contains Expression right
-}
-
-class LogicalAndOr extends Expression {
-	contains Expression left
-	LogicalOp ^op
-	contains Expression right
 }
 
 class Ternary extends Expression {

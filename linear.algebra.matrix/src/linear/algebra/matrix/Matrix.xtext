@@ -230,7 +230,7 @@ Transposition returns Expression :
 ;
 
 Exponentiation returns Expression :
-	Transposition ({Exponentiation.base=current} '^' exp=Transposition)*
+	Transposition ({Exponentiation.left=current} '^' right=Transposition)*
 ;
 
 UnaryMinus returns Expression :
