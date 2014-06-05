@@ -14,7 +14,7 @@ auxiliary {
 	isTypeDefinedByParams(Type type, ParameterList list) : Boolean
 	isGenericInParamList(MatrixType type, ParameterList list) : Boolean
 	isGenericVariableDefined(String generic, ParameterList list) : Boolean
-	alwaysReturns(EObject obj) : Boolean
+	alwaysReturns(MatrixSyntaxElement obj) : Boolean
 }
 
 auxiliary isTypeDefinedByParams(Type type, ParameterList list) {
@@ -72,7 +72,7 @@ auxiliary isGenericVariableDefined(String generic, ParameterList list) {
 	found
 }
 
-auxiliary alwaysReturns(EObject obj) {
+auxiliary alwaysReturns(MatrixSyntaxElement obj) {
 	false
 }
 
