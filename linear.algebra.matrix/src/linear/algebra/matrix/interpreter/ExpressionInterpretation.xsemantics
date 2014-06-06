@@ -1,4 +1,4 @@
-system linear.algebra.matrix.interpreter.ExpressionInterpretation extends linear.algebra.matrix.semantics.Checks
+system linear.algebra.matrix.interpreter.ExpressionInterpretation extends linear.algebra.matrix.interpreter.Coercion
 
 import linear.algebra.matrix.matrix.*
 
@@ -7,41 +7,14 @@ import linear.algebra.matrix.interpreter.Interpreter
 import linear.algebra.matrix.interpreter.CompareUtil
 
 import linear.algebra.matrix.core.Matrix
-import linear.algebra.matrix.core.IntegerMatrix
-import linear.algebra.matrix.core.RationalMatrix
-import linear.algebra.matrix.core.RealMatrix
-import linear.algebra.matrix.core.ComplexMatrix
 import linear.algebra.matrix.core.Rational
 import linear.algebra.matrix.core.Complex
 import static extension linear.algebra.matrix.core.NumberHelper.*
 
 inject StdlibUtil util
 
-auxiliary {
-	createMatrix(MathematicalType entries, Integer lines, Integer columns) : Matrix<?>
-	setMatrixEntry(Matrix<?> m, Integer i, Integer j, Number entry)
-}
-
 judgments {
     interpret |- Expression expr ~> output Object
-}
-
-auxiliary createMatrix(MathematicalType entries, Integer lines, Integer columns) {
-	switch (entries) {
-		IntegerType  : new IntegerMatrix(lines, columns)
-		RationalType : new RationalMatrix(lines, columns)
-		RealType     : new RealMatrix(lines, columns)
-		ComplexType  : new ComplexMatrix(lines, columns)
-	}
-}
-
-auxiliary setMatrixEntry(Matrix<?> m, Integer i, Integer j, Number entry) {
-	switch (m) {
-		IntegerMatrix  : m.setEntry(i, j, entry.intValue())
-		RationalMatrix : m.setEntry(i, j, Rational.valueOf(entry))
-		RealMatrix     : m.setEntry(i, j, entry.doubleValue())
-		ComplexMatrix  : m.setEntry(i, j, Complex.valueOf(entry))
-	}
 }
 
 axiom IVariable
@@ -74,13 +47,13 @@ rule IVariableAssignment
 from {
 	G |- assign.variable : var Type type
 	G |- assign.value ~> value
-	env(G, 'variables', VariableRegister).set(assign.variable.ref.name,
-		switch (type) {
-			ComplexType  : Complex.valueOf(value)
-			RealType     : (value as Number).doubleValue()
-			RationalType : Rational.valueOf(value)
-			default      : value
-		})
+
+	G |- assign.value : var Type valueType
+	if (!type.equals(valueType)) {
+		G |~ value >> type |> value // coerce into correct type
+	}
+
+	env(G, 'variables', VariableRegister).set(assign.variable.ref.name, value)
 }
 
 rule ILogicalAndOr
@@ -97,10 +70,16 @@ from {
 	G |- eq.left ~> var Object left
 	G |- eq.right ~> var Object right
 
-	value = if (left instanceof Number && right instanceof Number)
-		equality.of(left as Number, right as Number)
-	else (left.equals(right))
+	G |- eq.left  : var Type leftType
+	G |- eq.right : var Type rightType
 
+	if (!leftType.equals(rightType)) {
+		G |- leftType ~~ rightType |> var Type commonType
+		G |~ left >> commonType |> left
+		G |~ right >> commonType |> right
+	}
+
+	value = left.equals(right)
 	if (eq.op == EqualsOp.NOTEQUALS)
 		value = !value
 }
@@ -128,6 +107,13 @@ from {
 	G |- assign.column ~> var Integer column
 	G |- assign.value ~> var Number value
 
+	// use coercion to make types match
+	G |- assign.matr : var MatrixType matrType
+	G |- assign.value : var Type valueType
+	if (!matrType.realEntryType.equals(valueType)) {
+		G |~ value >> matrType.realEntryType |> value
+	}
+
 	setMatrixEntry(mat, line, column, value)
 	result = mat.getEntry(line, column)
 }
@@ -148,15 +134,22 @@ from {
 		var j = 1
 		var Number value
 		for (entry : line.entries) {
+			var Type valueType
 			if (entry instanceof MathematicalLiteral) {
 				G |- entry ~> value
+				G |- entry : valueType
 			} else { // placeholder '.'
 				G |- lit.dot.fill ~> value
+				G |- lit.dot.fill : valueType
+			}
+
+			if (!matrType.realEntryType.equals(valueType)) {
+				G |~ value >> matrType.realEntryType |> value
 			}
 			setMatrixEntry(m, i, j, value)
-			j = j + 1
+			j++
 		}
-		i = i + 1
+		i++
 	}
 }
 
@@ -168,6 +161,7 @@ from {
 		val generics = env(G, 'generics', VariableRegister)
 		matrType = makeExactFromGeneric(generics, matrType)
 	}
+	G |- init.entry : var Type valueType
 
 	val variables = new VariableRegister(env(G, 'variables', VariableRegister))
 	variables.add(init.line.name)
@@ -183,6 +177,10 @@ from {
 			variables.set(init.line.name, i)
 			variables.set(init.column.name, j)
 			G, 'variables' <- variables |- init.entry ~> var Number entry
+
+			if (!matrType.realEntryType.equals(valueType)) {
+				G |~ entry >> matrType.realEntryType |> entry
+			}
 			setMatrixEntry(m, i, j, entry)
 		}
 }
@@ -252,7 +250,7 @@ from {
 			default : null
 		}
 	} else if (left instanceof Matrix<?> && right instanceof Matrix<?>) {
-		val func = switch (add.op) { // TODO: possible implicit cast
+		val func = switch (add.op) {
 			case AdditionOp.PLUS : util.createMatrixAddition(add)
 			case AdditionOp.MINUS : util.createMatrixSubtraction(add)
 			default : null
@@ -279,11 +277,11 @@ from {
 
 	if (left instanceof Matrix<?> && right instanceof Matrix<?>) {
 		val func = util.createMatrixMultiplication(mult)
-		G |- func ~> result // TODO: possible implicit cast
+		G |- func ~> result
 	} else if (left instanceof Matrix<?> || right instanceof Matrix<?>) {
 		val func = util.createScalarMultiplication(mult,
 			if (left instanceof Matrix<?>) mult.right else mult.left)
-		G |- func ~> result // TODO: possible implicit cast
+		G |- func ~> result
 	} else if (left instanceof Number && right instanceof Number)
 		result = product.of(left as Number, right as Number)
 	else { fail error "unsupported multiplication" source mult }
@@ -330,6 +328,6 @@ from {
 rule IEquivalency
 	G |- Equivalency eq ~> Boolean result
 from {
-	val func = util.createEquivalency(eq) // TODO: possible implicit cast
+	val func = util.createEquivalency(eq)
 	G |- func ~> result
 }
