@@ -97,9 +97,7 @@ from {
 	G |- eq.left ~> var Object left
 	G |- eq.right ~> var Object right
 
-	value = if (left == null)
-		(right == null)
-	else if (left instanceof Number && right instanceof Number)
+	value = if (left instanceof Number && right instanceof Number)
 		equality.of(left as Number, right as Number)
 	else (left.equals(right))
 
