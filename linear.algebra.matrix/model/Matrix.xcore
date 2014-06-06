@@ -90,9 +90,38 @@ class ParameterList extends MatrixSyntaxElement {
 	contains TypedVarDeclaration[] params
 }
 
+/* TYPES */
+class Type extends MatrixSyntaxElement {
+}
+
+class BooleanType extends Type {
+}
+
 class MathematicalType extends Type {
 	op MathematicalType copy() {
 		MatrixFactory.eINSTANCE.^create(eClass) as MathematicalType
+	}
+}
+
+class IntegerType extends MathematicalType {
+}
+
+class RationalType extends MathematicalType {
+}
+
+class RealType extends MathematicalType {
+}
+
+class ComplexType extends MathematicalType {
+}
+
+class GenericType extends MathematicalType {
+	String name
+
+	op MathematicalType copy() {
+		val result = super.copy() as GenericType
+		result.name = name
+		result
 	}
 }
 
@@ -135,9 +164,6 @@ class MatrixType extends Type {
 	op boolean canMultiply(MatrixType right) {
 		width == right.height
 	}
-}
-
-class Type extends MatrixSyntaxElement {
 }
 
 class BooleanLiteral extends Expression {
@@ -317,31 +343,6 @@ enum LogicalOp {
 enum EqualsOp {
 	EQUALS as "="
 	NOTEQUALS as "!=" = 1
-}
-
-class BooleanType extends Type {
-}
-
-class IntegerType extends MathematicalType {
-}
-
-class RationalType extends MathematicalType {
-}
-
-class RealType extends MathematicalType {
-}
-
-class ComplexType extends MathematicalType {
-}
-
-class GenericType extends MathematicalType {
-	String name
-
-	op MathematicalType copy() {
-		val result = super.copy() as GenericType
-		result.name = name
-		result
-	}
 }
 
 class EntryAccess extends Expression {
