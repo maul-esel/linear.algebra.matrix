@@ -1,6 +1,6 @@
 package linear.algebra.matrix.core;
 
-public abstract class Matrix<T> {
+public abstract class Matrix<T extends Number> {
 	private int height;
 	private int width;
 
