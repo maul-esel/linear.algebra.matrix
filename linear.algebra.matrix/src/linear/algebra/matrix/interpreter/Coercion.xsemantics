@@ -1,0 +1,93 @@
+system linear.algebra.matrix.interpreter.Coercion extends linear.algebra.matrix.semantics.Checks
+
+import linear.algebra.matrix.core.Rational
+import linear.algebra.matrix.core.Complex
+
+import linear.algebra.matrix.core.Matrix
+import linear.algebra.matrix.core.IntegerMatrix
+import linear.algebra.matrix.core.RationalMatrix
+import linear.algebra.matrix.core.RealMatrix
+import linear.algebra.matrix.core.ComplexMatrix
+
+import linear.algebra.matrix.matrix.Type
+import linear.algebra.matrix.matrix.MathematicalType
+import linear.algebra.matrix.matrix.IntegerType
+import linear.algebra.matrix.matrix.RationalType
+import linear.algebra.matrix.matrix.RealType
+import linear.algebra.matrix.matrix.ComplexType
+import linear.algebra.matrix.matrix.MatrixType
+
+auxiliary {
+	createMatrix(MathematicalType entries, Integer lines, Integer columns) : Matrix<?>
+	setMatrixEntry(Matrix<?> m, Integer i, Integer j, Number entry)
+}
+
+judgments {
+	implicitCoerce |~ Object value >> Type type |> output Object
+}
+
+auxiliary createMatrix(MathematicalType entries, Integer lines, Integer columns) {
+	switch (entries) {
+		IntegerType  : new IntegerMatrix(lines, columns)
+		RationalType : new RationalMatrix(lines, columns)
+		RealType     : new RealMatrix(lines, columns)
+		ComplexType  : new ComplexMatrix(lines, columns)
+	}
+}
+
+auxiliary setMatrixEntry(Matrix<?> m, Integer i, Integer j, Number entry) {
+	switch (m) {
+		Matrix<Integer>  : m.setEntry(i, j, entry as Integer) //.intValue())
+		Matrix<Rational> : m.setEntry(i, j, entry as Rational) //.valueOf(entry))
+		Matrix<Double>   : m.setEntry(i, j, entry as Double) //.doubleValue())
+		Matrix<Complex>  : m.setEntry(i, j, entry as Complex) //.valueOf(entry))
+	}
+}
+
+// ... >> int
+axiom ICIntegerInteger
+	G |~ Integer value >> IntegerType type |> value
+
+// ... >> rational
+axiom ICIntegerRational
+	G |~ Integer value >> RationalType type |> new Rational(value, 1)
+
+axiom ICRationalRational
+	G |~ Rational value >> RationalType type |> value
+
+// ... >> real
+axiom ICIntegerReal
+	G |~ Integer value >> RealType type |> value.doubleValue
+
+axiom ICRationalReal
+	G |~ Rational value >> RealType type |> value.doubleValue
+
+axiom ICRealReal
+	G |~ Double value >> RealType type |> value
+
+// ... >> complex
+axiom ICIntegerComplex
+	G |~ Integer value >> ComplexType type |> new Complex(value, 0)
+
+axiom ICRationalComplex
+	G |~ Rational value >> ComplexType type |> new Complex(value, 0)
+
+axiom ICRealComplex
+	G |~ Double value >> ComplexType type |> new Complex(value, 0)
+
+axiom ICComplexComplex
+	G |~ Complex value >> ComplexType type |> value
+
+rule ICMatrix
+	G |~ Matrix<?> value >> MatrixType type |> Matrix<?> out
+from {
+	(value.height.toString == type.height) && (value.width.toString == type.width)
+	or fail error "matrix type dimensions incompatible"
+
+	out = createMatrix(type.realEntryType, value.height, value.width)
+	for (i : 1..value.height)
+		for (j : 1..value.width) {
+			G |~ value.getEntry(i, j) >> type.realEntryType |> var Number entry
+			setMatrixEntry(out, i, j, entry)
+		}
+}
