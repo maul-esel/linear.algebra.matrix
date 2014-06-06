@@ -95,6 +95,13 @@ abstract class Type extends MatrixSyntaxElement {
 }
 
 class BooleanType extends Type {
+	op boolean equals(Object other) {
+		other instanceof BooleanType
+	}
+
+	op int hashCode() {
+		1 // random fixed number
+	}
 }
 
 abstract class MathematicalType extends Type {
@@ -104,15 +111,43 @@ abstract class MathematicalType extends Type {
 }
 
 class IntegerType extends MathematicalType {
+	op boolean equals(Object other) {
+		other instanceof IntegerType
+	}
+
+	op int hashCode() {
+		2 // random fixed number
+	}
 }
 
 class RationalType extends MathematicalType {
+	op boolean equals(Object other) {
+		other instanceof RationalType
+	}
+
+	op int hashCode() {
+		3 // random fixed number
+	}
 }
 
 class RealType extends MathematicalType {
+	op boolean equals(Object other) {
+		other instanceof RealType
+	}
+
+	op int hashCode() {
+		4 // random fixed number
+	}
 }
 
 class ComplexType extends MathematicalType {
+	op boolean equals(Object other) {
+		other instanceof ComplexType
+	}
+
+	op int hashCode() {
+		5 // random fixed number
+	}
 }
 
 class GenericType extends MathematicalType {
@@ -122,6 +157,14 @@ class GenericType extends MathematicalType {
 		val result = super.copy() as GenericType
 		result.name = name
 		result
+	}
+
+	op boolean equals(Object other) {
+		(other instanceof GenericType) && (other as GenericType).name.contentEquals(name)
+	}
+
+	op int hashCode() {
+		name.hashCode()
 	}
 }
 
@@ -163,6 +206,18 @@ class MatrixType extends Type {
 
 	op boolean canMultiply(MatrixType right) {
 		width == right.height
+	}
+
+	op boolean equals(Object other) {
+		if (other instanceof MatrixType)
+			other.height.contentEquals(height)
+			&& other.width.contentEquals(width)
+			&& other.realEntryType.equals(realEntryType)
+		else false
+	}
+
+	op int hashCode() {
+		height.hashCode + width.hashCode + realEntryType.hashCode
 	}
 }
 
