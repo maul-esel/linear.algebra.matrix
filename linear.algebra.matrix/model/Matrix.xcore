@@ -2,7 +2,7 @@
 @GenModel(fileExtensions="mtx", forceOverwrite="true", updateClasspath="false", modelDirectory="/linear.algebra.matrix/emf-gen")
 package linear.algebra.matrix.matrix
 
-class MatrixSyntaxElement {
+abstract class MatrixSyntaxElement {
 }
 
 class Code extends MatrixSyntaxElement {
@@ -14,13 +14,13 @@ class Import extends MatrixSyntaxElement {
 	String source
 }
 
-class Line extends MatrixSyntaxElement {
+abstract class Line extends MatrixSyntaxElement {
 }
 
-class Action extends Line , IfBody {
+abstract class Action extends Line , IfBody {
 }
 
-class VarDeclaration extends Action {
+abstract class VarDeclaration extends Action {
 	boolean const
 	String name
 	contains Expression value
@@ -62,7 +62,7 @@ class Block extends IfBody {
 	contains Action[] lines
 }
 
-class IfBody extends MatrixSyntaxElement {
+abstract class IfBody extends MatrixSyntaxElement {
 }
 
 class IfElse extends Action {
@@ -91,13 +91,13 @@ class ParameterList extends MatrixSyntaxElement {
 }
 
 /* TYPES */
-class Type extends MatrixSyntaxElement {
+abstract class Type extends MatrixSyntaxElement {
 }
 
 class BooleanType extends Type {
 }
 
-class MathematicalType extends Type {
+abstract class MathematicalType extends Type {
 	op MathematicalType copy() {
 		MatrixFactory.eINSTANCE.^create(eClass) as MathematicalType
 	}
@@ -183,14 +183,14 @@ class RealLiteral extends CoefficientLiteral {
 	String value
 }
 
-class CoefficientLiteral extends MathematicalLiteral {
+abstract class CoefficientLiteral extends MathematicalLiteral {
 }
 
 class ImaginaryLiteral extends MathematicalLiteral {
 	contains CoefficientLiteral coefficient
 }
 
-class MathematicalLiteral extends Expression , MatrixEntry {
+abstract class MathematicalLiteral extends Expression , MatrixEntry {
 }
 
 class MatrixInit extends Expression {
@@ -219,7 +219,7 @@ class MultiLineMatrixLiteral extends Expression {
 class PlaceholderEntry extends MatrixEntry {
 }
 
-class MatrixEntry extends MatrixSyntaxElement {
+abstract class MatrixEntry extends MatrixSyntaxElement {
 }
 
 class MatrixLiteralLine extends MatrixSyntaxElement {
@@ -247,10 +247,10 @@ class FunctionCall extends Action , Expression {
 	contains Expression[] params
 }
 
-class Expression extends MatrixSyntaxElement {
+abstract class Expression extends MatrixSyntaxElement {
 }
 
-class UnaryExpression extends Expression {
+abstract class UnaryExpression extends Expression {
 	contains Expression expr
 }
 
@@ -269,7 +269,7 @@ class Transposition extends UnaryExpression {
 class UnaryMinus extends UnaryExpression {
 }
 
-class BinaryExpression extends Expression {
+abstract class BinaryExpression extends Expression {
 	contains Expression left
 	contains Expression right
 }
@@ -309,7 +309,7 @@ class LogicalAndOr extends BinaryExpression {
 	LogicalOp ^op
 }
 
-class Assignment extends Action , Expression {
+abstract class Assignment extends Action , Expression {
 	contains Expression value
 }
 
