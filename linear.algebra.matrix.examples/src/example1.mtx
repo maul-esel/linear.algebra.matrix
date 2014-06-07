@@ -63,8 +63,6 @@ boolean c1 := b == b;
 
 if (b == true) {}
 
-h := 4; § should error
-
 (2 ° 3) C := {
 	1 2 3
 	4 5 6
