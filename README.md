@@ -71,3 +71,10 @@ with syntax highlighting, error markers and content assist.
 # What's to come
 The example above only uses integer matrices. But support is also planned for matrices with rational, real, complex
 and polynomial entries. More builtin functions regarding explicit equivalences, matrix similarity etc. are planned.
+
+# Dependencies
+
+* XText
+* XSemantics
+* Google Guice, Google Guice Assisted Inject
+* jsr305
