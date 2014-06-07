@@ -45,7 +45,7 @@ class MatrixScopeProvider extends org.eclipse.xtext.scoping.impl.AbstractDeclara
 	}
 
 	def private dispatch IScope scopeVariable(MatrixInit init, EObject before, EReference ref) {
-		localScopeFactory.create(MatrixPackage.eINSTANCE.varDeclaration, init, before, getScope(init.eContainer, ref), #[])
+		localScopeFactory.create(MatrixPackage.eINSTANCE.varDeclaration, init, before, scopeVariable(init.eContainer, init, ref), #[])
 	}
 
 	def private dispatch IScope scopeVariable(Code code, EObject before, EReference ref) {
