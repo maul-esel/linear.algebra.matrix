@@ -13,8 +13,20 @@ import static extension linear.algebra.matrix.core.NumberHelper.*
 
 inject StdlibUtil util
 
+auxiliary {
+	makeTypeExact(Type type, VariableRegister generics) : Type
+}
+
 judgments {
     interpret |- Expression expr ~> output Object
+}
+
+auxiliary makeTypeExact(Type type, VariableRegister generics) {
+	switch (type) {
+		GenericType : generics.get(type.name) as Type
+		MatrixType  : makeExactFromGeneric(generics, type)
+		default     : type
+	}
 }
 
 axiom IVariable
@@ -45,10 +57,15 @@ from {
 rule IVariableAssignment
 	G |- VariableAssignment assign ~> Object value
 from {
-	G |- assign.variable : var Type type
+	val generics = env(G, "generics", VariableRegister)
+
 	G |- assign.value ~> value
 
+	G |- assign.variable : var Type type
+	type = makeTypeExact(type, generics)
 	G |- assign.value : var Type valueType
+	valueType = makeTypeExact(valueType, generics)
+
 	if (!type.equals(valueType)) {
 		G |~ value >> type |> value // coerce into correct type
 	}
@@ -67,11 +84,15 @@ from {
 rule IEquals
 	G |- Equals eq ~> Boolean value
 from {
+	val generics = env(G, "generics", VariableRegister)
+
 	G |- eq.left ~> var Object left
 	G |- eq.right ~> var Object right
 
 	G |- eq.left  : var Type leftType
+	leftType = makeTypeExact(leftType, generics)
 	G |- eq.right : var Type rightType
+	rightType = makeTypeExact(rightType, generics)
 
 	if (!leftType.equals(rightType)) {
 		G |- leftType ~~ rightType |> var Type commonType
@@ -102,6 +123,8 @@ from {
 rule IEntryAssignment
 	G |- MatrixEntryAssignment assign ~> Object result
 from {
+	val generics = env(G, "generics", VariableRegister)
+
 	G |- assign.matr ~> var Matrix<?> mat
 	G |- assign.line ~> var Integer line
 	G |- assign.column ~> var Integer column
@@ -109,7 +132,9 @@ from {
 
 	// use coercion to make types match
 	G |- assign.matr : var MatrixType matrType
+	matrType = makeTypeExact(matrType, generics) as MatrixType
 	G |- assign.value : var Type valueType
+	valueType = makeTypeExact(valueType, generics)
 	if (!matrType.realEntryType.equals(valueType)) {
 		G |~ value >> matrType.realEntryType |> value
 	}
@@ -121,11 +146,11 @@ from {
 rule IMultiLineMatrixLiteral
 	G |- MultiLineMatrixLiteral lit ~> Matrix<?> m
 from {
+	val generics = env(G, 'generics', VariableRegister)
+
 	G |- lit : var MatrixType matrType
-	if (matrType.isGeneric()) {
-		val generics = env(G, 'generics', VariableRegister)
+	if (matrType.isGeneric())
 		matrType = makeExactFromGeneric(generics, matrType)
-	}
 
 	m = createMatrix(matrType.realEntryType, Integer.parseInt(matrType.height), Integer.parseInt(matrType.width))
 
@@ -142,6 +167,7 @@ from {
 				G |- lit.dot.fill ~> value
 				G |- lit.dot.fill : valueType
 			}
+			valueType = makeTypeExact(valueType, generics)
 
 			if (!matrType.realEntryType.equals(valueType)) {
 				G |~ value >> matrType.realEntryType |> value
@@ -156,12 +182,13 @@ from {
 rule IMatrixInit
 	G |- MatrixInit init ~> Matrix<?> m
 from {
+	val generics = env(G, 'generics', VariableRegister)
+
 	G |- init : var MatrixType matrType
-	if (matrType.isGeneric()) {
-		val generics = env(G, 'generics', VariableRegister)
+	if (matrType.isGeneric())
 		matrType = makeExactFromGeneric(generics, matrType)
-	}
 	G |- init.entry : var Type valueType
+	valueType = makeTypeExact(valueType, generics)
 
 	val variables = new VariableRegister(env(G, 'variables', VariableRegister))
 	variables.add(init.line.name)
