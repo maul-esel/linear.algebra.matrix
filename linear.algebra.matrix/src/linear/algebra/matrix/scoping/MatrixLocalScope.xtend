@@ -11,6 +11,7 @@ import org.eclipse.emf.ecore.EClass
 
 import com.google.inject.Inject
 import com.google.inject.assistedinject.Assisted
+import javax.annotation.Nullable
 
 class MatrixLocalScope implements IScope {
 	val EClass type
@@ -26,7 +27,7 @@ class MatrixLocalScope implements IScope {
 	@Inject
 	new(@Assisted EClass type,
 		@Assisted("context") EObject context,
-		@Assisted("before") EObject before,
+		@Nullable @Assisted("before") EObject before,
 		@Assisted IScope parentScope,
 		@Assisted Iterable<EObject> additional
 	) {
