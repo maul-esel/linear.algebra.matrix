@@ -2,7 +2,7 @@ package linear.algebra.matrix.interpreter
 
 import it.xsemantics.runtime.RuleEnvironment
 
-import java.util.Stack;
+import java.util.Stack
 import java.util.List
 
 import linear.algebra.matrix.matrix.*

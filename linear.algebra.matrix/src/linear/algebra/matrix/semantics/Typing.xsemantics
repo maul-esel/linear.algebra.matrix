@@ -43,7 +43,7 @@ auxiliary checkParamTypes(VariableRegister genReg, List<TypedVarDeclaration> dec
 
 	for (i : 0 ..< suppliedParams.size) {
 		empty |- suppliedParams.get(i) : var Type valueType
-		empty ||- declaredParams.get(i) : var Type paramType;
+		empty ||- declaredParams.get(i) : var Type paramType
 
 		if (valueType instanceof MatrixType && paramType instanceof MatrixType && (paramType as MatrixType).isGeneric())
 			checkGenericMatrixType(genReg,
