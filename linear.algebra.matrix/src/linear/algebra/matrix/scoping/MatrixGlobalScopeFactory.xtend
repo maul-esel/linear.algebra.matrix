@@ -1,8 +1,8 @@
 package linear.algebra.matrix.scoping
 
+import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.EClass
-import linear.algebra.matrix.imports.ImportManager
 
 interface MatrixGlobalScopeFactory {
-	def MatrixGlobalScope create(EClass type, ImportManager origin)
+	def MatrixGlobalScope create(Resource resource, EClass type)
 }

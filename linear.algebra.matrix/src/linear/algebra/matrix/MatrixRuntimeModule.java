@@ -18,6 +18,10 @@ public class MatrixRuntimeModule extends linear.algebra.matrix.AbstractMatrixRun
 		return linear.algebra.matrix.scoping.MatrixQualifiedNameConverter.class;
 	}
 
+	public Class<? extends linear.algebra.matrix.scoping.providers.CodeProvider> bindCodeProvider() {
+		return linear.algebra.matrix.scoping.providers.StdlibCodeProvider.class;
+	}
+
 	@Override
 	public void configure(Binder binder) {
 		super.configure(binder);
