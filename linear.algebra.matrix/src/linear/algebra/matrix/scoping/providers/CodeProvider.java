@@ -1,15 +1,13 @@
 package linear.algebra.matrix.scoping.providers;
 
-import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.Resource;
 
 public interface CodeProvider {
-	ResourceSet getResourceSet();
+	Function[] getFunctionsFor(Resource resource);
+	Proc[] getProcsFor(Resource resource);
 
-	Function[] getFunctions();
-	Proc[] getProcs();
-
-	Object interpretFunction(Function func, Object[] parameters);
-	void interpretProc(Proc proc, Object[] parameters);
+	Object interpretFunction(Resource resource, Function func, Object[] parameters);
+	void interpretProc(Resource resource, Proc proc, Object[] parameters);
 
 	// no variables for now
 }

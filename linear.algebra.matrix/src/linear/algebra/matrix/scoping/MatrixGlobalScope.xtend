@@ -1,6 +1,7 @@
 package linear.algebra.matrix.scoping
 
 import linear.algebra.matrix.imports.ImportManager
+import linear.algebra.matrix.imports.ImportManagerFactory
 import linear.algebra.matrix.scoping.providers.CodeProvider
 
 import org.eclipse.xtext.scoping.IScope
@@ -9,20 +10,27 @@ import org.eclipse.xtext.resource.EObjectDescription
 import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EClass
+import org.eclipse.emf.ecore.resource.Resource
 
 import com.google.inject.Inject
 import com.google.inject.assistedinject.Assisted
 
 class MatrixGlobalScope implements IScope {
 	val EClass type
-	val ImportManager imports
-	val CodeProvider provider
+	val Resource resource
+
+	var ImportManager importManager
 
 	@Inject
-	new(@Assisted EClass type, @Assisted ImportManager imports, @Assisted CodeProvider provider) {
+	private var CodeProvider provider
+
+	@Inject
+	private var ImportManagerFactory importFactory
+
+	@Inject
+	new(@Assisted Resource resource, @Assisted EClass type) {
+		this.resource = resource
 		this.type = type
-		this.imports = imports
-		this.provider = provider
 	}
 
 	override getAllElements() {
@@ -49,11 +57,17 @@ class MatrixGlobalScope implements IScope {
 	}
 
 	def private providedElements() {
-		filterType(provider.functions.map [ o | EObjectDescription.create(o.name, o.func) ]
-			+ provider.procs.map [ o | EObjectDescription.create(o.name, o.proc) ])
+		filterType(provider.getFunctionsFor(resource).map [ o | EObjectDescription.create(o.name, o.func) ]
+			+ provider.getProcsFor(resource).map [ o | EObjectDescription.create(o.name, o.proc) ])
 	}
 
 	def private filterType(Iterable<IEObjectDescription> list) {
 		list.filter [ obj | type.isSuperTypeOf(obj.EClass) ]
+	}
+
+	def private imports() {
+		if (importManager == null)
+			importManager = importFactory.create(resource)
+		importManager
 	}
 }

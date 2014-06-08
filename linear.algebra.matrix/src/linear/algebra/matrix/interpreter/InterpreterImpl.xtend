@@ -6,7 +6,6 @@ import java.util.Stack;
 import java.util.List
 
 import linear.algebra.matrix.scoping.providers.CodeProvider
-import linear.algebra.matrix.scoping.providers.CodeProviderFactory
 import linear.algebra.matrix.scoping.providers.InterpretationMethod
 
 import linear.algebra.matrix.matrix.*
@@ -28,9 +27,8 @@ public class InterpreterImpl implements Interpreter {
 	IQualifiedNameProvider nameProvider
 
 	@Inject
-	private CodeProviderFactory providerFactory
+	private CodeProvider provider
 
-	private var CodeProvider provider
 	private Resource resource
 
 	private Stack<VariableRegister> variables = new Stack<VariableRegister>()
@@ -45,12 +43,6 @@ public class InterpreterImpl implements Interpreter {
 		resource = res;
 		variables.push(new VariableRegister())
 		generics.push(new VariableRegister());
-	}
-
-	def private provider() {
-		if (provider == null)
-			provider = providerFactory.create(resource.resourceSet)
-		provider
 	}
 
 	override void interpret() {
@@ -74,12 +66,12 @@ public class InterpreterImpl implements Interpreter {
 	}
 
 	def dispatch void interpret(ProcCall call) {
-		val providerProc = provider().procs.findFirst [
+		val providerProc = provider.getProcsFor(resource).findFirst [
 			name.equals(nameProvider.getFullyQualifiedName(call.proc.ref))
 			&& interpretationMethod == InterpretationMethod.Provider
 		]
 		if (providerProc != null)
-			provider().interpretProc(providerProc, call.params.map [ evaluate ])
+			provider.interpretProc(resource, providerProc, call.params.map [ evaluate ])
 		else
 			executeWithParams(call.proc.ref.params.params, call.params, call.proc.ref.body)
 	}
@@ -137,12 +129,12 @@ public class InterpreterImpl implements Interpreter {
 	}
 
 	def dispatch Object evaluate(FunctionCall call) { // special handling for func calls!
-		val providerFunc = provider().functions.findFirst [
+		val providerFunc = provider.getFunctionsFor(resource).findFirst [
 			name.equals(nameProvider.getFullyQualifiedName(call.func.ref))
 			&& interpretationMethod == InterpretationMethod.Provider
 		]
 		if (providerFunc != null)
-			provider().interpretFunction(providerFunc, call.params.map [ evaluate ])
+			provider.interpretFunction(resource, providerFunc, call.params.map [ evaluate ])
 		else
 			executeWithParams(call.func.ref.params.params, call.params, call.func.ref.body)
 	}

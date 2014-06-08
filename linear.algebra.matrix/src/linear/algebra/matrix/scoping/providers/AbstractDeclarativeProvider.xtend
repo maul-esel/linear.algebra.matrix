@@ -2,7 +2,6 @@ package linear.algebra.matrix.scoping.providers
 
 import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.emf.ecore.resource.Resource
-import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl
 
 import linear.algebra.matrix.matrix.Type
@@ -28,32 +27,18 @@ import org.eclipse.xtext.util.PolymorphicDispatcher.Predicates
 
 import static extension linear.algebra.matrix.scoping.providers.IterableExtensions.*
 
-import com.google.inject.Inject
-import com.google.inject.assistedinject.Assisted
-
 public abstract class AbstractDeclarativeProvider implements CodeProvider {
-	private val ResourceSet resourceSet
-	protected val Resource providerResource
+	private val Map<Resource, Resource> providerResources = new Hashtable<Resource, Resource>()
 
-	@Inject
-	new(@Assisted ResourceSet resourceSet) {
-		this.resourceSet = resourceSet
-		providerResource = new ResourceImpl()
+	override getFunctionsFor(Resource resource) {
+		collectFunctions(resource)
 	}
 
-	override getResourceSet() {
-		resourceSet
+	override getProcsFor(Resource resource) {
+		collectProcs(resource)
 	}
 
-	override getFunctions() {
-		collectFunctions()
-	}
-
-	override getProcs() {
-		collectProcs()
-	}
-
-	override interpretFunction(Function func, Object[] parameters) {
+	override interpretFunction(Resource resource, Function func, Object[] parameters) {
 		val dispatcher = new PolymorphicDispatcher<Object>(
 			Collections.singletonList(this),
 			functionPredicate(func)
@@ -61,7 +46,7 @@ public abstract class AbstractDeclarativeProvider implements CodeProvider {
 		dispatcher.invoke(parameters)
 	}
 
-	override interpretProc(Proc proc, Object[] parameters) {
+	override interpretProc(Resource resource, Proc proc, Object[] parameters) {
 		val dispatcher = new PolymorphicDispatcher<Object>(
 			Collections.singletonList(this),
 			procPredicate(proc)
@@ -69,20 +54,20 @@ public abstract class AbstractDeclarativeProvider implements CodeProvider {
 		dispatcher.invoke(parameters)
 	}
 
-	def protected Function[] collectFunctions() {
+	def protected Function[] collectFunctions(Resource resource) {
 		class.methods
 			.filter [ name.startsWith("func_") ]
 			.groupBy [ name ]
 			.values
-			.map [ list | commonFunction(list) ]
+			.map [ list | commonFunction(list, getProviderResourceFor(resource)) ]
 	}
 
-	def protected Proc[] collectProcs() {
+	def protected Proc[] collectProcs(Resource resource) {
 		class.methods
 			.filter [ name.startsWith("proc_") ]
 			.groupBy [ name ]
 			.values
-			.map [ list | commonProc(list) ]
+			.map [ list | commonProc(list, getProviderResourceFor(resource)) ]
 	}
 
 	def protected functionPredicate(Function func) {
@@ -93,7 +78,7 @@ public abstract class AbstractDeclarativeProvider implements CodeProvider {
 		Predicates.forName("proc_" + proc.name.lastSegment.substring(1), proc.proc.params.params.size)
 	}
 
-	def protected commonFunction(List<Method> methods) {
+	def protected commonFunction(List<Method> methods, Resource providerResource) {
 		if (methods.map [ parameterTypes.size ].size > 1)
 			throw new IllegalStateException("Overloads must have same number of parameters: " + methods.last.name)
 
@@ -107,7 +92,7 @@ public abstract class AbstractDeclarativeProvider implements CodeProvider {
 		Function.createSymbolic(providerResource, funcName, params, returnType)
 	}
 
-	def protected commonProc(List<Method> methods) {
+	def protected commonProc(List<Method> methods, Resource providerResource) {
 		if (methods.map [ parameterTypes.size ].size > 1)
 			throw new IllegalStateException("Overloads must have same number of parameters: " + methods.last.name)
 		if (!methods.map [ returnType ].elementsEqual(#[Void.TYPE]))
@@ -185,6 +170,12 @@ public abstract class AbstractDeclarativeProvider implements CodeProvider {
 		val type = MatrixFactory.eINSTANCE.createGenericType()
 		type.name = "%generic" + Math.random()
 		type
+	}
+
+	def protected Resource getProviderResourceFor(Resource res) {
+		if (!providerResources.containsKey(res))
+			providerResources.put(res, new ResourceImpl())
+		providerResources.get(res)
 	}
 }
 

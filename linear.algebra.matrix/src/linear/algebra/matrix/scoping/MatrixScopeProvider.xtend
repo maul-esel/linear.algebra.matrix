@@ -10,9 +10,6 @@ import linear.algebra.matrix.matrix.ProcDeclaration
 import linear.algebra.matrix.matrix.MatrixInit
 import linear.algebra.matrix.matrix.MatrixPackage
 
-import linear.algebra.matrix.imports.ImportManagerFactory
-import linear.algebra.matrix.scoping.providers.CodeProviderFactory
-
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.scoping.IScope
@@ -22,8 +19,6 @@ import com.google.inject.Inject
 class MatrixScopeProvider extends org.eclipse.xtext.scoping.impl.AbstractDeclarativeScopeProvider {
 	@Inject MatrixGlobalScopeFactory globalScopeFactory
 	@Inject MatrixLocalScopeFactory localScopeFactory
-	@Inject ImportManagerFactory importFactory
-	@Inject CodeProviderFactory providerFactory
 
 	def scope_Function_ref(Code code, EReference ref) {
 		localScopeFactory.create(MatrixPackage.eINSTANCE.funcDeclaration, code, globalFuncScope(code), #[])
@@ -54,12 +49,10 @@ class MatrixScopeProvider extends org.eclipse.xtext.scoping.impl.AbstractDeclara
 	}
 
 	def private globalFuncScope(EObject obj) {
-		globalScopeFactory.create(MatrixPackage.eINSTANCE.funcDeclaration, importFactory.create(obj.eResource),
-			providerFactory.create(obj.eResource.resourceSet))
+		globalScopeFactory.create(obj.eResource, MatrixPackage.eINSTANCE.funcDeclaration)
 	}
 
 	def private globalProcScope(EObject obj) {
-		globalScopeFactory.create(MatrixPackage.eINSTANCE.procDeclaration, importFactory.create(obj.eResource),
-			providerFactory.create(obj.eResource.resourceSet))
+		globalScopeFactory.create(obj.eResource, MatrixPackage.eINSTANCE.procDeclaration)
 	}
 }

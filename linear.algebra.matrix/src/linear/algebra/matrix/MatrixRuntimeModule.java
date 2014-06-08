@@ -18,6 +18,10 @@ public class MatrixRuntimeModule extends linear.algebra.matrix.AbstractMatrixRun
 		return linear.algebra.matrix.scoping.MatrixQualifiedNameConverter.class;
 	}
 
+	public Class<? extends linear.algebra.matrix.scoping.providers.CodeProvider> bindCodeProvider() {
+		return linear.algebra.matrix.scoping.providers.StdlibCodeProvider.class;
+	}
+
 	@Override
 	public void configure(Binder binder) {
 		super.configure(binder);
@@ -37,9 +41,5 @@ public class MatrixRuntimeModule extends linear.algebra.matrix.AbstractMatrixRun
 			.implement(linear.algebra.matrix.imports.ImportManager.class,
 				linear.algebra.matrix.imports.ImportManagerImpl.class)
 			.build(linear.algebra.matrix.imports.ImportManagerFactory.class));
-		binder.install(new FactoryModuleBuilder()
-			.implement(linear.algebra.matrix.scoping.providers.CodeProvider.class,
-				linear.algebra.matrix.scoping.providers.StdlibCodeProvider.class)
-			.build(linear.algebra.matrix.scoping.providers.CodeProviderFactory.class));
 	}
 }

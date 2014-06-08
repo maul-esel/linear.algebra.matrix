@@ -5,34 +5,29 @@ import linear.algebra.matrix.matrix.FuncDeclaration
 import linear.algebra.matrix.matrix.ProcDeclaration
 
 import org.eclipse.emf.ecore.resource.Resource
-import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.xtext.resource.IResourceDescription
 import org.eclipse.emf.common.util.URI
 
+import java.util.Map
+import java.util.Hashtable
+
 import com.google.inject.Inject
-import com.google.inject.assistedinject.Assisted
 
 class StdlibCodeProvider extends BuiltinCodeProvider {
 	@Inject
 	IResourceDescription.Manager descrManager
 
-	private var Resource stdlibResource = null
+	private val Map<Resource, Resource> stdlibResources = new Hashtable<Resource, Resource>()
 
-	@Inject
-	new(@Assisted ResourceSet resourceSet) {
-		super(resourceSet)
+	override getFunctionsFor(Resource resource) {
+		super.getFunctionsFor(resource) + getStdlibFunctions(load(resource))
 	}
 
-	override getFunctions() {
-		super.getFunctions() + getStdlibFunctions()
+	override getProcsFor(Resource resource) {
+		super.getProcsFor(resource) + getStdlibProcs(load(resource))
 	}
 
-	override getProcs() {
-		super.getProcs() + getStdlibProcs()
-	}
-
-	def protected getStdlibFunctions() {
-		ensureLoaded()
+	def protected getStdlibFunctions(Resource stdlibResource) {
 		descrManager.getResourceDescription(stdlibResource).exportedObjects
 			.filter [ obj | MatrixPackage.eINSTANCE.funcDeclaration.isSuperTypeOf(obj.EClass) ]
 			.map [ descr |
@@ -40,8 +35,7 @@ class StdlibCodeProvider extends BuiltinCodeProvider {
 			]
 	}
 
-	def protected getStdlibProcs() {
-		ensureLoaded()
+	def protected getStdlibProcs(Resource stdlibResource) {
 		descrManager.getResourceDescription(stdlibResource).exportedObjects
 			.filter [ obj | MatrixPackage.eINSTANCE.procDeclaration.isSuperTypeOf(obj.EClass) ]
 			.map [ descr |
@@ -49,23 +43,24 @@ class StdlibCodeProvider extends BuiltinCodeProvider {
 			]
 	}
 
-	def private void ensureLoaded() {
-		if (stdlibResource == null)
-			stdlibResource = loadStdlib()
+	def private load(Resource res) {
+		if (!stdlibResources.containsKey(res))
+			stdlibResources.put(res, loadStdlib(res))
+		stdlibResources.get(res)
 	}
 
-	def protected String stdlibSymbol() { // subclass hook to change filename
+	def protected String stdlibSymbol() { // subclass hook to change the filename
 		'stdlib'
 	}
 
-	def protected stdlibURI() { // subclass hook to change URI
-		val uri =  resourceSet.resources.get(0).URI // TODO: find a cleaner approach / a fixed stdlib location
-		val segments = uri.segments.clone
+	def protected stdlibURI(Resource res) { // subclass hook to change the URI
+		// TODO: find a cleaner approach / a fixed stdlib location
+		val segments = res.URI.segments.clone
 		segments.set(segments.length - 1, stdlibSymbol() + ".mtx")
-		URI.createHierarchicalURI(uri.scheme, uri.authority, uri.device, segments, null, null)
+		URI.createHierarchicalURI(res.URI.scheme, res.URI.authority, res.URI.device, segments, null, null)
 	}
 
-	def protected Resource loadStdlib() { // subclass hook for different loading
-		resourceSet.getResource(stdlibURI(), true)
+	def protected Resource loadStdlib(Resource res) { // subclass hook for different loading
+		res.resourceSet.getResource(stdlibURI(res), true)
 	}
 }
