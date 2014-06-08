@@ -19,12 +19,12 @@ class StdlibCodeProvider extends BuiltinCodeProvider {
 
 	private val Map<Resource, Resource> stdlibResources = new Hashtable<Resource, Resource>()
 
-	override getFunctionsFor(Resource resource) {
-		super.getFunctionsFor(resource) + getStdlibFunctions(load(resource))
+	override collectFunctions(Resource resource) {
+		super.collectFunctions(resource) + getStdlibFunctions(load(resource))
 	}
 
-	override getProcsFor(Resource resource) {
-		super.getProcsFor(resource) + getStdlibProcs(load(resource))
+	override collectProcs(Resource resource) {
+		super.collectProcs(resource) + getStdlibProcs(load(resource))
 	}
 
 	def protected getStdlibFunctions(Resource stdlibResource) {

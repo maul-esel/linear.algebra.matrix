@@ -12,6 +12,8 @@ import linear.algebra.matrix.core.Rational
 import linear.algebra.matrix.core.Complex
 import linear.algebra.matrix.core.Matrix
 
+import linear.algebra.matrix.util.Cache
+
 import java.util.Collections
 import java.util.List
 import java.util.ArrayList
@@ -29,13 +31,15 @@ import static extension linear.algebra.matrix.scoping.providers.IterableExtensio
 
 public abstract class AbstractDeclarativeProvider implements CodeProvider {
 	private val Map<Resource, Resource> providerResources = new Hashtable<Resource, Resource>()
+	private val functionCache = new Cache<Resource, Function[]>()
+	private val procCache = new Cache<Resource, Proc[]>()
 
 	override getFunctionsFor(Resource resource) {
-		collectFunctions(resource)
+		functionCache.get(resource, [ res | collectFunctions(res) ])
 	}
 
 	override getProcsFor(Resource resource) {
-		collectProcs(resource)
+		procCache.get(resource, [ res | collectProcs(resource) ])
 	}
 
 	override interpretFunction(Resource resource, Function func, Object[] parameters) {
