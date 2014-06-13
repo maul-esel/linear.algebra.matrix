@@ -13,8 +13,7 @@ import com.google.inject.Inject
 import com.google.inject.assistedinject.Assisted
 import javax.annotation.Nullable
 
-class MatrixLocalScope implements IScope {
-	val EClass type
+class MatrixLocalScope extends MatrixScope {
 	val EObject context
 	val EObject before
 	val IScope parentScope
@@ -31,7 +30,7 @@ class MatrixLocalScope implements IScope {
 		@Assisted IScope parentScope,
 		@Assisted Iterable<EObject> additional
 	) {
-		this.type = type
+		super(type)
 		this.context = context
 		this.parentScope = parentScope
 		this.additional = additional
@@ -51,25 +50,15 @@ class MatrixLocalScope implements IScope {
 		newList
 	}
 
-	override getAllElements() {
-		throw new UnsupportedOperationException("cannot enumerate scope")
+	override _getAllElements() {
+		traverse().map [ obj | EObjectDescription.create(prov.getFullyQualifiedName(obj), obj) ]
 	}
 
-	override getElements(QualifiedName name) {
-		traverse()
-			.filter [ obj | name.equals(prov.getFullyQualifiedName(obj)) ]
-			.map [ obj | EObjectDescription.create(name, obj) ]
+	override _getElements(QualifiedName name) {
+		getAllElements().filter [ descr | name.equals(descr.name) ]
 	}
 
-	override getElements(EObject object) {
-		throw new UnsupportedOperationException("TODO: auto-generated method stub")
-	}
-
-	override getSingleElement(QualifiedName name) {
+	override _getSingleElement(QualifiedName name) {
 		getElements(name).head ?: parentScope.getSingleElement(name)
-	}
-
-	override getSingleElement(EObject object) {
-		throw new UnsupportedOperationException("TODO: auto-generated method stub")
 	}
 }
