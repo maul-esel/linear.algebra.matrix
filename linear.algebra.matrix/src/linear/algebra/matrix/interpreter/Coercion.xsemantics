@@ -37,10 +37,10 @@ auxiliary createMatrix(MathematicalType entries, Integer lines, Integer columns)
 
 auxiliary setMatrixEntry(Matrix<?> m, Integer i, Integer j, Number entry) {
 	switch (m) {
-		Matrix<Integer>  : m.setEntry(i, j, entry as Integer) //.intValue())
-		Matrix<Rational> : m.setEntry(i, j, entry as Rational) //.valueOf(entry))
-		Matrix<Double>   : m.setEntry(i, j, entry as Double) //.doubleValue())
-		Matrix<Complex>  : m.setEntry(i, j, entry as Complex) //.valueOf(entry))
+		IntegerMatrix  : m.setEntry(i, j, entry as Integer)
+		RationalMatrix : m.setEntry(i, j, entry as Rational)
+		RealMatrix     : m.setEntry(i, j, entry as Double)
+		ComplexMatrix  : m.setEntry(i, j, entry as Complex)
 	}
 }
 
