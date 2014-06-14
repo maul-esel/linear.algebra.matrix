@@ -36,6 +36,9 @@ public class REPL {
 	private val ImportManager imports
 	private StringBuilder code = new StringBuilder()
 
+	private PrintStream out
+	private PrintStream err
+
 	@Inject
 	public new(ResourceSet resourceSet, InterpreterFactory interpreterFactory, ImportManagerFactory importFactory) {
 		resource = resourceSet.createResource(URI.createURI(RESOURCE_URI))
@@ -46,10 +49,15 @@ public class REPL {
 	}
 
 	def void start(InputStream in, PrintStream out, PrintStream err) {
+		this.out = out
+		this.err = err
 		while (true) {
 			val oldCode = new StringBuilder(code.toString())
+
 			out.print(">> ")
+			out.flush()
 			val line = readNextStatement(in).trim()
+
 			val isImport =line.startsWith("import")
 			if (isImport)
 				code.insert(0, line + '\n')
@@ -64,13 +72,13 @@ public class REPL {
 			if (resource.errors.size > 0 || diagnostic.severity == Diagnostic.ERROR) {
 				code = oldCode
 				for (d: resource.errors)
-					err.println("§§ ERROR:\n" + errorMessage(d) + "\n§§")
+					error("ERROR:\n" + errorMessage(d))
 				if (diagnostic.severity == Diagnostic.ERROR)
-					err.println("§ ERROR:\n" + errorMessage(diagnostic) + "\n§§")
+					error("ERROR:\n" + errorMessage(diagnostic))
 			} else if (!isImport)
-				handle(root().lines.last, out, err)
+				handle(root().lines.last)
 			else
-				System.out.println("§ successfully imported")
+				output("successfully imported")
 		}
 	}
 
@@ -78,21 +86,21 @@ public class REPL {
 		resource.contents.get(0) as Code
 	}
 
-	private def dispatch handle(Line line, PrintStream out, PrintStream err) {
+	private def dispatch handle(Line line) {
 		try {
 			interpreter.interpret(line)
-			out.println("§ successfully executed")
+			output("successfully executed")
 		} catch (Exception e) {
-			err.println("§§ ERROR:\n" + e.message + "\n§§")
+			error("ERROR:\n" + e.message)
 		}
 	}
 
-	private def dispatch handle(Expression expr, PrintStream out, PrintStream err) {
+	private def dispatch handle(Expression expr) {
 		try {
 			val value = interpreter.evaluate(expr)
-			out.println("§ => " + value)
+			output("=> " + value)
 		} catch (Exception e) {
-			err.println("§ ERROR:\n" + e.message + "\n§§")
+			error("ERROR:\n" + e.message)
 		}
 	}
 
@@ -149,5 +157,22 @@ public class REPL {
 		if (d.children.size > 0)
 			"problems:\n" + d.children.map [ "* " + message ].join("\n")
 		else d.message
+	}
+
+	private def output(String s) {
+		out.println(comment(s))
+		out.flush()
+	}
+
+	private def error(String s) {
+		err.println(comment(s))
+		err.flush()
+	}
+
+	private def comment(String s) {
+		if (s.contains("\n"))
+			"§§ " + s + "\n§§"
+		else
+			"§ " + s
 	}
 }
