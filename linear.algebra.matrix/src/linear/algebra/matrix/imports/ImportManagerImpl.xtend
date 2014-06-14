@@ -28,7 +28,7 @@ class ImportManagerImpl implements ImportManager {
 		(resource.contents.get(0) as Code).imports.forEach [ imp | imports.put(imp.source, null) ]
 	}
 
-	def private importURI(String name) {
+	def protected importURI(String name) {
 		val segments = resource.URI.segments.clone
 		segments.set(segments.length - 1, name + ".mtx")
 		URI.createHierarchicalURI(resource.URI.scheme, resource.URI.authority, resource.URI.device, segments, null, null)
