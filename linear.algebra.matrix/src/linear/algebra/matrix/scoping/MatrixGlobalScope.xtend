@@ -22,22 +22,20 @@ class MatrixGlobalScope extends MatrixScope {
 	private var CodeProvider provider
 
 	@Inject
-	private var ImportManagerFactory importFactory
-
-	@Inject
-	new(@Assisted Resource resource, @Assisted EClass type) {
+	new(@Assisted Resource resource, @Assisted EClass type, ImportManagerFactory importFactory) {
 		super(type)
 		this.resource = resource
+		importManager = importFactory.create(resource)
 	}
 
 	override _getAllElements() {
-		providedElements + imports.getImports().map [ descr | filterType(descr.exportedObjects) ].flatten
+		providedElements + importManager.getImports().map [ descr | filterType(descr.exportedObjects) ].flatten
 	}
 
 	override _getElements(QualifiedName name) {
 		var list = providedElements
-		if (name.segments.length == 2 && imports.isValidImport(name.firstSegment))
-			list = list + filterType(imports.getImport(name.firstSegment).exportedObjects)
+		if (name.segments.length == 2 && importManager.isValidImport(name.firstSegment))
+			list = list + filterType(importManager.getImport(name.firstSegment).exportedObjects)
 		list.filter [ obj | obj.name.equals(name) ]
 	}
 
@@ -52,11 +50,5 @@ class MatrixGlobalScope extends MatrixScope {
 
 	def private filterType(Iterable<IEObjectDescription> list) {
 		list.filter [ obj | type.isSuperTypeOf(obj.EClass) ]
-	}
-
-	def private imports() {
-		if (importManager == null)
-			importManager = importFactory.create(resource)
-		importManager
 	}
 }
