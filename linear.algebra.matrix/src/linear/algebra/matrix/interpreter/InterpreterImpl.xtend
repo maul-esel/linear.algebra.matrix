@@ -11,10 +11,11 @@ import linear.algebra.matrix.scoping.providers.InterpretationMethod
 import linear.algebra.matrix.matrix.*
 
 import org.eclipse.emf.ecore.resource.Resource
-import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.emf.ecore.util.Diagnostician
 import org.eclipse.emf.common.util.Diagnostic
 import org.eclipse.xtext.naming.IQualifiedNameProvider
+import org.eclipse.xtext.util.CancelIndicator
+import org.eclipse.xtext.EcoreUtil2
 
 import com.google.inject.Inject
 import com.google.inject.assistedinject.Assisted
@@ -35,9 +36,9 @@ public class InterpreterImpl implements Interpreter {
 	private Stack<VariableRegister> generics = new Stack<VariableRegister>()
 
 	@Inject
-	new(@Assisted Resource res) {
-		EcoreUtil.resolveAll(res)
-		if (Diagnostician.INSTANCE.validate(res.contents.get(0)).severity == Diagnostic.ERROR)
+	new(@Assisted Resource res, Diagnostician doc) {
+		EcoreUtil2.resolveLazyCrossReferences(res, CancelIndicator.NullImpl)
+		if (doc.validate(res.contents.get(0)).severity == Diagnostic.ERROR)
 			throw new IllegalStateException("Cannot interpret resource: it has errors")
 
 		resource = res;
