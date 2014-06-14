@@ -9,7 +9,7 @@ import org.eclipse.xtext.resource.IResourceDescription
 import org.eclipse.emf.common.util.URI
 
 import java.util.Map
-import java.util.Hashtable
+import java.util.HashMap
 
 import com.google.inject.Inject
 
@@ -17,7 +17,7 @@ class StdlibCodeProvider extends BuiltinCodeProvider {
 	@Inject
 	IResourceDescription.Manager descrManager
 
-	private val Map<Resource, Resource> stdlibResources = new Hashtable<Resource, Resource>()
+	private val Map<Resource, Resource> stdlibResources = new HashMap<Resource, Resource>()
 
 	override collectFunctions(Resource resource) {
 		super.collectFunctions(resource) + getStdlibFunctions(load(resource))

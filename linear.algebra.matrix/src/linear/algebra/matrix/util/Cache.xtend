@@ -1,9 +1,9 @@
 package linear.algebra.matrix.util
 
-import java.util.Hashtable
+import java.util.HashMap
 
 class Cache<K, V> {
-	private val contents = new Hashtable<K, V>()
+	private val contents = new HashMap<K, V>()
 
 	def boolean isCached(K key) {
 		contents.containsKey(key)

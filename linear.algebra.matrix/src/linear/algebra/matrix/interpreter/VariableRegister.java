@@ -1,6 +1,6 @@
 package linear.algebra.matrix.interpreter;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,7 +11,7 @@ public class VariableRegister {
 
 	private VariableRegister superScope = empty; // { != null, except for empty itself }
 
-	private final Hashtable<String, Object> variables = new Hashtable<String, Object>();
+	private final HashMap<String, Object> variables = new HashMap<String, Object>();
 
 	private final HashSet<String> constants = new HashSet<String>();
 

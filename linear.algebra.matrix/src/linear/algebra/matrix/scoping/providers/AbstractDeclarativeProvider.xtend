@@ -18,7 +18,7 @@ import java.util.Collections
 import java.util.List
 import java.util.ArrayList
 import java.util.Map
-import java.util.Hashtable
+import java.util.HashMap
 
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
@@ -30,7 +30,7 @@ import org.eclipse.xtext.util.PolymorphicDispatcher.Predicates
 import static extension linear.algebra.matrix.scoping.providers.IterableExtensions.*
 
 public abstract class AbstractDeclarativeProvider implements CodeProvider {
-	private val Map<Resource, Resource> providerResources = new Hashtable<Resource, Resource>()
+	private val Map<Resource, Resource> providerResources = new HashMap<Resource, Resource>()
 	private val functionCache = new Cache<Resource, Function[]>()
 	private val procCache = new Cache<Resource, Proc[]>()
 
@@ -185,7 +185,7 @@ public abstract class AbstractDeclarativeProvider implements CodeProvider {
 
 public class IterableExtensions {
 	def static <T,R> Map<R, List<T>> groupBy(Iterable<T> collection, (T)=>R groupBy) {
-		val map = new Hashtable<R, List<T>>()
+		val map = new HashMap<R, List<T>>()
 		collection.forEach [ item |
 			val key = groupBy.apply(item)
 			if (!map.containsKey(key))
