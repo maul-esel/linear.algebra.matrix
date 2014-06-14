@@ -10,4 +10,8 @@ public class REPLStdlibCodeProvider extends StdlibCodeProvider {
 	protected URI stdlibURI(Resource res) {
 		return URI.createURI(Program.appPath() + "../../linear.algebra.matrix.examples/src/stdlib.mtx", true); // TODO
 	}
+
+	public void proc_exit() {
+		System.exit(0);
+	}
 }
