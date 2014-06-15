@@ -61,9 +61,9 @@ public class NumberHelper {
 
 	public static val equality = new BinaryDispatch(
 		[ a, b | a == b ],
-		[ a, b | a.equals(b) ],
 		[ a, b | a == b ],
-		[ a, b | a.equals(b) ]
+		[ a, b | a == b ],
+		[ a, b | a == b ]
 	)
 
 	@Data public static class UnaryDispatch {
