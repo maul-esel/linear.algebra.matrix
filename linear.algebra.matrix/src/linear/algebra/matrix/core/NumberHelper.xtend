@@ -59,6 +59,13 @@ public class NumberHelper {
 		[ a, b | Complex.divide(a, b) ]
 	)
 
+	public static val equality = new BinaryDispatch(
+		[ a, b | a == b ],
+		[ a, b | a.equals(b) ],
+		[ a, b | a == b ],
+		[ a, b | a.equals(b) ]
+	)
+
 	@Data public static class UnaryDispatch {
 		(Integer)=>Integer intCallback
 		(Rational)=>Rational rationalCallback
