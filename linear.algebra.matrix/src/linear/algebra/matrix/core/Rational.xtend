@@ -104,4 +104,41 @@ class Rational extends Number implements Comparable<Rational> {
 	def static Rational exp(Rational base, int exp) {
 		new Rational((base.numerator ** exp) as int, (base.denominator ** exp) as int)
 	}
+
+	public static val APPROX_MAX_DENOMINATOR = 100000
+
+	def static approximate(double real) {
+		approximate(real, APPROX_MAX_DENOMINATOR)
+	}
+
+	// http://www.johndcook.com/blog/2010/10/20/best-rational-approximation/
+	def static approximate(double real, int max_denominator) {
+		var a = 0
+		var b = 1
+		var c = 1
+		var d = 1
+
+		while (b <= max_denominator && d <= max_denominator) {
+			val mediant = (a+c as double) / (b+d as double)
+			if (real == mediant)
+				return if (b + d <= max_denominator)
+					new Rational(a + c, b+ d)
+				else if (d > b)
+					new Rational(c, d)
+				else
+					new Rational(a, b)
+			else if (real > mediant) {
+				a = a + c
+				b = b + d
+			} else {
+				c = a + c
+				d = b + d
+			}
+		}
+
+		if (b > max_denominator)
+			new Rational(c, d)
+		else
+			new Rational(a, b)
+	}
 }
