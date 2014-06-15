@@ -44,7 +44,7 @@ class Complex extends Number {
 	// equals() etc.
 	override equals(Object other) {
 		if (other instanceof Complex)
-			re.equals(other.re) && im.equals(other.im)
+			equality.of(re, other.re) && equality.of(im, other.im)
 		else
 			false
 	}
