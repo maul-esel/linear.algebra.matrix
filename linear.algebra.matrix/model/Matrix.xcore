@@ -173,10 +173,10 @@ class MatrixType extends Type {
 	String height
 	String width
 
-	op MathematicalType getRealEntryType() {
-		entryType = entryType ?: MatrixFactory.eINSTANCE.createIntegerType()
-		entryType
-	}
+	contains derived MathematicalType realEntryType
+		get {
+			entryType ?: MatrixFactory.eINSTANCE.createIntegerType()
+		}
 
 	op boolean hasGenericDimensions() {
 		try {
