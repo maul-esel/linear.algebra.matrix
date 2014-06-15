@@ -2,6 +2,8 @@ package linear.algebra.matrix.scoping
 
 import java.util.ArrayList
 
+import linear.algebra.matrix.util.Pair
+
 import org.eclipse.xtext.scoping.IScope
 import org.eclipse.xtext.resource.EObjectDescription
 import org.eclipse.xtext.naming.QualifiedName
@@ -51,7 +53,9 @@ class MatrixLocalScope extends MatrixScope {
 	}
 
 	override _getAllElements() {
-		traverse().map [ obj | EObjectDescription.create(prov.getFullyQualifiedName(obj), obj) ]
+		traverse().map [ obj | new Pair(prov.getFullyQualifiedName(obj), obj) ]
+			.filter [ pair | pair.one != null && pair.two != null ]
+			.map [ pair | EObjectDescription.create(pair.one, pair.two) ]
 	}
 
 	override _getElements(QualifiedName name) {
