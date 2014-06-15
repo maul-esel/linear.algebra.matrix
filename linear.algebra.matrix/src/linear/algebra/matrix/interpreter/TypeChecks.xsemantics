@@ -1,0 +1,91 @@
+system linear.algebra.matrix.interpreter.TypeChecks
+	extends linear.algebra.matrix.semantics.Checks
+
+import linear.algebra.matrix.core.Rational
+import linear.algebra.matrix.core.Complex
+import linear.algebra.matrix.core.Matrix
+
+import linear.algebra.matrix.matrix.MatrixFactory
+import linear.algebra.matrix.matrix.Type
+import linear.algebra.matrix.matrix.BooleanType
+import linear.algebra.matrix.matrix.IntegerType
+import linear.algebra.matrix.matrix.RationalType
+import linear.algebra.matrix.matrix.RealType
+import linear.algebra.matrix.matrix.ComplexType
+import linear.algebra.matrix.matrix.MatrixType
+
+judgments {
+	isType |~ Object obj <| Type type ~> output Boolean
+}
+
+// default to false
+axiom ITDefault
+	G |~ Object obj <| Type type ~> false
+
+axiom ITBoolean
+	G |~ Object b <| BooleanType type ~> b instanceof Boolean
+
+/* is it an integer? */
+axiom ITIntegerInteger
+	G |~ Integer i <| IntegerType type ~> true
+
+axiom ITRationalInteger
+	G |~ Rational q <| IntegerType type ~> q == Rational.valueOf(q.intValue())
+
+axiom ITRealInteger
+	G |~ Double r <| IntegerType type ~> r == r.intValue().doubleValue()
+
+axiom ITComplexInteger
+	G |~ Complex z <| IntegerType type ~> z == Complex.valueOf(z.intValue())
+
+/* is it a rational number? */
+axiom ITIntegerRational
+	G |~ Integer i <| RationalType type ~> true
+
+axiom ITRationalRational
+	G |~ Rational q <| RationalType type ~> true
+
+rule ITRealRational
+	G |~ Double r <| RationalType type ~> Boolean b
+from {
+	b = r == Rational.approximate(r).doubleValue()
+}
+
+rule ITComplexRational
+	G |~ Complex z <| RationalType type ~> Boolean b
+from {
+	G |~ z <| MatrixFactory.eINSTANCE.createRealType() ~> b // no imaginary part
+	if (b) {
+		G |~ z.doubleValue() <| type ~> b // real part must be rational
+	}
+}
+
+/* is it a real number? */
+axiom ITIntegerReal
+	G |~ Integer i <| RealType type ~> true
+
+axiom ITRationalReal
+	G |~ Rational r <| RealType type ~> true
+
+axiom ITRealReal
+	G |~ Double r <| RealType type ~> true
+
+axiom ITComplexReal
+	G |~ Complex z <| RealType type ~> z == Complex.valueOf(z.doubleValue())
+
+/* is it a complex number? */
+axiom ITComplex
+	G |~ Number n <| ComplexType type ~> true
+
+/* matrices */
+rule ITMatrixMatrix
+	G |~ Matrix<?> m <| MatrixType type ~> Boolean b
+from {
+	b = (m.height.toString() == type.height && m.width.toString() == type.width)
+	if (b && type.entryType != null)
+		for (i : 1..m.height)
+			for (j : 1..m.width) {
+				G |~ m.getEntry(i, j) <| type.entryType ~> var Boolean c
+				b = b && c
+			}
+}

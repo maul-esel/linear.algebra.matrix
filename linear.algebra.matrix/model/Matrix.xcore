@@ -315,6 +315,10 @@ class DeterminantOrAbsoluteValue extends UnaryExpression {
 class ParenthesizedExpression extends UnaryExpression {
 }
 
+class TypeCheckExpression extends UnaryExpression {
+	contains Type ^type
+}
+
 class Negation extends UnaryExpression {
 }
 

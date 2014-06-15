@@ -218,6 +218,13 @@ from {
 	G |- par.expr ~> o
 }
 
+rule ITypeCheckExpression
+	G |- TypeCheckExpression check ~> Boolean b
+from {
+	G |- check.expr ~> var Object value
+	G |~ value <| check.type ~> b
+}
+
 rule IEntryAccess
 	G |- EntryAccess acc ~> Object entry
 from {

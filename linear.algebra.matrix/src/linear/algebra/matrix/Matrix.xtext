@@ -196,6 +196,10 @@ ParenthesizedExpression :
 	'(' expr=Expression ')'
 ;
 
+TypeCheckExpression :
+	type=Type '?(' + expr=Expression ')'
+;
+
 AtomExpression returns Expression :
 	MathematicalLiteral
 	| BooleanLiteral
@@ -206,6 +210,7 @@ AtomExpression returns Expression :
 	| ParenthesizedExpression
 	| FunctionCall
 	| DeterminantOrAbsoluteValue
+	| TypeCheckExpression
 ;
 
 // III. c) complex expressions

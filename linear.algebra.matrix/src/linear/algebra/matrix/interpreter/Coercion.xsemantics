@@ -1,4 +1,4 @@
-system linear.algebra.matrix.interpreter.Coercion extends linear.algebra.matrix.semantics.Checks
+system linear.algebra.matrix.interpreter.Coercion extends linear.algebra.matrix.interpreter.TypeChecks
 
 import linear.algebra.matrix.core.Rational
 import linear.algebra.matrix.core.Complex

@@ -152,6 +152,9 @@ axiom TRealLiteral
 axiom TImaginaryLiteral
 	G |- ImaginaryLiteral im : MatrixFactory.eINSTANCE.createComplexType()
 
+axiom TTypeCheckExpression
+	G |- TypeCheckExpression check : MatrixFactory.eINSTANCE.createBooleanType()
+
 rule TVariable
 	G |- Variable variable : Type type
 from {
