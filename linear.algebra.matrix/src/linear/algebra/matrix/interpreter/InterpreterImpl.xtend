@@ -156,8 +156,16 @@ public class InterpreterImpl implements Interpreter {
 
 		trace.enter(expr)
 		val result = exprInterpreter.interpret(env, expr)
-		if (result.failed)
-			throw new InterpreterException("Could not evaluate expression", result.ruleFailedException, trace)
+		if (result.failed) {
+			switch (cause : originalRuleFailure(result.ruleFailedException).cause) {
+				MatrixException:
+					throw cause
+				InterpreterException:
+					throw new InterpreterException("Could not evaluate expression", cause, trace)
+				default:
+					throw new InterpreterException("Could not evaluate expression", result.ruleFailedException, trace)
+			}
+		}
 		trace.leave()
 		result.value
 	}
@@ -229,6 +237,13 @@ public class InterpreterImpl implements Interpreter {
 			generics.peek().get(value.name)
 		else
 			value
+	}
+
+	def private originalRuleFailure(it.xsemantics.runtime.RuleFailedException e) {
+		var current = e
+		while (current.previous != null)
+			current = current.previous
+		current
 	}
 }
 
