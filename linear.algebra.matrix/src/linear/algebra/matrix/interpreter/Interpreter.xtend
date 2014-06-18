@@ -4,10 +4,10 @@ import linear.algebra.matrix.matrix.MatrixSyntaxElement
 import linear.algebra.matrix.matrix.Expression
 
 interface Interpreter {
-	def void interpret()
-	def void interpret(MatrixSyntaxElement syntax)
-	def Object evaluate(Expression expr)
-	def Object evaluate(Expression expr, VariableRegister vars, VariableRegister gen)
+	def void interpret() throws MatrixException, InterpreterException
+	def void interpret(MatrixSyntaxElement syntax) throws MatrixException, InterpreterException
+	def Object evaluate(Expression expr) throws MatrixException, InterpreterException
+	def Object evaluate(Expression expr, VariableRegister vars, VariableRegister gen) throws MatrixException, InterpreterException
 
 	def StackTrace getStackTrace()
 }
