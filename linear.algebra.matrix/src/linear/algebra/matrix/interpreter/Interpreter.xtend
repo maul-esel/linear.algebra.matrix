@@ -8,4 +8,6 @@ interface Interpreter {
 	def void interpret(MatrixSyntaxElement syntax)
 	def Object evaluate(Expression expr)
 	def Object evaluate(Expression expr, VariableRegister vars, VariableRegister gen)
+
+	def StackTrace getStackTrace()
 }

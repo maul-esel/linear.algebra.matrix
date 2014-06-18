@@ -32,6 +32,7 @@ public class InterpreterImpl implements Interpreter {
 
 	private Resource resource
 
+	private StackTrace trace = new StackTrace()
 	private Stack<VariableRegister> variables = new Stack<VariableRegister>()
 	private Stack<VariableRegister> generics = new Stack<VariableRegister>()
 
@@ -53,17 +54,28 @@ public class InterpreterImpl implements Interpreter {
 			interpret(line)
 	}
 
+	override getStackTrace() {
+		trace
+	}
+
 	def dispatch void interpret(VarDeclaration decl) {
+		trace.enter(decl)
 		if (decl.value != null)
 			currentScope.add(decl.name, evaluate(decl.value), decl.const)
 		else
 			currentScope.add(decl.name)
+		trace.leave()
 	}
 
 	def dispatch void interpret(ReturnStatement ret) {
-		if (ret.value != null)
-			throw new ReturnEncounteredException(evaluate(ret.value))
-		throw new ReturnEncounteredException(null)
+		trace.enter(ret)
+		try {
+			if (ret.value != null)
+				throw new ReturnEncounteredException(evaluate(ret.value))
+			throw new ReturnEncounteredException(null)
+		} finally {
+			trace.leave()
+		}
 	}
 
 	def dispatch void interpret(ProcCall call) {
@@ -71,28 +83,42 @@ public class InterpreterImpl implements Interpreter {
 			name.equals(nameProvider.getFullyQualifiedName(call.proc.ref))
 			&& interpretationMethod == InterpretationMethod.Provider
 		]
+
+		var List<Object> evaluatedParams
 		if (providerProc != null)
-			provider.interpretProc(resource, providerProc, call.params.map [ evaluate ])
+			evaluatedParams = call.params.map [ evaluate ]
+
+		trace.enter(call)
+		trace.enter(call.proc.ref)
+		if (providerProc != null)
+			provider.interpretProc(resource, providerProc, evaluatedParams)
 		else
 			executeWithParams(call.proc.ref.params.params, call.params, call.proc.ref.body)
+		trace.leave()
+		trace.leave()
 	}
 
 	def dispatch void interpret(ProcDeclaration proc) {} // doesn't do anything
 
 	def dispatch void interpret(FromToLoop loop) {
+		trace.enter(loop)
 		currentScope.set(loop.getVar.ref.name, evaluate(loop.init)) // initialize counter
 		while ((evaluate(loop.getVar) as Integer) <= (evaluate(loop.end) as Integer)) {
 			interpret(loop.body)
 			currentScope.set(loop.getVar.ref.name, (evaluate(loop.getVar) as Integer) + 1)
 		}
+		trace.leave()
 	}
 
 	def dispatch void interpret(WhileLoop loop) {
+		trace.enter(loop)
 		while (evaluate(loop.cond) as Boolean)
-			interpret(loop.body);
+			interpret(loop.body)
+		trace.leave()
 	}
 
 	def dispatch void interpret(Block block) {
+		trace.enter(block)
 		variables.push(new VariableRegister(currentScope)) // introduce block scope
 		try {
 			for (line : block.lines)
@@ -100,15 +126,18 @@ public class InterpreterImpl implements Interpreter {
 		}
 		finally { // make sure block scope is removed even when return occurs
 			variables.pop()
+			trace.leave()
 		}
 	}
 
 	def dispatch void interpret(IfElse ifElse) {
+		trace.enter(ifElse)
 		val boolean cond = evaluate(ifElse.cond) as Boolean;
 		if (cond)
 			interpret(ifElse.ifTrue)
 		else if (ifElse.getElse != null)
 			interpret(ifElse.getElse)
+		trace.leave()
 	}
 
 	def dispatch void interpret(FuncDeclaration decl) {} // doesn't do anything
@@ -123,9 +152,14 @@ public class InterpreterImpl implements Interpreter {
 		env.add("generics", generics.peek())
 		env.add("interpreter", this)
 
+		trace.enter(expr)
 		val result = exprInterpreter.interpret(env, expr)
-		if (result.failed)
-			throw result.ruleFailedException
+		try {
+			if (result.failed)
+				throw result.ruleFailedException
+		} finally {
+			trace.leave()
+		}
 		result.value
 	}
 
@@ -134,10 +168,21 @@ public class InterpreterImpl implements Interpreter {
 			name.equals(nameProvider.getFullyQualifiedName(call.func.ref))
 			&& interpretationMethod == InterpretationMethod.Provider
 		]
+
+		var List<Object> evaluatedParams
 		if (providerFunc != null)
-			provider.interpretFunction(resource, providerFunc, call.params.map [ evaluate ])
+			evaluatedParams = call.params.map [ evaluate ]
+
+		trace.enter(call)
+		trace.enter(call.func.ref)
+		val value = if (providerFunc != null)
+			provider.interpretFunction(resource, providerFunc, evaluatedParams)
 		else
 			executeWithParams(call.func.ref.params.params, call.params, call.func.ref.body)
+		trace.leave()
+		trace.leave()
+
+		value
 	}
 
 	override Object evaluate(Expression expr, VariableRegister vars, VariableRegister gen) {
