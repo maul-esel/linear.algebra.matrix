@@ -23,6 +23,7 @@ Action :
 	| (MatrixEntryAssignment ';')
 	| (FunctionCall ';')
 	| ReturnStatement
+	| FailureStatement
 	| IfElse
 	| ProcCall
 	| FromToLoop
@@ -39,6 +40,22 @@ InferredVarDeclaration :
 
 ReturnStatement :
 	{ReturnStatement} RETURN (value=Expression)? ';'
+;
+
+FailureStatement :
+	{FailureStatement} FAIL msg=FailureMessage? ';'
+;
+
+FailureMessage :
+	{FailureMessage} fragments+=(LiteralMessageFragment|ExpressionMessageFragment)*
+;
+
+LiteralMessageFragment :
+	content=STRING
+;
+
+ExpressionMessageFragment :
+	'#{' expr=Expression '}'
 ;
 
 ProcRef hidden() :
@@ -310,6 +327,7 @@ terminal ELSE           : 'else';
 terminal INT            : 'int';
 terminal BOOL           : 'bool' 'ean'?;
 terminal RETURN         : 'return';
+terminal FAIL           : 'fail';
 terminal DEF            : 'def';
 terminal PROC           : 'proc';
 terminal DOT            : 'dot';
@@ -328,6 +346,8 @@ terminal PROC_NAME    : '@' ID_PATTERN;
 
 terminal fragment DIGIT_WITHOUT_ZERO : '1'..'9';
 terminal fragment LETTER : ('a'..'z'|'A'..'Z');
+
+terminal STRING : "'" ("\\'"|!("'"))* "'";
 
 // IV. c) numbers
 terminal ZERO : '0';
