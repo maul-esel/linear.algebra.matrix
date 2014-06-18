@@ -123,11 +123,13 @@ public class InterpreterImpl implements Interpreter {
 		try {
 			for (line : block.lines)
 				interpret(line)
-		}
-		finally { // make sure block scope is removed even when return occurs
-			variables.pop()
+		} catch (ReturnEncounteredException e) { // not in finally, as this must only be done for returns, not real exceptions
 			trace.leave()
+			throw e
+		} finally { // make sure block scope is removed even when return occurs
+			variables.pop()
 		}
+		trace.leave()
 	}
 
 	def dispatch void interpret(IfElse ifElse) {
@@ -154,12 +156,9 @@ public class InterpreterImpl implements Interpreter {
 
 		trace.enter(expr)
 		val result = exprInterpreter.interpret(env, expr)
-		try {
-			if (result.failed)
-				throw result.ruleFailedException
-		} finally {
-			trace.leave()
-		}
+		if (result.failed)
+			throw new InterpreterException("Could not evaluate expression", result.ruleFailedException, trace)
+		trace.leave()
 		result.value
 	}
 
