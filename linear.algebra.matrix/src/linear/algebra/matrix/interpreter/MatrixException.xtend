@@ -13,6 +13,6 @@ class MatrixException extends Exception {
 	}
 
 	def printLanguageStackTrace() {
-		System.err.println(getMessage() + "\n" + trace.toString())
+		System.err.println("A " + class.simpleName + " occured: " + message + "\n" + trace.toString())
 	}
 }
