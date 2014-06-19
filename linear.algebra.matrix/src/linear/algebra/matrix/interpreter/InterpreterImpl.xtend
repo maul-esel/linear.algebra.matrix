@@ -78,6 +78,23 @@ public class InterpreterImpl implements Interpreter {
 		}
 	}
 
+	def dispatch void interpret(FailureStatement error) {
+		trace.enter(error)
+		var String message = ""
+		if (error.msg != null)
+			message = interpretMessage(error.msg)
+		throw new MatrixException(message, trace)
+	}
+
+	private def String interpretMessage(FailureMessage msg) {
+		msg.fragments.map [ f |
+			switch(f) {
+				LiteralMessageFragment : f.content.substring(1, f.content.length - 1).replace("\\'", "'")
+				ExpressionMessageFragment : evaluate(f.expr).toString()
+			}
+		].filterNull.filter [ !isEmpty ].join("")
+	}
+
 	def dispatch void interpret(ProcCall call) {
 		val providerProc = provider.getProcsFor(resource).findFirst [
 			name.equals(nameProvider.getFullyQualifiedName(call.proc.ref))
