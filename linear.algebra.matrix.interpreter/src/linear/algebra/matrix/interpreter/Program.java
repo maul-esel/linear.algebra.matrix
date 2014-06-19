@@ -20,8 +20,10 @@ public class Program {
 			interpreter.interpret();
 		} catch (InterpreterException e) {
 			e.printLanguageStackTrace();
+			System.exit(1);
 		} catch (MatrixException e) {
 			e.printLanguageStackTrace();
+			System.exit(1);
 		}
 	}
 }
