@@ -3,10 +3,6 @@ package linear.algebra.matrix.interpreter
 import java.util.Stack
 
 import linear.algebra.matrix.matrix.MatrixSyntaxElement
-import linear.algebra.matrix.matrix.FuncDeclaration
-import linear.algebra.matrix.matrix.ProcDeclaration
-import linear.algebra.matrix.matrix.UnaryExpression
-import linear.algebra.matrix.matrix.BinaryExpression
 
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 
@@ -19,16 +15,23 @@ class StackTrace implements Iterable<StackTrace.Entry> {
 		protected new(MatrixSyntaxElement elem) {
 			this.elem = elem
 			val node = NodeModelUtils.getNode(elem)
-			syntax = node.getText()
-			line = node.getStartLine()
+			syntax = node?.getText() ?: "[unknown]"
+			line = (node?.getStartLine() as Integer) ?: -1
 		}
 
 		override toString() {
-			String.format("at line %i: %s (code fragment: '%s')", line, elem.eClass.name, syntax)
+			String.format('at line %d: %s (code fragment: "%s")', line, elem.eClass.name, formattedSyntax)
+		}
+
+		def private formattedSyntax() {
+			var result = syntax.trim
+			if (result.contains("\n"))
+				result = result.substring(0, result.indexOf("\n")) + "..."
+			result
 		}
 	}
 
-	private Stack<StackTrace.Entry> trace;
+	private Stack<StackTrace.Entry> trace = new Stack<Entry>()
 
 	def void enter(MatrixSyntaxElement elem) {
 		enter(new Entry(elem))
@@ -47,6 +50,6 @@ class StackTrace implements Iterable<StackTrace.Entry> {
 	}
 
 	override toString() {
-		trace.map [ toString ].join("\n")
+		trace.map [ toString ].reverseView.join("\n")
 	}
 }
