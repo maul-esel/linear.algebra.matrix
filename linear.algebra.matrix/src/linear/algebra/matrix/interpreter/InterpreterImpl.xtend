@@ -89,10 +89,10 @@ public class InterpreterImpl implements Interpreter {
 	private def String interpretMessage(FailureMessage msg) {
 		msg.fragments.map [ f |
 			switch(f) {
-				LiteralMessageFragment : f.content.substring(1, f.content.length - 1).replace("\\'", "'")
+				LiteralMessageFragment : f.content.replace("\\'", "'")
 				ExpressionMessageFragment : evaluate(f.expr).toString()
 			}
-		].filterNull.filter [ !isEmpty ].join("")
+		].filterNull.filter [ !isEmpty ].join
 	}
 
 	def dispatch void interpret(ProcCall call) {
