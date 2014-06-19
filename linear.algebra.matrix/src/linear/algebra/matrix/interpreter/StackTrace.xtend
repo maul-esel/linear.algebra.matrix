@@ -45,6 +45,10 @@ class StackTrace implements Iterable<StackTrace.Entry> {
 		trace.pop()
 	}
 
+	def void leaveAll() {
+		trace.clear()
+	}
+
 	override iterator() {
 		trace.iterator()
 	}
