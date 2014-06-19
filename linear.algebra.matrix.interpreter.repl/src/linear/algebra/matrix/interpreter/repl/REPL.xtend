@@ -10,6 +10,8 @@ import linear.algebra.matrix.matrix.Expression
 
 import linear.algebra.matrix.interpreter.Interpreter
 import linear.algebra.matrix.interpreter.InterpreterFactory
+import linear.algebra.matrix.interpreter.MatrixException
+import linear.algebra.matrix.interpreter.InterpreterException
 
 import linear.algebra.matrix.imports.ImportManager
 import linear.algebra.matrix.imports.ImportManagerFactory
@@ -90,6 +92,12 @@ public class REPL {
 		try {
 			interpreter.interpret(line)
 			output("successfully executed")
+		} catch (MatrixException e) {
+			error("ERROR: " + e.message + "\n" + e.languageStackTrace.toString())
+			e.languageStackTrace.leaveAll() // reset, so that future exceptions don't share the trace
+		} catch (InterpreterException e) {
+			error("ERROR: " + e.message + "\n" + e.languageStackTrace.toString())
+			e.languageStackTrace.leaveAll() // reset, so that future exceptions don't share the trace
 		} catch (Exception e) {
 			error("ERROR:\n" + e.message)
 		}
@@ -99,6 +107,12 @@ public class REPL {
 		try {
 			val value = interpreter.evaluate(expr)
 			output("=> " + value)
+		} catch (MatrixException e) {
+			error("ERROR: " + e.message + "\n" + e.languageStackTrace.toString())
+			e.languageStackTrace.leaveAll() // reset, so that future exceptions don't share the trace
+		} catch (InterpreterException e) {
+			error("ERROR: " + e.message + "\n" + e.languageStackTrace.toString())
+			e.languageStackTrace.leaveAll() // reset, so that future exceptions don't share the trace
 		} catch (Exception e) {
 			error("ERROR:\n" + e.message)
 		}
