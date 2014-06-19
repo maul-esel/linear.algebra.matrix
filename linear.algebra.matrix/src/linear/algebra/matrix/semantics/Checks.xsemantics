@@ -18,7 +18,7 @@ auxiliary {
 	isTypeDefinedByParams(Type type, ParameterList list) : Boolean
 	isGenericInParamList(MatrixType type, ParameterList list) : Boolean
 	isGenericVariableDefined(String generic, ParameterList list) : Boolean
-	alwaysReturns(MatrixSyntaxElement obj) : Boolean
+	alwaysReturnsOrFails(MatrixSyntaxElement obj) : Boolean
 	alwaysAssigns(VarDeclaration variable, MatrixSyntaxElement action) : Boolean
 	isAssigned(Variable variable, List<MatrixSyntaxElement> ancestors, Iterable<EObject> elements) : Boolean
 }
@@ -78,34 +78,38 @@ auxiliary isGenericVariableDefined(String generic, ParameterList list) {
 	found
 }
 
-auxiliary alwaysReturns(MatrixSyntaxElement obj) {
+auxiliary alwaysReturnsOrFails(MatrixSyntaxElement obj) {
 	false
 }
 
-auxiliary alwaysReturns(ReturnStatement ret) {
+auxiliary alwaysReturnsOrFails(ReturnStatement ret) {
 	true
 }
 
-auxiliary alwaysReturns(Block block) {
+auxiliary alwaysReturnsOrFails(FailureStatement stat) {
+	true
+}
+
+auxiliary alwaysReturnsOrFails(Block block) {
 	var returns = false
 	for (line : block.lines)
-		returns = returns || alwaysReturns(line)
+		returns = returns || alwaysReturnsOrFails(line)
 	returns
 }
 
-auxiliary alwaysReturns(IfElse ifElse) {
+auxiliary alwaysReturnsOrFails(IfElse ifElse) {
 	if (ifElse.getElse == null)
 		false
 	else
-		alwaysReturns(ifElse.ifTrue) && alwaysReturns(ifElse.getElse)
+		alwaysReturnsOrFails(ifElse.ifTrue) && alwaysReturnsOrFails(ifElse.getElse)
 }
 
-auxiliary alwaysReturns(FromToLoop loop) {
-	alwaysReturns(loop.body)
+auxiliary alwaysReturnsOrFails(FromToLoop loop) {
+	alwaysReturnsOrFails(loop.body)
 }
 
-auxiliary alwaysReturns(WhileLoop loop) {
-	alwaysReturns(loop.body)
+auxiliary alwaysReturnsOrFails(WhileLoop loop) {
+	alwaysReturnsOrFails(loop.body)
 }
 
 auxiliary alwaysAssigns(VarDeclaration variable, MatrixSyntaxElement action) {
@@ -396,7 +400,7 @@ from {
 checkrule CFuncDeclarationAlwaysReturns
 	for FuncDeclaration func
 from {
-	alwaysReturns(func.body)
+	alwaysReturnsOrFails(func.body)
 	or fail error "Not all code paths return a value"
 		source func
 }
@@ -483,7 +487,7 @@ from {
 		{ reachable }
 		or fail error "Unreachable code detected"
 			source line
-		if (alwaysReturns(line))
+		if (alwaysReturnsOrFails(line))
 			reachable = false
 	}
 }
