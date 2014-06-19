@@ -16,6 +16,14 @@ public class Program {
 		Resource resource = rs.getResource(URI.createURI(args[0]), true);
 
 		Interpreter interpreter = injector.getInstance(InterpreterFactory.class).create(resource);
-		interpreter.interpret();
+		try {
+			interpreter.interpret();
+		} catch (InterpreterException e) {
+			e.printLanguageStackTrace();
+			System.exit(1);
+		} catch (MatrixException e) {
+			e.printLanguageStackTrace();
+			System.exit(1);
+		}
 	}
 }

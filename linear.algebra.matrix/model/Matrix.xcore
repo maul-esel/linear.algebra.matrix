@@ -37,6 +37,25 @@ class ReturnStatement extends Action {
 	contains Expression value
 }
 
+class FailureStatement extends Action {
+	contains FailureMessage msg
+}
+
+class FailureMessage extends MatrixSyntaxElement {
+	contains MessageFragment[] fragments
+}
+
+abstract class MessageFragment extends MatrixSyntaxElement {
+}
+
+class LiteralMessageFragment extends MessageFragment {
+	String content
+}
+
+class ExpressionMessageFragment extends MessageFragment {
+	contains Expression expr
+}
+
 class ProcRef extends MatrixSyntaxElement {
 	refers ProcDeclaration ref
 }

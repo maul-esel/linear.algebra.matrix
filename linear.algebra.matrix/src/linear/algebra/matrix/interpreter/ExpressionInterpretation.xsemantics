@@ -15,6 +15,7 @@ inject StdlibUtil util
 
 auxiliary {
 	makeTypeExact(Type type, VariableRegister generics) : Type
+	evalFuncWithException(FunctionCall call, Interpreter interpreter, VariableRegister variables, VariableRegister generics) : Object
 }
 
 judgments {
@@ -27,6 +28,11 @@ auxiliary makeTypeExact(Type type, VariableRegister generics) {
 		MatrixType  : makeExactFromGeneric(generics, type)
 		default     : type
 	}
+}
+
+// dummy function for IFunctionCall
+auxiliary evalFuncWithException(FunctionCall call, Interpreter interpreter, VariableRegister variables, VariableRegister generics) {
+	interpreter.evaluate(call, variables, generics)
 }
 
 axiom IVariable
@@ -324,7 +330,8 @@ from {
 rule IFunctionCall
 	G |- FunctionCall call ~> Object result
 from {
-	result = env(G, "interpreter", Interpreter).evaluate(call,
+	// use auxiliary function, otherwise XSemantics generates code with undeclared checked exceptions
+	result = evalFuncWithException(call, env(G, "interpreter", Interpreter),
 		env(G, 'variables', VariableRegister),
 		env(G, 'generics', VariableRegister)
 	)
