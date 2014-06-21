@@ -187,6 +187,20 @@ class GenericType extends MathematicalType {
 	}
 }
 
+class TupleType extends Type {
+	contains Type[] types
+
+	op boolean equals(Object other) {
+		if (other instanceof TupleType)
+			other.types.elementsEqual(types)
+		else false
+	}
+
+	op int hashCode() {
+		types.fold(0, [ sum, t | sum + t.hashCode() ])
+	}
+}
+
 class MatrixType extends Type {
 	contains MathematicalType entryType
 	String height
@@ -321,6 +335,10 @@ class FunctionCall extends Action , Expression {
 	contains Expression[] params
 }
 
+class TupleExpression extends Expression {
+	contains Expression[] entries
+}
+
 abstract class Expression extends MatrixSyntaxElement {
 }
 
@@ -399,6 +417,11 @@ class MatrixEntryAssignment extends Assignment {
 	contains Expression matr
 	contains Expression line
 	contains Expression column
+}
+
+class TupleAssignment extends Assignment {
+	contains Variable[] variables
+	contains Expression tuple
 }
 
 enum AdditionOp {
