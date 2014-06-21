@@ -18,5 +18,9 @@ class InterpreterException extends Exception {
 
 	def printLanguageStackTrace() {
 		System.err.println("A " + class.simpleName + " occured: " + message + "\n" + trace.toString())
+		if (cause != null) {
+			System.err.println("Caused by: ")
+			cause.printStackTrace()
+		}
 	}
 }
