@@ -22,37 +22,28 @@ public class MatrixRuntimeModule extends linear.algebra.matrix.AbstractMatrixRun
 		return linear.algebra.matrix.scoping.providers.StdlibCodeProvider.class;
 	}
 
-	@Override
-	public void configure(Binder binder) {
-		super.configure(binder);
-		configureGlobalScopeFactory(binder);
-		configureLocalScopeFactory(binder);
-		configureInterpreterFactory(binder);
-		configureImportManagerFactory(binder);
-	}
-
-	protected void configureGlobalScopeFactory(Binder binder) {
+	public void configureGlobalScopeFactory(Binder binder) {
 		binder.install(new FactoryModuleBuilder()
 			.implement(org.eclipse.xtext.scoping.IScope.class,
 				linear.algebra.matrix.scoping.MatrixGlobalScope.class)
 			.build(linear.algebra.matrix.scoping.MatrixGlobalScopeFactory.class));
 	}
 
-	protected void configureLocalScopeFactory(Binder binder) {
+	public void configureLocalScopeFactory(Binder binder) {
 		binder.install(new FactoryModuleBuilder()
 			.implement(org.eclipse.xtext.scoping.IScope.class,
 				linear.algebra.matrix.scoping.MatrixLocalScope.class)
 			.build(linear.algebra.matrix.scoping.MatrixLocalScopeFactory.class));
 	}
 
-	protected void configureInterpreterFactory(Binder binder) {
+	public void configureInterpreterFactory(Binder binder) {
 		binder.install(new FactoryModuleBuilder()
 			.implement(linear.algebra.matrix.interpreter.Interpreter.class,
 				linear.algebra.matrix.interpreter.InterpreterImpl.class)
 			.build(linear.algebra.matrix.interpreter.InterpreterFactory.class));
 	}
 
-	protected void configureImportManagerFactory(Binder binder) {
+	public void configureImportManagerFactory(Binder binder) {
 		binder.install(new FactoryModuleBuilder()
 			.implement(linear.algebra.matrix.imports.ImportManager.class,
 				linear.algebra.matrix.imports.ImportManagerImpl.class)

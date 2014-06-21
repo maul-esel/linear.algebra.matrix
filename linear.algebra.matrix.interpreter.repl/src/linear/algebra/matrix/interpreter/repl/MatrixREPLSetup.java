@@ -17,7 +17,7 @@ public class MatrixREPLSetup extends MatrixStandaloneSetup {
 			}
 
 			@Override
-			protected void configureImportManagerFactory(Binder binder) {
+			public void configureImportManagerFactory(Binder binder) {
 				binder.install(new FactoryModuleBuilder()
 					.implement(linear.algebra.matrix.imports.ImportManager.class,
 							REPLImportManager.class)
