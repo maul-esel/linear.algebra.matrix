@@ -69,7 +69,7 @@ class StdlibUtil {
 		val call = MatrixFactory.eINSTANCE.createFunctionCall()
 		call.func = func;
 
-		params.forEach [ p | call.params.add(p) ]
+		params.forEach [ p | call.params.add(EcoreUtil.copy(p) as Expression) ]
 
 		call
 	}
