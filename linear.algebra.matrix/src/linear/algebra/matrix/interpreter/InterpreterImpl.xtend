@@ -69,13 +69,13 @@ public class InterpreterImpl implements Interpreter {
 
 	def dispatch void interpret(ReturnStatement ret) {
 		trace.enter(ret)
-		try {
-			if (ret.value != null)
-				throw new ReturnEncounteredException(evaluate(ret.value))
-			throw new ReturnEncounteredException(null)
-		} finally {
-			trace.leave()
-		}
+
+		var Object value = null
+		if (ret.value != null)
+			value = evaluate(ret.value)
+
+		trace.leave()
+		throw new ReturnEncounteredException(value)
 	}
 
 	def dispatch void interpret(FailureStatement error) {
@@ -120,17 +120,27 @@ public class InterpreterImpl implements Interpreter {
 	def dispatch void interpret(FromToLoop loop) {
 		trace.enter(loop)
 		currentScope.set(loop.getVar.ref.name, evaluate(loop.init)) // initialize counter
-		while ((evaluate(loop.getVar) as Integer) <= (evaluate(loop.end) as Integer)) {
-			interpret(loop.body)
-			currentScope.set(loop.getVar.ref.name, (evaluate(loop.getVar) as Integer) + 1)
+		try {
+			while ((evaluate(loop.getVar) as Integer) <= (evaluate(loop.end) as Integer)) {
+				interpret(loop.body)
+				currentScope.set(loop.getVar.ref.name, (evaluate(loop.getVar) as Integer) + 1)
+			}
+		} catch (ReturnEncounteredException e) {
+			trace.leave()
+			throw e
 		}
 		trace.leave()
 	}
 
 	def dispatch void interpret(WhileLoop loop) {
 		trace.enter(loop)
-		while (evaluate(loop.cond) as Boolean)
-			interpret(loop.body)
+		try {
+			while (evaluate(loop.cond) as Boolean)
+				interpret(loop.body)
+		} catch (ReturnEncounteredException e) {
+			trace.leave()
+			throw e
+		}
 		trace.leave()
 	}
 
@@ -152,10 +162,15 @@ public class InterpreterImpl implements Interpreter {
 	def dispatch void interpret(IfElse ifElse) {
 		trace.enter(ifElse)
 		val boolean cond = evaluate(ifElse.cond) as Boolean;
-		if (cond)
-			interpret(ifElse.ifTrue)
-		else if (ifElse.getElse != null)
-			interpret(ifElse.getElse)
+		try {
+			if (cond)
+				interpret(ifElse.ifTrue)
+			else if (ifElse.getElse != null)
+				interpret(ifElse.getElse)
+		} catch (ReturnEncounteredException e) {
+			trace.leave()
+			throw e
+		}
 		trace.leave()
 	}
 
