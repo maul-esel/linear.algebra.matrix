@@ -20,7 +20,7 @@ class StackTrace implements Iterable<StackTrace.Entry> {
 		}
 
 		override toString() {
-			String.format('at line %d: %s (code fragment: "%s")', line, elem.eClass.name, formattedSyntax)
+			String.format('at line %d in %s: %s (code fragment: "%s")', line, elem?.eResource?.URI?.lastSegment ?: "[unknown]", elem.eClass.name, formattedSyntax)
 		}
 
 		def private formattedSyntax() {
