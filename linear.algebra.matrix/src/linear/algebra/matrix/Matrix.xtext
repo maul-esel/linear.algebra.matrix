@@ -119,7 +119,7 @@ MathematicalType :
 ;
 
 MatrixType :
-	entryType=MathematicalType? '(' height=(POSITIVE_INTEGER|GENERIC_VAR) '°' width=(POSITIVE_INTEGER|GENERIC_VAR) ')'
+	entryType=MathematicalType? '(' height=(POSITIVE_INTEGER|GENERIC_VAR) ('°'|X) width=(POSITIVE_INTEGER|GENERIC_VAR) ')'
 ;
 
 Type :
@@ -315,7 +315,7 @@ enum EqualsOp :
 ;
 
 ID :
-	ID_PATTERN | IMAGINARY_UNIT | TRANSPOS
+	ID_PATTERN | IMAGINARY_UNIT | TRANSPOS | X
 ;
 
 // IV. terminals
@@ -334,6 +334,7 @@ terminal DOT            : 'dot';
 terminal CONST          : 'const';
 terminal TRANSPOS       : 'T';
 terminal IMAGINARY_UNIT : 'i';
+terminal X              : 'x';
 terminal INTERNAL       : 'internal';
 
 // IV. b) misc 

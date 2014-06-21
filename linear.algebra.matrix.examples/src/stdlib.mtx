@@ -1,4 +1,4 @@
-def add : (%t($n ° $m) A, %t($n ° $m) B) -> %t($n ° $m) {
+def add : (%t($n x $m) A, %t($n x $m) B) -> %t($n x $m) {
 	return init (int i..$n, int j..$m) ~> A[i,j] + B[i,j];
 }
 
