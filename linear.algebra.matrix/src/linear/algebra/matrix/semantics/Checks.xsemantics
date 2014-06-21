@@ -305,6 +305,21 @@ from {
 	}
 }
 
+checkrule CTupleAssignmentIsValid
+	for TupleAssignment assign
+from {
+	empty |- assign.tuple : var TupleType tupleType
+
+	{ tupleType.types.size == assign.variables.size }
+
+	for (i : 0..<assign.variables.size) {
+		empty |- assign.variables.get(i) : var Type varType
+		empty |- tupleType.types.get(i) <: varType
+			or fail error "Variable type incompatible to tuple entry type"
+				source assign.variables.get(i)
+	}
+}
+
 checkrule CGenericVarDeclarationDefined
 	for VarDeclaration variable
 from {
@@ -549,8 +564,10 @@ from {
 checkrule CVariableIsAssignedBeforeUse
 	for Variable variable
 from {
-	val inAssignment = (variable.eContainer instanceof VariableAssignment)
-		&& (variable.eContainer as VariableAssignment).variable == variable
+	val inAssignment = (variable.eContainer instanceof VariableAssignment
+		&& (variable.eContainer as VariableAssignment).variable == variable)
+		|| (variable.eContainer instanceof TupleAssignment
+		&& (variable.eContainer as TupleAssignment).variables.contains(variable))
 	val initCounter = (variable.ref.eContainer instanceof MatrixInit)
 		&& ((variable.ref.eContainer as MatrixInit).line == variable.ref
 			|| (variable.ref.eContainer as MatrixInit).column == variable.ref)

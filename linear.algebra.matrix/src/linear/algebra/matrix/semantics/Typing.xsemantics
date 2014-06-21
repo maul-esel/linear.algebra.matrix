@@ -161,6 +161,16 @@ from {
 	G ||- variable.ref : type
 }
 
+rule TTuple
+	G |- TupleExpression tuple : TupleType type
+from {
+	type = MatrixFactory.eINSTANCE.createTupleType()
+	for (entry : tuple.entries) {
+		G |- entry : var Type entryType
+		type.types.add(entryType)
+	}
+}
+
 rule TFunctionCall
 	G |- FunctionCall call : Type type
 from {
@@ -238,6 +248,13 @@ from {
 	G |- assign.value : var Type valType
 	G |- valType <: matrType.realEntryType or fail error "entry cannot be assigned" source assign.value
 	type = matrType.realEntryType
+}
+
+rule TTupleAssignment
+	G |- TupleAssignment assign : TupleType type
+from {
+	// type compatibility checked in Checks, not here
+	G |- assign.tuple : type
 }
 
 rule TLogical
