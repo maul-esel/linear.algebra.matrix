@@ -173,7 +173,7 @@ PlaceholderEntry :
 ;
 
 MatrixEntry :
-	MathematicalLiteral | PlaceholderEntry
+	Expression | PlaceholderEntry
 ;
 
 MatrixLiteralLine :

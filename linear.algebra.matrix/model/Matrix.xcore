@@ -264,7 +264,7 @@ class ImaginaryLiteral extends MathematicalLiteral {
 	contains CoefficientLiteral coefficient
 }
 
-abstract class MathematicalLiteral extends Expression , MatrixEntry {
+abstract class MathematicalLiteral extends Expression {
 }
 
 class MatrixInit extends Expression {
@@ -321,7 +321,7 @@ class FunctionCall extends Action , Expression {
 	contains Expression[] params
 }
 
-abstract class Expression extends MatrixSyntaxElement {
+abstract class Expression extends MatrixEntry {
 }
 
 abstract class UnaryExpression extends Expression {
