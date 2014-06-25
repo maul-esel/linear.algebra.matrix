@@ -222,10 +222,10 @@ AtomExpression returns Expression :
 	| BooleanLiteral
 	| MultiLineMatrixLiteral
 	| MatrixInit
+	| FunctionCall
 	| Variable
 	| GenericVariable
 	| ParenthesizedExpression
-	| FunctionCall
 	| DeterminantOrAbsoluteValue
 	| TypeCheckExpression
 ;
