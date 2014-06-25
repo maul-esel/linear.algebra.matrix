@@ -21,6 +21,7 @@ Action :
 	| (InferredVarDeclaration ';')
 	| (VariableAssignment ';')
 	| (MatrixEntryAssignment ';')
+	| (TupleAssignment ';')
 	| (FunctionCall ';')
 	| ReturnStatement
 	| FailureStatement
@@ -118,12 +119,16 @@ MathematicalType :
 	| {GenericType} name=GENERIC_TYPE
 ;
 
+TupleType :
+	'(' types+=Type (',' types+=Type)+ ')'
+;
+
 MatrixType :
 	entryType=MathematicalType? '(' height=(POSITIVE_INTEGER|GENERIC_VAR) ('°'|X) width=(POSITIVE_INTEGER|GENERIC_VAR) ')'
 ;
 
 Type :
-	MathematicalType | {BooleanType} BOOL | MatrixType
+	MathematicalType | {BooleanType} BOOL | MatrixType | TupleType
 ;
 
 // III. Expressions
@@ -205,6 +210,10 @@ FunctionCall :
 	func=Function (params+=Expression (',' params+=Expression)*)? ')'
 ;
 
+TupleExpression :
+	'(' entries+=Expression (',' entries+=Expression)+ ')'
+;
+
 DeterminantOrAbsoluteValue :
 	'|' expr=Expression '|'
 ;
@@ -228,6 +237,7 @@ AtomExpression returns Expression :
 	| ParenthesizedExpression
 	| DeterminantOrAbsoluteValue
 	| TypeCheckExpression
+	| TupleExpression
 ;
 
 // III. c) complex expressions
@@ -237,6 +247,10 @@ VariableAssignment :
 
 MatrixEntryAssignment :
 	matr=AtomExpression '[' line=Expression ',' column=Expression ']' OP_ASSIGN value=Expression
+;
+
+TupleAssignment :
+	'(' variables+=Variable (',' variables+=Variable)+ ')' OP_ASSIGN tuple=Expression
 ;
 
 EntryAccess returns Expression :
@@ -295,6 +309,7 @@ Expression returns Expression :
 	Ternary
 	| VariableAssignment
 	| MatrixEntryAssignment
+	| TupleAssignment
 ;
 
 // III. d) operator enums
