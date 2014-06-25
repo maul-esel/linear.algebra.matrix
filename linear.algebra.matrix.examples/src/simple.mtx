@@ -4,6 +4,14 @@ int myvar := 5;
 	0 1 0
 };
 
+(int, complex, (1 x 2)) t := (2,3i, {
+	1 1
+});
+int i;
+complex z;
+(1 x 2) nm;
+(i, z, nm) := t;
+
 var matr2 := init (int i..2, int j..2) ~> i + j;
 
 (2 ° 3) mult := matr;
