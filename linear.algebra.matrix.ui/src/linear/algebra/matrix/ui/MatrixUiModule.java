@@ -12,4 +12,8 @@ public class MatrixUiModule extends linear.algebra.matrix.ui.AbstractMatrixUiMod
 	public MatrixUiModule(AbstractUIPlugin plugin) {
 		super(plugin);
 	}
+
+	public Class<? extends org.eclipse.xtext.ui.editor.hover.IEObjectHoverProvider> bindIEObjectHoverProvider() {
+		return MatrixEObjectHoverProvider.class;
+	}
 }
