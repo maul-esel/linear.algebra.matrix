@@ -33,6 +33,24 @@ class TypedVarDeclaration extends VarDeclaration {
 class InferredVarDeclaration extends VarDeclaration {
 }
 
+class CombinedTupleVarDeclaration extends Action {
+	contains Expression tuple
+	contains TupleVarDeclarationComponent[] decls
+}
+
+abstract class TupleVarDeclarationComponent extends MatrixSyntaxElement {
+}
+
+class TupleVarDeclaration extends VarDeclaration, TupleVarDeclarationComponent {
+	derived transient readonly int componentIndex
+		get { (eContainer as CombinedTupleVarDeclaration).decls.indexOf(this) }
+
+	contains Type ^type
+}
+
+class EmptyTupleVarDeclarationComponent extends TupleVarDeclarationComponent {
+}
+
 class ReturnStatement extends Action {
 	contains Expression value
 }

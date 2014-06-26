@@ -134,6 +134,16 @@ from {
 	G |- decl.value : type
 }
 
+rule TTupleVarDeclaration
+	G ||- TupleVarDeclaration decl : Type type
+from {
+	type = decl.type ?: {
+		val container = decl.eContainer as CombinedTupleVarDeclaration
+		G |- container.tuple : var TupleType tupleType
+		tupleType.types.get(decl.componentIndex)
+	}
+}
+
 axiom TIntegerLiteral
     G |- IntLiteral expr : MatrixFactory.eINSTANCE.createIntegerType()
 

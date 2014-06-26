@@ -280,7 +280,7 @@ from {
 checkrule CConstVarHasValue
 	for VarDeclaration variable
 from {
-	{ (!variable.const || variable.value != null) }
+	{ (!variable.const || variable.value != null || variable instanceof TupleVarDeclaration) }
 	or fail error "Constant variable must be assigned a value on declaration"
 		source variable
 }
@@ -302,6 +302,18 @@ from {
 		empty |- valtype <: vartype
 		or fail error "Value of type " + stringRep(valtype) + " cannot be assigned to variable of type " + stringRep(vartype)
 			source variable.value
+	}
+}
+
+checkrule CTupleVarDeclHasCompatibleValueType
+	for TupleVarDeclaration decl
+from {
+	if (decl.type != null) { // if null, it will be inferred correctly
+		val container = decl.eContainer as CombinedTupleVarDeclaration
+		empty |- container.tuple : var TupleType tupleType
+		empty |- tupleType.types.get(decl.componentIndex) <: decl.type
+		or fail error "Value cannot be assigned to variable of type " + stringRep(decl.type)
+			source decl.type
 	}
 }
 

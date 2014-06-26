@@ -19,6 +19,7 @@ Line :
 Action :
 	(TypedVarDeclaration ';')
 	| (InferredVarDeclaration ';')
+	| (CombinedTupleVarDeclaration ';')
 	| (VariableAssignment ';')
 	| (MatrixEntryAssignment ';')
 	| (TupleAssignment ';')
@@ -37,6 +38,24 @@ TypedVarDeclaration :
 
 InferredVarDeclaration :
 	(const?=CONST)? 'var' name=ID OP_ASSIGN value=Expression
+;
+
+CombinedTupleVarDeclaration :
+	'var'
+	'('
+		decls+=(TupleVarDeclaration|EmptyTupleVarDeclarationComponent)
+		(',' decls+=(TupleVarDeclaration|EmptyTupleVarDeclarationComponent))+
+	')'
+	OP_ASSIGN
+	tuple=Expression
+;
+
+TupleVarDeclaration :
+	(const?=CONST)? (type=Type)? name=ID
+;
+
+EmptyTupleVarDeclarationComponent :
+	{EmptyTupleVarDeclarationComponent}
 ;
 
 ReturnStatement :
