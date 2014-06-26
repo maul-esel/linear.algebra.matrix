@@ -322,7 +322,7 @@ class GenericVariable extends Expression {
 	String name
 }
 
-class Variable extends Expression {
+class Variable extends Expression, TupleAssignmentComponent {
 	refers VarDeclaration ref
 }
 
@@ -420,8 +420,14 @@ class MatrixEntryAssignment extends Assignment {
 }
 
 class TupleAssignment extends Assignment {
-	contains Variable[] variables
+	contains TupleAssignmentComponent[] variables
 	contains Expression tuple
+}
+
+abstract class TupleAssignmentComponent {
+}
+
+class EmptyTupleAssignmentComponent extends TupleAssignmentComponent {
 }
 
 enum AdditionOp {

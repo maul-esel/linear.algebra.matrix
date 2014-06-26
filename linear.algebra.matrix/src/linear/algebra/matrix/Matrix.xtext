@@ -250,7 +250,11 @@ MatrixEntryAssignment :
 ;
 
 TupleAssignment :
-	'(' variables+=Variable (',' variables+=Variable)+ ')' OP_ASSIGN tuple=Expression
+	'(' variables+=(Variable|EmptyTupleAssignmentComponent) (',' variables+=(Variable|EmptyTupleAssignmentComponent))+ ')' OP_ASSIGN tuple=Expression
+;
+
+EmptyTupleAssignmentComponent :
+	{EmptyTupleAssignmentComponent}
 ;
 
 EntryAccess returns Expression :

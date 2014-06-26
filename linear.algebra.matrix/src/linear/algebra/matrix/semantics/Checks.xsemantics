@@ -313,10 +313,13 @@ from {
 	{ tupleType.types.size == assign.variables.size }
 
 	for (i : 0..<assign.variables.size) {
-		empty |- assign.variables.get(i) : var Type varType
-		empty |- tupleType.types.get(i) <: varType
-			or fail error "Variable type incompatible to tuple entry type"
-				source assign.variables.get(i)
+		val component = assign.variables.get(i)
+		if (component instanceof Variable) {
+			empty |- component : var Type varType
+			empty |- tupleType.types.get(i) <: varType
+				or fail error "Variable type incompatible to tuple entry type"
+					source assign.variables.get(i)
+		}
 	}
 }
 
