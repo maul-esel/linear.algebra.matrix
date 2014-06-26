@@ -589,9 +589,10 @@ from {
 	val isParam = variable.ref.eContainer instanceof ParameterList
 	val isCounter = variable.eContainer instanceof FromToLoop
 		&& (variable.eContainer as FromToLoop).getVar == variable
+	val isDeclaredinTuple = variable.ref instanceof TupleVarDeclaration
 
 	// if not initialized on declaration, ensure it's done later (if at all necessary)
-	if (variable.ref.value == null && !inAssignment && !initCounter && !isParam && !isCounter) {
+	if (variable.ref.value == null && !inAssignment && !initCounter && !isParam && !isCounter && !isDeclaredinTuple) {
 		// create list of direct ancestors of variable
 		val ancestorList = new ArrayList<MatrixSyntaxElement>()
 		ancestorList.add(variable)
