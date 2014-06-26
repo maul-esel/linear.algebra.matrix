@@ -22,6 +22,10 @@ public class MatrixRuntimeModule extends linear.algebra.matrix.AbstractMatrixRun
 		return linear.algebra.matrix.scoping.providers.StdlibCodeProvider.class;
 	}
 
+	public Class<? extends it.xsemantics.runtime.StringRepresentation> bindStringRepresentation() {
+		return linear.algebra.matrix.semantics.MatrixStringRepresentation.class;
+	}
+
 	public void configureGlobalScopeFactory(Binder binder) {
 		binder.install(new FactoryModuleBuilder()
 			.implement(org.eclipse.xtext.scoping.IScope.class,
