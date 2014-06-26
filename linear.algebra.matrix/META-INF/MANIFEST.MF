@@ -23,6 +23,7 @@ Import-Package: org.apache.log4j,
  org.eclipse.xtext.xbase.lib
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: linear.algebra.matrix,
+ linear.algebra.matrix.semantics,
  linear.algebra.matrix.services,
  linear.algebra.matrix.matrix,
  linear.algebra.matrix.matrix.impl,
