@@ -120,6 +120,10 @@ auxiliary alwaysAssigns(VarDeclaration variable, VariableAssignment action) {
 	action.variable.ref == variable || alwaysAssigns(variable, action.value)
 }
 
+auxiliary alwaysAssigns(VarDeclaration variable, TupleAssignment action) {
+	action.variables.filter(Variable).exists[ ref == variable ] || alwaysAssigns(variable, action.tuple)
+}
+
 auxiliary alwaysAssigns(VarDeclaration variable, MatrixEntryAssignment action) {
 	alwaysAssigns(variable, action.matr) || alwaysAssigns(variable, action.line)
 	|| alwaysAssigns(variable, action.column) || alwaysAssigns(variable, action.value)
@@ -147,6 +151,10 @@ auxiliary alwaysAssigns(VarDeclaration variable, FunctionCall action) {
 
 auxiliary alwaysAssigns(VarDeclaration variable, ProcCall action) {
 	action.params.exists [ param | alwaysAssigns(variable, param) ]
+}
+
+auxiliary alwaysAssigns(VarDeclaration variable, TupleExpression action) {
+	action.entries.exists [ entry | alwaysAssigns(variable, entry) ]
 }
 
 auxiliary alwaysAssigns(VarDeclaration variable, Block action) {
