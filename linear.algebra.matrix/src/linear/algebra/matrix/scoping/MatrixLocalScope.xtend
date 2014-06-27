@@ -3,6 +3,7 @@ package linear.algebra.matrix.scoping
 import java.util.ArrayList
 
 import linear.algebra.matrix.util.Pair
+import linear.algebra.matrix.matrix.CombinedTupleVarDeclaration
 
 import org.eclipse.xtext.scoping.IScope
 import org.eclipse.xtext.resource.EObjectDescription
@@ -41,7 +42,9 @@ class MatrixLocalScope extends MatrixScope {
 
 	def private traverse() {
 		if (objects == null)
-			objects = (filterBefore(context.eContents) + additional).filter [ obj | type.isSuperTypeOf(obj.eClass) ]
+			objects = (filterBefore(context.eContents) + additional)
+				.map [ o | if (o instanceof CombinedTupleVarDeclaration) o.decls else #[o]].flatten // special handling for contained var decls
+				.filter [ obj | type.isSuperTypeOf(obj.eClass) ]
 		objects
 	}
 

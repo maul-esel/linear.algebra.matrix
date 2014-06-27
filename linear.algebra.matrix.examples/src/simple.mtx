@@ -11,7 +11,8 @@ int i;
 (1 x 2) n;
 
 (i,, n) := t;
-var (const ii,, nn) := t;
+var (const rational ii,, nn) := t;
+rational ratio := ii;
 
 var matr2 := init (int i..2, int j..2) ~> i + j;
 
