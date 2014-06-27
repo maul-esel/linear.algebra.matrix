@@ -136,24 +136,16 @@ IntLiteral :
 	value=(POSITIVE_INTEGER | ZERO | NEGATIVE_INTEGER)
 ;
 
-RationalLiteral hidden() :
-	'<' numerator=(POSITIVE_INTEGER | ZERO | NEGATIVE_INTEGER) '/' denominator=(POSITIVE_INTEGER | ZERO | NEGATIVE_INTEGER) '>'
-;
-
 RealLiteral :
 	value=DOUBLE
 ;
 
-CoefficientLiteral :
-	IntLiteral | RationalLiteral | RealLiteral
-;
-
 ImaginaryLiteral hidden() :
-	coefficient=CoefficientLiteral IMAGINARY_UNIT
+	coefficient=(IntLiteral | RealLiteral) IMAGINARY_UNIT
 ;
 
 MathematicalLiteral :
-	ImaginaryLiteral | CoefficientLiteral
+	ImaginaryLiteral | IntLiteral | RealLiteral
 ;
 
 // III. a) (i) Matrix literals

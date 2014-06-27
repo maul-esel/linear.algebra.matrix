@@ -11,7 +11,7 @@ var matr2 := init (int i..2, int j..2) ~> i + j;
 ℤ ∋ other := myvar * 4;
 int e := matr[1,1];
 e := 4;
-ℚ ∋ r := e / <1/2>;
+ℚ ∋ r := e / (1/2);
 
 var x := 7;
 (3 x 4) CROSSED := {
@@ -22,9 +22,9 @@ var x := 7;
 
 var test_im := 6i;
 
-rational cde := 4 + <3/2>;
-var gre := <4/2> < 4;
-var equ := 4 ≠ <4/1>;
+rational cde := 4 + 3/2;
+var gre := 4/2 < 4;
+var equ := 4 ≠ 4/1;
 
 if (true) {
 	boolean e;

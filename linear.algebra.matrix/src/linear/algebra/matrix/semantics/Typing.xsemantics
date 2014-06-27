@@ -143,9 +143,6 @@ axiom TBooleanLiteral
 axiom TGenericVariable
 	G |- GenericVariable gen : MatrixFactory.eINSTANCE.createIntegerType()
 
-axiom TRationalLiteral
-	G |- RationalLiteral frac : MatrixFactory.eINSTANCE.createRationalType()
-
 axiom TRealLiteral
 	G |- RealLiteral real : MatrixFactory.eINSTANCE.createRealType()
 

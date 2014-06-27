@@ -47,9 +47,6 @@ axiom IIntegerLiteral
 axiom IBooleanLiteral
 	G |- BooleanLiteral lit ~> Boolean.parseBoolean(lit.value)
 
-axiom IRationalLiteral
-	G |- RationalLiteral lit ~> new Rational(Integer.parseInt(lit.numerator), Integer.parseInt(lit.denominator))
-
 axiom IRealLiteral
 	G |- RealLiteral lit ~> Double.parseDouble(lit.value)
 

@@ -244,24 +244,16 @@ class BooleanLiteral extends Expression {
 	String value
 }
 
-class IntLiteral extends CoefficientLiteral {
+class IntLiteral extends MathematicalLiteral {
 	String value
 }
 
-class RationalLiteral extends CoefficientLiteral {
-	String numerator
-	String denominator
-}
-
-class RealLiteral extends CoefficientLiteral {
+class RealLiteral extends MathematicalLiteral {
 	String value
-}
-
-abstract class CoefficientLiteral extends MathematicalLiteral {
 }
 
 class ImaginaryLiteral extends MathematicalLiteral {
-	contains CoefficientLiteral coefficient
+	contains Expression coefficient
 }
 
 abstract class MathematicalLiteral extends Expression {

@@ -8,7 +8,6 @@ import linear.algebra.matrix.matrix.MultiLineMatrixLiteral
 import linear.algebra.matrix.matrix.MatrixLiteralLine
 import linear.algebra.matrix.matrix.PlaceholderEntry
 import linear.algebra.matrix.matrix.IntLiteral
-import linear.algebra.matrix.matrix.RationalLiteral
 import linear.algebra.matrix.matrix.Multiplication
 import linear.algebra.matrix.matrix.MatrixType
 import linear.algebra.matrix.matrix.ReturnStatement
@@ -44,7 +43,6 @@ class MatrixLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabel
 			str = str + switch (entry) {
 				PlaceholderEntry : '.'
 				IntLiteral : entry.value
-				RationalLiteral : entry.numerator + '/' + entry.denominator
 			} + ' '
 		str
 	}

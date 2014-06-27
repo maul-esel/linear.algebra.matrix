@@ -509,20 +509,7 @@ from {
 		Integer.parseInt((div.right as IntLiteral).value) != 0
 		or fail error "Cannot divide by zero"
 			source div.right
-	} else if (div.right instanceof RationalLiteral) {
-		Integer.parseInt((div.right as RationalLiteral).numerator) != 0
-		or fail error "Cannot divide by zero"
-			source div.right
 	}
-}
-
-checkrule CRationalNoDivisionByZero
-	for RationalLiteral frac
-from {
-	Integer.parseInt(frac.denominator) != 0
-	or fail error "Division by zero is not allowed"
-		source frac
-		feature MatrixPackage.eINSTANCE.rationalLiteral_Denominator
 }
 
 checkrule CImportIsValid
