@@ -5,6 +5,8 @@ import it.xsemantics.runtime.RuleEnvironment
 import java.util.Stack
 import java.util.List
 
+import linear.algebra.matrix.core.Tuple
+
 import linear.algebra.matrix.scoping.providers.CodeProvider
 import linear.algebra.matrix.scoping.providers.InterpretationMethod
 
@@ -64,6 +66,23 @@ public class InterpreterImpl implements Interpreter {
 			currentScope.add(decl.name, evaluate(decl.value), decl.const)
 		else
 			currentScope.add(decl.name)
+		trace.leave()
+	}
+
+	def dispatch void interpret(CombinedTupleVarDeclaration combined) {
+		trace.enter(combined)
+		val tuple = evaluate(combined.tuple) as Tuple
+		for (i : 0..<combined.decls.size) {
+			var decl = combined.decls.get(i)
+			trace.enter(decl)
+			if (decl instanceof TupleVarDeclaration) {
+				var value = tuple.get(i)
+				if (decl.type != null) // explicit type specified ~> coerce accordingly
+					value = implicitCoerce(value, decl.type)
+				currentScope.add(decl.name, value, decl.const)
+			}
+			trace.leave()
+		}
 		trace.leave()
 	}
 
@@ -178,6 +197,10 @@ public class InterpreterImpl implements Interpreter {
 
 	def dispatch void interpret(Expression expr) { // namely Assignment and FunctionCall instances
 		evaluate(expr)
+	}
+
+	def Object implicitCoerce(Object value, Type type) {
+		exprInterpreter.implicitCoerce(value, type).value
 	}
 
 	def dispatch Object evaluate(Expression expr) {
