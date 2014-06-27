@@ -1,11 +1,14 @@
 system linear.algebra.matrix.interpreter.ExpressionInterpretation extends linear.algebra.matrix.interpreter.Coercion
 
+import java.util.ArrayList
+
 import linear.algebra.matrix.matrix.*
 
 import linear.algebra.matrix.interpreter.VariableRegister
 import linear.algebra.matrix.interpreter.Interpreter
 import linear.algebra.matrix.interpreter.CompareUtil
 
+import linear.algebra.matrix.core.Tuple
 import linear.algebra.matrix.core.Matrix
 import linear.algebra.matrix.core.Rational
 import linear.algebra.matrix.core.Complex
@@ -60,6 +63,17 @@ from {
 	z = new Complex(0, c)
 }
 
+rule ITupleExpression
+	G |- TupleExpression expr ~> Tuple t
+from {
+	var values = new ArrayList<Object>(expr.entries.size)
+	for (e : expr.entries) {
+		G |- e ~> var Object value
+		values.add(value)
+	}
+	t = new Tuple(values.toArray)
+}
+
 rule IVariableAssignment
 	G |- VariableAssignment assign ~> Object value
 from {
@@ -77,6 +91,21 @@ from {
 	}
 
 	env(G, 'variables', VariableRegister).set(assign.variable.ref.name, value)
+}
+
+rule ITupleAssignment
+	G |- TupleAssignment assign ~> Tuple t
+from {
+	G |- assign.tuple ~> t
+	val register = env(G, 'variables', VariableRegister)
+	for (i : 0..<assign.variables.size) {
+		val variable = assign.variables.get(i)
+		if (variable instanceof Variable) { // i.e. not empty component
+			G ||- variable.ref : var Type varType
+			G |~ t.get(i) >> varType |> var Object value
+			register.set(variable.ref.name, value)
+		}
+	}
 }
 
 rule ILogicalAndOr
