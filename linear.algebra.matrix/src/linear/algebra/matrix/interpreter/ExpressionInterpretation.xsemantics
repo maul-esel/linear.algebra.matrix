@@ -166,7 +166,7 @@ from {
 		var Number value
 		for (entry : line.entries) {
 			var Type valueType
-			if (entry instanceof MathematicalLiteral) {
+			if (entry instanceof Expression) {
 				G |- entry ~> value
 				G |- entry : valueType
 			} else { // placeholder '.'

@@ -205,7 +205,20 @@ from {
 
 	val lines = lit.lines.size()
 	val columns = lit.lines.get(0).getEntries().size()
-	type = createMatrixType(Integer.toString(lines), Integer.toString(columns), lit.entryType ?: MatrixFactory.eINSTANCE.createIntegerType()) // TODO: if entryType is null, derive from entries
+
+	val entryType = lit.entryType ?: { // if no entryType specified, derive it from entries
+		val expressionEntries = (lit.lines.map [ entries ].flatten.filter(Expression) + #[lit.dot?.fill].filterNull).toSet
+		G |- expressionEntries.head : var MathematicalType seed
+		expressionEntries.fold(seed) [ common, currentExpr |
+			var MathematicalType result
+			{
+				G |- currentExpr : var MathematicalType currentType
+				G |- common ~~ currentType |> result
+			} or fail error "cannot compute common super type of " + stringRep(common) + " with " + stringRep(currentExpr) source currentExpr
+			result
+		]
+	}
+	type = createMatrixType(Integer.toString(lines), Integer.toString(columns), entryType)
 }
 
 rule TMatrixInit

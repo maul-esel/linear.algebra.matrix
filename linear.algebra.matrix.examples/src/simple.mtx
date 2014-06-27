@@ -20,6 +20,8 @@ var x := 7;
 	1 2 3 4
 };
 
+var test_im := 6i;
+
 rational cde := 4 + <3/2>;
 var gre := <4/2> < 4;
 var equ := 4 ≠ <4/1>;

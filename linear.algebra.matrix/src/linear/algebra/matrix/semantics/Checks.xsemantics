@@ -246,7 +246,7 @@ from {
 		source init.entry
 }
 
-checkrule CMatrixLiteralHashValidEntries
+checkrule CMatrixLiteralHasValidEntries
 	for MultiLineMatrixLiteral lit
 from {
 	empty |- lit : var MatrixType type
@@ -260,7 +260,7 @@ from {
 
 	for (line : lit.lines)
 		for (entry : line.entries)
-			if (entry instanceof MathematicalLiteral) { // i.e. not a placeholder
+			if (entry instanceof Expression) { // i.e. not a placeholder
 				empty |- entry : var Type entryType
 				empty |- entryType <: type.realEntryType
 				or fail error "Matrix entry is of incompatible type"
