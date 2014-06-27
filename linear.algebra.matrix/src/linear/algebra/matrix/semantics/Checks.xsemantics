@@ -126,7 +126,7 @@ auxiliary alwaysAssigns(VarDeclaration variable, MatrixEntryAssignment action) {
 }
 
 auxiliary alwaysAssigns(VarDeclaration variable, VarDeclaration action) {
-	action == variable && action.value != null
+	(action.value != null) && (action == variable || alwaysAssigns(variable, action.value))
 }
 
 auxiliary alwaysAssigns(VarDeclaration variable, UnaryExpression action) {
@@ -181,6 +181,10 @@ auxiliary alwaysAssigns(VarDeclaration variable, WhileLoop action) {
 
 auxiliary alwaysAssigns(VarDeclaration variable, FromToLoop action) {
 	alwaysAssigns(variable, action.init) || alwaysAssigns(variable, action.end)
+}
+
+auxiliary alwaysAssigns(VarDeclaration variable, MultiLineMatrixLiteral action) {
+	action.lines.map [ entries ].flatten.exists [ e | alwaysAssigns(variable, e) ]
 }
 
 auxiliary isAssigned(Variable variable, List<MatrixSyntaxElement> ancestors, Iterable<EObject> elements) {
