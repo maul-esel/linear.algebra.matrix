@@ -18,7 +18,7 @@ class Tuple {
 	}
 
 	def getEntries() {
-		entries.clone // TODO: is correct implementation?
+		entries.clone
 	}
 
 	override equals(Object other) {
@@ -32,6 +32,6 @@ class Tuple {
 	}
 
 	override toString() {
-		'<' + entries.map [ Objects.toString ].join(', ') + '>'
+		'(' + entries.map [ Objects.toString ].join(', ') + ')'
 	}
 }
