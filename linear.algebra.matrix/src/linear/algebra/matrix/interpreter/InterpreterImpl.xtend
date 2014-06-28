@@ -60,9 +60,12 @@ public class InterpreterImpl implements Interpreter {
 
 	def dispatch void interpret(VarDeclaration decl) {
 		trace.enter(decl)
-		if (decl.value != null)
-			currentScope.add(decl.name, evaluate(decl.value), decl.const)
-		else
+		if (decl.value != null) {
+			var value = evaluate(decl.value)
+			if (decl instanceof TypedVarDeclaration)
+				value = implicitCoerce(value, resolveType(decl.type))
+			currentScope.add(decl.name, value, decl.const)
+		} else
 			currentScope.add(decl.name)
 		trace.leave()
 	}
@@ -110,7 +113,7 @@ public class InterpreterImpl implements Interpreter {
 		if (providerProc != null)
 			provider.interpretProc(resource, providerProc, evaluatedParams)
 		else
-			executeWithParams(call.proc.ref.params.params, call.params, call.proc.ref.body)
+			executeWithParams(call.proc.ref.params.params, call.params, call.proc.ref.body, null)
 		trace.leave()
 		trace.leave()
 	}
@@ -180,6 +183,13 @@ public class InterpreterImpl implements Interpreter {
 		evaluate(expr)
 	}
 
+	def Object implicitCoerce(Object value, Type type) {
+		val res = exprInterpreter.implicitCoerce(value, type)
+		if (res.ruleFailedException != null)
+			throw res.ruleFailedException
+		res.value
+	}
+
 	def dispatch Object evaluate(Expression expr) {
 		val env = new RuleEnvironment()
 		env.add("variables", currentScope)
@@ -217,7 +227,7 @@ public class InterpreterImpl implements Interpreter {
 		val value = if (providerFunc != null)
 			provider.interpretFunction(resource, providerFunc, evaluatedParams)
 		else
-			executeWithParams(call.func.ref.params.params, call.params, call.func.ref.body)
+			executeWithParams(call.func.ref.params.params, call.params, call.func.ref.body, call.func.ref.returnType)
 		trace.leave()
 		trace.leave()
 
@@ -239,7 +249,7 @@ public class InterpreterImpl implements Interpreter {
 	}
 
 	def private Object executeWithParams(List<TypedVarDeclaration> declared,
-		List<Expression> supplied, Block exec) {
+		List<Expression> supplied, Block exec, Type retType) {
 		val execScope = new VariableRegister()
 		for (i : 0..<supplied.size)
 			execScope.add(declared.get(i).name, evaluate(supplied.get(i))) // set the params
@@ -255,7 +265,9 @@ public class InterpreterImpl implements Interpreter {
 
 		var Object retVal = null;
 		try { interpret(exec) }
-		catch (ReturnEncounteredException e) { retVal = e.value } // get the return value
+		catch (ReturnEncounteredException e) { // get the return value
+			retVal = implicitCoerce(e.value, resolveType(retType))
+		}
 
 		variables.pop() // remove exec scope
 		generics.pop() // remove generic sope
@@ -269,6 +281,10 @@ public class InterpreterImpl implements Interpreter {
 			generics.peek().get(value.name)
 		else
 			value
+	}
+
+	def private Type resolveType(Type type) {
+		exprInterpreter.makeTypeExact(type, generics.peek())
 	}
 
 	def private originalRuleFailure(it.xsemantics.runtime.RuleFailedException e) {
