@@ -1,7 +1,10 @@
 system linear.algebra.matrix.interpreter.Coercion extends linear.algebra.matrix.interpreter.TypeChecks
 
+import java.util.LinkedList
+
 import linear.algebra.matrix.core.Rational
 import linear.algebra.matrix.core.Complex
+import linear.algebra.matrix.core.Tuple
 
 import linear.algebra.matrix.core.Matrix
 import linear.algebra.matrix.core.IntegerMatrix
@@ -17,6 +20,7 @@ import linear.algebra.matrix.matrix.RationalType
 import linear.algebra.matrix.matrix.RealType
 import linear.algebra.matrix.matrix.ComplexType
 import linear.algebra.matrix.matrix.MatrixType
+import linear.algebra.matrix.matrix.TupleType
 
 auxiliary {
 	createMatrix(MathematicalType entries, Integer lines, Integer columns) : Matrix<?>
@@ -94,4 +98,18 @@ from {
 			G |~ value.getEntry(i, j) >> type.realEntryType |> var Number entry
 			setMatrixEntry(out, i, j, entry)
 		}
+}
+
+rule ICTuple
+	G |~ Tuple value >> TupleType type |> Tuple out
+from {
+	value.length == type.types.length
+	or fail error "tuples sizes incompatible"
+
+	val values = new LinkedList<Object>()
+	for (i : 0..<value.length) {
+		G |~ value.get(i) >> type.types.get(i) |> var Object entry
+		values.add(entry)
+	}
+	out = new Tuple(values.toArray)
 }

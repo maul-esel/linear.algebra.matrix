@@ -2,6 +2,8 @@ system linear.algebra.matrix.semantics.CommonType
 	extends linear.algebra.matrix.semantics.Subtyping
 
 import linear.algebra.matrix.matrix.Type
+import linear.algebra.matrix.matrix.TupleType
+import linear.algebra.matrix.matrix.MatrixFactory
 
 judgments {
 	generalType |- Type first ~~ Type second |> output Type
@@ -17,6 +19,17 @@ from {
 	} or {
 		G |- second <: first
 		type = first
+	}
+}
+
+rule ATupleTypes
+	G |- TupleType first ~~ TupleType second |> TupleType combined
+from {
+	{ first.types.size == second.types.size }
+	combined = MatrixFactory.eINSTANCE.createTupleType()
+	for (i : 0..<first.types.size) {
+		G |- first.types.get(i) ~~ second.types.get(i) |> var Type common
+		combined.types.add(common)
 	}
 }
 

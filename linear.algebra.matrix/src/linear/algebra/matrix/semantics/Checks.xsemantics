@@ -120,6 +120,10 @@ auxiliary alwaysAssigns(VarDeclaration variable, VariableAssignment action) {
 	action.variable.ref == variable || alwaysAssigns(variable, action.value)
 }
 
+auxiliary alwaysAssigns(VarDeclaration variable, TupleAssignment action) {
+	action.variables.filter(Variable).exists[ ref == variable ] || alwaysAssigns(variable, action.tuple)
+}
+
 auxiliary alwaysAssigns(VarDeclaration variable, MatrixEntryAssignment action) {
 	alwaysAssigns(variable, action.matr) || alwaysAssigns(variable, action.line)
 	|| alwaysAssigns(variable, action.column) || alwaysAssigns(variable, action.value)
@@ -147,6 +151,10 @@ auxiliary alwaysAssigns(VarDeclaration variable, FunctionCall action) {
 
 auxiliary alwaysAssigns(VarDeclaration variable, ProcCall action) {
 	action.params.exists [ param | alwaysAssigns(variable, param) ]
+}
+
+auxiliary alwaysAssigns(VarDeclaration variable, TupleExpression action) {
+	action.entries.exists [ entry | alwaysAssigns(variable, entry) ]
 }
 
 auxiliary alwaysAssigns(VarDeclaration variable, Block action) {
@@ -284,7 +292,7 @@ from {
 checkrule CConstVarHasValue
 	for VarDeclaration variable
 from {
-	{ (!variable.const || variable.value != null) }
+	{ (!variable.const || variable.value != null || variable instanceof TupleVarDeclaration) }
 	or fail error "Constant variable must be assigned a value on declaration"
 		source variable
 }
@@ -306,6 +314,36 @@ from {
 		empty |- valtype <: vartype
 		or fail error "Value of type " + stringRep(valtype) + " cannot be assigned to variable of type " + stringRep(vartype)
 			source variable.value
+	}
+}
+
+checkrule CTupleVarDeclHasCompatibleValueType
+	for TupleVarDeclaration decl
+from {
+	if (decl.type != null) { // if null, it will be inferred correctly
+		val container = decl.eContainer as CombinedTupleVarDeclaration
+		empty |- container.tuple : var TupleType tupleType
+		empty |- tupleType.types.get(decl.componentIndex) <: decl.type
+		or fail error "Value cannot be assigned to variable of type " + stringRep(decl.type)
+			source decl.type
+	}
+}
+
+checkrule CTupleAssignmentIsValid
+	for TupleAssignment assign
+from {
+	empty |- assign.tuple : var TupleType tupleType
+
+	{ tupleType.types.size == assign.variables.size }
+
+	for (i : 0..<assign.variables.size) {
+		val component = assign.variables.get(i)
+		if (component instanceof Variable) {
+			empty |- component : var Type varType
+			empty |- tupleType.types.get(i) <: varType
+				or fail error "Variable type incompatible to tuple entry type"
+					source assign.variables.get(i)
+		}
 	}
 }
 
@@ -540,17 +578,20 @@ from {
 checkrule CVariableIsAssignedBeforeUse
 	for Variable variable
 from {
-	val inAssignment = (variable.eContainer instanceof VariableAssignment)
-		&& (variable.eContainer as VariableAssignment).variable == variable
+	val inAssignment = (variable.eContainer instanceof VariableAssignment
+		&& (variable.eContainer as VariableAssignment).variable == variable)
+		|| (variable.eContainer instanceof TupleAssignment
+		&& (variable.eContainer as TupleAssignment).variables.contains(variable))
 	val initCounter = (variable.ref.eContainer instanceof MatrixInit)
 		&& ((variable.ref.eContainer as MatrixInit).line == variable.ref
 			|| (variable.ref.eContainer as MatrixInit).column == variable.ref)
 	val isParam = variable.ref.eContainer instanceof ParameterList
 	val isCounter = variable.eContainer instanceof FromToLoop
 		&& (variable.eContainer as FromToLoop).getVar == variable
+	val isDeclaredinTuple = variable.ref instanceof TupleVarDeclaration
 
 	// if not initialized on declaration, ensure it's done later (if at all necessary)
-	if (variable.ref.value == null && !inAssignment && !initCounter && !isParam && !isCounter) {
+	if (variable.ref.value == null && !inAssignment && !initCounter && !isParam && !isCounter && !isDeclaredinTuple) {
 		// create list of direct ancestors of variable
 		val ancestorList = new ArrayList<MatrixSyntaxElement>()
 		ancestorList.add(variable)

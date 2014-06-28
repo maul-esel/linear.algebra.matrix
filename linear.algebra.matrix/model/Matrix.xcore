@@ -33,6 +33,24 @@ class TypedVarDeclaration extends VarDeclaration {
 class InferredVarDeclaration extends VarDeclaration {
 }
 
+class CombinedTupleVarDeclaration extends Action {
+	contains Expression tuple
+	contains TupleVarDeclarationComponent[] decls
+}
+
+abstract class TupleVarDeclarationComponent extends MatrixSyntaxElement {
+}
+
+class TupleVarDeclaration extends VarDeclaration, TupleVarDeclarationComponent {
+	derived transient readonly int componentIndex
+		get { (eContainer as CombinedTupleVarDeclaration).decls.indexOf(this) }
+
+	contains Type ^type
+}
+
+class EmptyTupleVarDeclarationComponent extends TupleVarDeclarationComponent {
+}
+
 class ReturnStatement extends Action {
 	contains Expression value
 }
@@ -187,6 +205,20 @@ class GenericType extends MathematicalType {
 	}
 }
 
+class TupleType extends Type {
+	contains Type[] types
+
+	op boolean equals(Object other) {
+		if (other instanceof TupleType)
+			other.types.elementsEqual(types)
+		else false
+	}
+
+	op int hashCode() {
+		types.fold(0, [ sum, t | sum + t.hashCode() ])
+	}
+}
+
 class MatrixType extends Type {
 	contains MathematicalType entryType
 	String height
@@ -300,7 +332,7 @@ class GenericVariable extends Expression {
 	String name
 }
 
-class Variable extends Expression {
+class Variable extends Expression, TupleAssignmentComponent {
 	refers VarDeclaration ref
 }
 
@@ -311,6 +343,10 @@ class Function extends MatrixSyntaxElement {
 class FunctionCall extends Action , Expression {
 	contains Function func
 	contains Expression[] params
+}
+
+class TupleExpression extends Expression {
+	contains Expression[] entries
 }
 
 abstract class Expression extends MatrixEntry {
@@ -391,6 +427,17 @@ class MatrixEntryAssignment extends Assignment {
 	contains Expression matr
 	contains Expression line
 	contains Expression column
+}
+
+class TupleAssignment extends Assignment {
+	contains TupleAssignmentComponent[] variables
+	contains Expression tuple
+}
+
+abstract class TupleAssignmentComponent {
+}
+
+class EmptyTupleAssignmentComponent extends TupleAssignmentComponent {
 }
 
 enum AdditionOp {

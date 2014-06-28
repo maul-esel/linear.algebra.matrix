@@ -10,6 +10,7 @@ import linear.algebra.matrix.matrix.RationalType
 import linear.algebra.matrix.matrix.RealType
 import linear.algebra.matrix.matrix.ComplexType
 import linear.algebra.matrix.matrix.GenericType
+import linear.algebra.matrix.matrix.TupleType
 
 judgments {
 	subtype |- Type sub <: Type sup
@@ -39,6 +40,15 @@ axiom SRationalComplex
 
 axiom SRealComplex
 	G |- RealType sub <: ComplexType sup
+
+rule STupleType
+	derives G |- TupleType sub <: TupleType sup
+from {
+	{ sub.types.size == sup.types.size }
+	for (i : 0..<sub.types.size) {
+		G |- sub.types.get(i) <: sup.types.get(i)
+	}
+}
 
 rule SDefault
 	G |- Type sub <: Type sup

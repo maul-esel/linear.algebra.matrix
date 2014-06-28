@@ -19,8 +19,10 @@ Line :
 Action :
 	(TypedVarDeclaration ';')
 	| (InferredVarDeclaration ';')
+	| (CombinedTupleVarDeclaration ';')
 	| (VariableAssignment ';')
 	| (MatrixEntryAssignment ';')
+	| (TupleAssignment ';')
 	| (FunctionCall ';')
 	| ReturnStatement
 	| FailureStatement
@@ -36,6 +38,24 @@ TypedVarDeclaration :
 
 InferredVarDeclaration :
 	(const?=CONST)? 'var' name=ID OP_ASSIGN value=Expression
+;
+
+CombinedTupleVarDeclaration :
+	'var'
+	'('
+		decls+=(TupleVarDeclaration|EmptyTupleVarDeclarationComponent)
+		(',' decls+=(TupleVarDeclaration|EmptyTupleVarDeclarationComponent))+
+	')'
+	OP_ASSIGN
+	tuple=Expression
+;
+
+TupleVarDeclaration :
+	(const?=CONST)? (type=Type)? name=ID
+;
+
+EmptyTupleVarDeclarationComponent :
+	{EmptyTupleVarDeclarationComponent}
 ;
 
 ReturnStatement :
@@ -118,12 +138,16 @@ MathematicalType :
 	| {GenericType} name=GENERIC_TYPE
 ;
 
+TupleType :
+	'(' types+=Type (',' types+=Type)+ ')'
+;
+
 MatrixType :
 	entryType=MathematicalType? '(' height=(POSITIVE_INTEGER|GENERIC_VAR) ('°'|X) width=(POSITIVE_INTEGER|GENERIC_VAR) ')'
 ;
 
 Type :
-	MathematicalType | {BooleanType} BOOL | MatrixType
+	MathematicalType | {BooleanType} BOOL | MatrixType | TupleType
 ;
 
 // III. Expressions
@@ -197,6 +221,10 @@ FunctionCall :
 	func=Function (params+=Expression (',' params+=Expression)*)? ')'
 ;
 
+TupleExpression :
+	'(' entries+=Expression (',' entries+=Expression)+ ')'
+;
+
 DeterminantOrAbsoluteValue :
 	'|' expr=Expression '|'
 ;
@@ -220,6 +248,7 @@ AtomExpression returns Expression :
 	| ParenthesizedExpression
 	| DeterminantOrAbsoluteValue
 	| TypeCheckExpression
+	| TupleExpression
 ;
 
 // III. c) complex expressions
@@ -229,6 +258,14 @@ VariableAssignment :
 
 MatrixEntryAssignment :
 	matr=AtomExpression '[' line=Expression ',' column=Expression ']' OP_ASSIGN value=Expression
+;
+
+TupleAssignment :
+	'(' variables+=(Variable|EmptyTupleAssignmentComponent) (',' variables+=(Variable|EmptyTupleAssignmentComponent))+ ')' OP_ASSIGN tuple=Expression
+;
+
+EmptyTupleAssignmentComponent :
+	{EmptyTupleAssignmentComponent}
 ;
 
 EntryAccess returns Expression :
@@ -287,6 +324,7 @@ Expression returns Expression :
 	VariableAssignment
 	| Ternary
 	| MatrixEntryAssignment
+	| TupleAssignment
 ;
 
 // III. d) operator enums
