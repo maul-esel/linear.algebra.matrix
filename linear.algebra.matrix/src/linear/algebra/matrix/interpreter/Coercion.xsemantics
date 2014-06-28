@@ -10,6 +10,7 @@ import linear.algebra.matrix.core.RealMatrix
 import linear.algebra.matrix.core.ComplexMatrix
 
 import linear.algebra.matrix.matrix.Type
+import linear.algebra.matrix.matrix.BooleanType
 import linear.algebra.matrix.matrix.MathematicalType
 import linear.algebra.matrix.matrix.IntegerType
 import linear.algebra.matrix.matrix.RationalType
@@ -43,6 +44,9 @@ auxiliary setMatrixEntry(Matrix<?> m, Integer i, Integer j, Number entry) {
 		ComplexMatrix  : m.setEntry(i, j, entry as Complex)
 	}
 }
+
+axiom ICBooleanBoolean
+	G |~ Boolean value >> BooleanType type |> value
 
 // ... >> int
 axiom ICIntegerInteger
