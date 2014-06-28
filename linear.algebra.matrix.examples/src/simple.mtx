@@ -14,6 +14,13 @@ e := 4;
 ℚ ∋ r := e / (1/2);
 
 var x := 7;
+int zl;
+var zl_m := {
+	zl := 5 5
+};
+@printNumber(zl_m[1,1]);
+@printNumber(zl);
+
 (3 x 4) CROSSED := {
 	1 2 3 4
 	1 2 3 4

@@ -284,8 +284,8 @@ Ternary returns Expression :
 ;
 
 Expression returns Expression :
-	Ternary
-	| VariableAssignment
+	VariableAssignment
+	| Ternary
 	| MatrixEntryAssignment
 ;
 
