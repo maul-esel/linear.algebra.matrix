@@ -4,6 +4,7 @@ system linear.algebra.matrix.interpreter.TypeChecks
 import linear.algebra.matrix.core.Rational
 import linear.algebra.matrix.core.Complex
 import linear.algebra.matrix.core.Matrix
+import linear.algebra.matrix.core.Tuple
 
 import linear.algebra.matrix.matrix.MatrixFactory
 import linear.algebra.matrix.matrix.Type
@@ -13,6 +14,7 @@ import linear.algebra.matrix.matrix.RationalType
 import linear.algebra.matrix.matrix.RealType
 import linear.algebra.matrix.matrix.ComplexType
 import linear.algebra.matrix.matrix.MatrixType
+import linear.algebra.matrix.matrix.TupleType
 
 judgments {
 	isType |~ Object obj <| Type type ~> output Boolean
@@ -88,4 +90,16 @@ from {
 				G |~ m.getEntry(i, j) <| type.entryType ~> var Boolean c
 				b = b && c
 			}
+}
+
+/* tuples */
+rule ITTuples
+	G |~ Tuple tuple <| TupleType type ~> Boolean b
+from {
+	b = (tuple.length == type.types.length)
+	if (b)
+		for (i : 0..<tuple.length) {
+			G |~ tuple.get(i) <| type.types.get(i) ~> var Boolean c
+			b = b && c
+		}
 }
