@@ -104,7 +104,7 @@ public abstract class AbstractDeclarativeProvider implements CodeProvider {
 	def protected commonProc(List<Method> methods, Resource providerResource) {
 		if (methods.map [ parameterTypes.size ].size > 1)
 			throw new IllegalStateException("Overloads must have same number of parameters: " + methods.last.name)
-		if (!methods.map [ returnType ].elementsEqual(#[Void.TYPE]))
+		if (!methods.map [ returnType ].toSet.elementsEqual(#[Void.TYPE]))
 			throw new IllegalStateException("Procs must have the return type 'void': " + methods.last.name)
 
 		val funcName = QualifiedName.create(#[getNamespace(methods), "@" + methods.last.name.substring(5)].filterNull)
