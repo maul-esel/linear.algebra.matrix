@@ -39,6 +39,26 @@ public abstract class AbstractDeclarativeProvider implements CodeProvider {
 	private val functionCache = new Cache<Resource, Function[]>()
 	private val procCache = new Cache<Resource, Proc[]>()
 
+	private static final HashMap<Class<?>, Class<?>> wrapperTypes = {
+		val map = new HashMap<Class<?>, Class<?>>()
+		map.put(int, Integer)
+		map.put(double, Double)
+		map.put(boolean, Boolean)
+		map
+	}
+
+	static protected def unwrap(Class<?> c) {
+		if (c.isPrimitive)
+			wrapperTypes.get(c)
+		else c
+	}
+
+	static protected def unwrap(java.lang.reflect.Type t) {
+		if (t instanceof Class<?>)
+			unwrap(t)
+		else t
+	}
+
 	override getFunctionsFor(Resource resource) {
 		functionCache.get(resource, [ res | collectFunctions(res) ])
 	}
@@ -88,15 +108,15 @@ public abstract class AbstractDeclarativeProvider implements CodeProvider {
 	}
 
 	def protected commonFunction(List<Method> methods, Resource providerResource) {
-		if (methods.map [ parameterTypes.size ].size > 1)
+		if (methods.map [ parameterTypes.size ].toSet.size > 1)
 			throw new IllegalStateException("Overloads must have same number of parameters: " + methods.last.name)
 
 		val funcName   = QualifiedName.create(#[getNamespace(methods), methods.last.name.substring(5)].filterNull)
-		val returnType = toLanguageType(methods.map [ returnType ].reduce [ a, b | commonSuperClass(a, b) ], class + methods.head.name + "_return")
+		val returnType = toLanguageType(methods.map [ unwrap(returnType) ].reduce [ a, b | commonSuperClass(a, b) ], class + methods.head.name + "_return")
 
 		// for each i, get the list of i-th params, compute their common type and translate it to a language type
 		val params = (0..<methods.last.parameterTypes.size)
-			.map [ i | toLanguageType(methods.map [ parameterTypes.get(i) ].reduce [ a, b | commonSuperClass(a, b) ], class + methods.head.name + i) ]
+			.map [ i | toLanguageType(methods.map [ unwrap(parameterTypes.get(i)) ].reduce [ a, b | commonSuperClass(a, b) ], class + methods.head.name + i) ]
 
 		Function.createSymbolic(providerResource, funcName, params, returnType)
 	}
@@ -111,7 +131,7 @@ public abstract class AbstractDeclarativeProvider implements CodeProvider {
 
 		// for each i, get the list of i-th params, compute their common type and translate it to a language type
 		val params = (0..<methods.last.parameterTypes.size)
-			.map [ i | toLanguageType(methods.map [ genericParameterTypes.get(i) ].reduce [ a, b | commonSuperClass(a as Class<?>, b as Class<?>) ], class + methods.head.name + i) ]
+			.map [ i | toLanguageType(methods.map [ unwrap(genericParameterTypes.get(i)) ].reduce [ a, b | commonSuperClass(a as Class<?>, b as Class<?>) ], class + methods.head.name + i) ]
 
 		Proc.createSymbolic(providerResource, funcName, params)
 	}
@@ -125,7 +145,7 @@ public abstract class AbstractDeclarativeProvider implements CodeProvider {
 	def protected String getNamespace(List<Method> methods) {
 		val annotatedNamespaces = methods.map [
 			getAnnotation(Namespace) ?: declaringClass.getAnnotation(Namespace)
-		].filterNull.map [ value ]
+		].toSet.filterNull.map [ value ]
 
 		if (annotatedNamespaces.size > 1)
 			throw new IllegalStateException("Ambiguous namespace annotations: " + methods.last.name)
@@ -137,17 +157,20 @@ public abstract class AbstractDeclarativeProvider implements CodeProvider {
 	// http://stackoverflow.com/questions/21121439/common-supertype-of-java-classes/21122643#21122643
 	def protected Class<?> commonSuperClass(Class<?> a, Class<?> b) {
 		var s = a;
-		while (!s.isAssignableFrom(b))
+		while (!s.equals(b) && !s.isAssignableFrom(b))
 			s = s.getSuperclass()
 		s
 	}
 
 	def protected Type toLanguageType(java.lang.reflect.Type type, String genericSuffix) {
 		switch (type) {
+			case Integer,
 			case Integer.TYPE : MatrixFactory.eINSTANCE.createIntegerType()
 			case Rational     : MatrixFactory.eINSTANCE.createRationalType()
+			case Double,
 			case Double.TYPE  : MatrixFactory.eINSTANCE.createRealType()
 			case Complex      : MatrixFactory.eINSTANCE.createComplexType()
+			case Boolean,
 			case Boolean.TYPE : MatrixFactory.eINSTANCE.createBooleanType()
 			case Number       : createGenericType(genericSuffix)
 			ParameterizedType : createParametrizedType(type, genericSuffix)
