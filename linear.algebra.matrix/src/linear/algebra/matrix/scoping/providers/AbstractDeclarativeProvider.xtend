@@ -24,6 +24,11 @@ import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.WildcardType
 
+import java.lang.annotation.Retention
+import java.lang.annotation.Target
+import java.lang.annotation.ElementType
+import java.lang.annotation.RetentionPolicy
+
 import org.eclipse.xtext.util.PolymorphicDispatcher
 import org.eclipse.xtext.util.PolymorphicDispatcher.Predicates
 
@@ -111,17 +116,19 @@ public abstract class AbstractDeclarativeProvider implements CodeProvider {
 		Proc.createSymbolic(providerResource, funcName, params)
 	}
 
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.METHOD, ElementType.TYPE)
 	static annotation Namespace {
-		public String name
+		public String value
 	}
 
 	def protected String getNamespace(List<Method> methods) {
 		var String namespace = null
 
 		if (this.class.isAnnotationPresent(Namespace))
-			namespace = class.getAnnotation(Namespace).name
+			namespace = class.getAnnotation(Namespace).value
 
-		val annotatedNamespaces = methods.map [ getAnnotation(Namespace) ].filterNull.map [ name ]
+		val annotatedNamespaces = methods.map [ getAnnotation(Namespace) ].filterNull.map [ value ]
 		if (annotatedNamespaces.size > 1)
 			throw new IllegalStateException("Ambiguous namespace annotations: " + methods.last.name)
 		else if (annotatedNamespaces.size == 1)
