@@ -92,11 +92,11 @@ public abstract class AbstractDeclarativeProvider implements CodeProvider {
 			throw new IllegalStateException("Overloads must have same number of parameters: " + methods.last.name)
 
 		val funcName   = QualifiedName.create(#[getNamespace(methods), methods.last.name.substring(5)].filterNull)
-		val returnType = toLanguageType(methods.map [ returnType ].reduce [ a, b | commonSuperClass(a, b) ])
+		val returnType = toLanguageType(methods.map [ returnType ].reduce [ a, b | commonSuperClass(a, b) ], class + methods.head.name + "_return")
 
 		// for each i, get the list of i-th params, compute their common type and translate it to a language type
 		val params = (0..<methods.last.parameterTypes.size)
-			.map [ i | toLanguageType(methods.map [ parameterTypes.get(i) ].reduce [ a, b | commonSuperClass(a, b) ]) ]
+			.map [ i | toLanguageType(methods.map [ parameterTypes.get(i) ].reduce [ a, b | commonSuperClass(a, b) ], class + methods.head.name + i) ]
 
 		Function.createSymbolic(providerResource, funcName, params, returnType)
 	}
@@ -111,7 +111,7 @@ public abstract class AbstractDeclarativeProvider implements CodeProvider {
 
 		// for each i, get the list of i-th params, compute their common type and translate it to a language type
 		val params = (0..<methods.last.parameterTypes.size)
-			.map [ i | toLanguageType(methods.map [ genericParameterTypes.get(i) ].reduce [ a, b | commonSuperClass(a as Class<?>, b as Class<?>) ]) ]
+			.map [ i | toLanguageType(methods.map [ genericParameterTypes.get(i) ].reduce [ a, b | commonSuperClass(a as Class<?>, b as Class<?>) ], class + methods.head.name + i) ]
 
 		Proc.createSymbolic(providerResource, funcName, params)
 	}
@@ -142,41 +142,41 @@ public abstract class AbstractDeclarativeProvider implements CodeProvider {
 		s
 	}
 
-	def protected Type toLanguageType(java.lang.reflect.Type type) {
+	def protected Type toLanguageType(java.lang.reflect.Type type, String genericSuffix) {
 		switch (type) {
 			case Integer.TYPE : MatrixFactory.eINSTANCE.createIntegerType()
 			case Rational     : MatrixFactory.eINSTANCE.createRationalType()
 			case Double.TYPE  : MatrixFactory.eINSTANCE.createRealType()
 			case Complex      : MatrixFactory.eINSTANCE.createComplexType()
 			case Boolean.TYPE : MatrixFactory.eINSTANCE.createBooleanType()
-			case Number       : createGenericType()
-			ParameterizedType : createParametrizedType(type)
-			case Matrix       : createMatrixType(type as Class<Matrix<?>>, Number)
+			case Number       : createGenericType(genericSuffix)
+			ParameterizedType : createParametrizedType(type, genericSuffix)
+			case Matrix       : createMatrixType(type as Class<Matrix<?>>, Number, genericSuffix)
 			default           : throw new IllegalStateException("Unsupported parameter type: " + type)
 		}
 	}
 
-	def protected createMatrixType(Class<Matrix<?>> type, Class<? extends Number> entryType) {
+	def protected createMatrixType(Class<Matrix<?>> type, Class<? extends Number> entryType, String genericSuffix) {
 		val matr = MatrixFactory.eINSTANCE.createMatrixType()
 		matr.height = "$n"
 		matr.width  = "$m"
-		matr.entryType = toLanguageType(entryType) as MathematicalType
+		matr.entryType = toLanguageType(entryType, "entry_" + genericSuffix) as MathematicalType
 		matr
 	}
 
-	def protected Type createParametrizedType(ParameterizedType type) {
+	def protected Type createParametrizedType(ParameterizedType type, String genericSuffix) {
 		switch (actualType : type.rawType) {
 			Class<Matrix<?>> case Matrix : switch(entryType : type.actualTypeArguments.get(0)) {
-					Class<? extends Number> : createMatrixType(actualType, entryType)
-					WildcardType : createMatrixType(actualType, Number)
+					Class<? extends Number> : createMatrixType(actualType, entryType, genericSuffix)
+					WildcardType : createMatrixType(actualType, Number, genericSuffix)
 					default : throw new UnsupportedOperationException()
 				}
 		}
 	}
 
-	def protected createGenericType() {
+	def protected createGenericType(String genericSuffix) {
 		val type = MatrixFactory.eINSTANCE.createGenericType()
-		type.name = "%generic" + Math.random()
+		type.name = "%generic_" + genericSuffix
 		type
 	}
 
