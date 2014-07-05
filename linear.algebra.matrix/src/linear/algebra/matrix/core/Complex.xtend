@@ -15,6 +15,14 @@ class Complex extends Number {
 		im = imaginary
 	}
 
+	def Number getRealPart() {
+		re
+	}
+
+	def Number getImaginaryPart() {
+		im
+	}
+
 	def Complex negative() {
 		new Complex(negative.of(re), negative.of(im))
 	}

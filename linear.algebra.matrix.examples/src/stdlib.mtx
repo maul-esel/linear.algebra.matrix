@@ -1,3 +1,7 @@
+def conjugate : (complex z) -> complex {
+	return core::re(z) - core::im(z) * 1i;
+}
+
 def add : (%t($n x $m) A, %t($n x $m) B) -> %t($n x $m) {
 	return init (int i..$n, int j..$m) ~> A[i,j] + B[i,j];
 }
