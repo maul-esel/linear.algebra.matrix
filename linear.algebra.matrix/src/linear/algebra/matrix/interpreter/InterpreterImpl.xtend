@@ -15,7 +15,6 @@ import linear.algebra.matrix.matrix.*
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.util.Diagnostician
 import org.eclipse.emf.common.util.Diagnostic
-import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.util.CancelIndicator
 import org.eclipse.xtext.EcoreUtil2
 
@@ -25,9 +24,6 @@ import com.google.inject.assistedinject.Assisted
 public class InterpreterImpl implements Interpreter {
 	@Inject
 	private ExpressionInterpretation exprInterpreter
-
-	@Inject
-	IQualifiedNameProvider nameProvider
 
 	@Inject
 	private CodeProvider provider
@@ -119,8 +115,8 @@ public class InterpreterImpl implements Interpreter {
 
 	def dispatch void interpret(ProcCall call) {
 		val providerProc = provider.getProcsFor(resource).findFirst [
-			name.equals(nameProvider.getFullyQualifiedName(call.proc.ref))
-			&& interpretationMethod == InterpretationMethod.Provider
+			interpretationMethod == InterpretationMethod.Provider
+			&& EcoreUtil2.equals(proc, call.proc.ref)
 		]
 
 		var List<Object> evaluatedParams
@@ -233,8 +229,8 @@ public class InterpreterImpl implements Interpreter {
 
 	def dispatch Object evaluate(FunctionCall call) { // special handling for func calls!
 		val providerFunc = provider.getFunctionsFor(resource).findFirst [
-			name.equals(nameProvider.getFullyQualifiedName(call.func.ref))
-			&& interpretationMethod == InterpretationMethod.Provider
+			interpretationMethod == InterpretationMethod.Provider
+			&& EcoreUtil2.equals(func, call.func.ref)
 		]
 
 		var List<Object> evaluatedParams
