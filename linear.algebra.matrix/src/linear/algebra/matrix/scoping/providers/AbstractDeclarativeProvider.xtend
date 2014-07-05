@@ -107,7 +107,7 @@ public abstract class AbstractDeclarativeProvider implements CodeProvider {
 		if (!methods.map [ returnType ].elementsEqual(#[Void.TYPE]))
 			throw new IllegalStateException("Procs must have the return type 'void': " + methods.last.name)
 
-		val funcName   = QualifiedName.create(#[getNamespace(methods), "@" + methods.last.name.substring(5)].filterNull)
+		val funcName = QualifiedName.create(#[getNamespace(methods), "@" + methods.last.name.substring(5)].filterNull)
 
 		// for each i, get the list of i-th params, compute their common type and translate it to a language type
 		val params = (0..<methods.last.parameterTypes.size)
@@ -123,18 +123,15 @@ public abstract class AbstractDeclarativeProvider implements CodeProvider {
 	}
 
 	def protected String getNamespace(List<Method> methods) {
-		var String namespace = null
+		val annotatedNamespaces = methods.map [
+			getAnnotation(Namespace) ?: declaringClass.getAnnotation(Namespace)
+		].filterNull.map [ value ]
 
-		if (this.class.isAnnotationPresent(Namespace))
-			namespace = class.getAnnotation(Namespace).value
-
-		val annotatedNamespaces = methods.map [ getAnnotation(Namespace) ].filterNull.map [ value ]
 		if (annotatedNamespaces.size > 1)
 			throw new IllegalStateException("Ambiguous namespace annotations: " + methods.last.name)
 		else if (annotatedNamespaces.size == 1)
-			namespace = annotatedNamespaces.last
-
-		namespace
+			annotatedNamespaces.last
+		else null
 	}
 
 	// http://stackoverflow.com/questions/21121439/common-supertype-of-java-classes/21122643#21122643
