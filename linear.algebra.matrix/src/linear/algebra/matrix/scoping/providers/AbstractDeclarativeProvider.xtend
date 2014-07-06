@@ -112,11 +112,11 @@ public abstract class AbstractDeclarativeProvider implements CodeProvider {
 			throw new IllegalStateException("Overloads must have same number of parameters: " + methods.last.name)
 
 		val funcName   = QualifiedName.create(#[getNamespace(methods), methods.last.name.substring(5)].filterNull)
-		val returnType = toLanguageType(methods.map [ unwrap(returnType) ].reduce [ a, b | commonSuperClass(a, b) ], class + methods.head.name + "_return")
+		val returnType = toLanguageType(methods.map [ unwrap(returnType) ].reduce [ a, b | commonSuperClass(a, b) ], genericTypeName(methods, -1) ?: class + methods.head.name + "_return")
 
 		// for each i, get the list of i-th params, compute their common type and translate it to a language type
 		val params = (0..<methods.last.parameterTypes.size)
-			.map [ i | toLanguageType(methods.map [ unwrap(parameterTypes.get(i)) ].reduce [ a, b | commonSuperClass(a, b) ], class + methods.head.name + i) ]
+			.map [ i | toLanguageType(methods.map [ unwrap(parameterTypes.get(i)) ].reduce [ a, b | commonSuperClass(a, b) ], genericTypeName(methods, i) ?: class + methods.head.name + i) ]
 
 		Function.createSymbolic(providerResource, funcName, params, returnType)
 	}
@@ -131,14 +131,34 @@ public abstract class AbstractDeclarativeProvider implements CodeProvider {
 
 		// for each i, get the list of i-th params, compute their common type and translate it to a language type
 		val params = (0..<methods.last.parameterTypes.size)
-			.map [ i | toLanguageType(methods.map [ unwrap(genericParameterTypes.get(i)) ].reduce [ a, b | commonSuperClass(a as Class<?>, b as Class<?>) ], class + methods.head.name + i) ]
+			.map [ i | toLanguageType(methods.map [ unwrap(genericParameterTypes.get(i)) ].reduce [ a, b | commonSuperClass(a as Class<?>, b as Class<?>) ], genericTypeName(methods, i) ?: class + methods.head.name + i) ]
 
 		Proc.createSymbolic(providerResource, funcName, params)
+	}
+
+	def protected String genericTypeName(List<Method> methods, int index) {
+		val annotations = (
+			if (index == -1)
+				methods.map [ getAnnotation(GenericTypeName) ]
+			else
+				methods.map [ getParameterAnnotations().get(index).filter(GenericTypeName).head ]
+		).filterNull.map[ value ].toSet
+
+		if (annotations.size > 1)
+			throw new IllegalStateException("Ambiguous type name for generic type")
+		else
+			annotations.head
 	}
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD, ElementType.TYPE)
 	static annotation Namespace {
+		public String value
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.METHOD, ElementType.PARAMETER)
+	static annotation GenericTypeName {
 		public String value
 	}
 
@@ -183,7 +203,7 @@ public abstract class AbstractDeclarativeProvider implements CodeProvider {
 		val matr = MatrixFactory.eINSTANCE.createMatrixType()
 		matr.height = "$n"
 		matr.width  = "$m"
-		matr.entryType = toLanguageType(entryType, "entry_" + genericSuffix) as MathematicalType
+		matr.entryType = toLanguageType(entryType, genericSuffix) as MathematicalType
 		matr
 	}
 
