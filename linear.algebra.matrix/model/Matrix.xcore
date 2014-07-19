@@ -33,6 +33,19 @@ class TypedVarDeclaration extends VarDeclaration {
 class InferredVarDeclaration extends VarDeclaration {
 }
 
+class ParamDeclaration extends TypedVarDeclaration {
+}
+
+class MatrixInitVarDeclaration extends TypedVarDeclaration {
+	contains derived Type intType // private
+
+	op Type getType(){
+		if (intType == null)
+			intType = MatrixFactory.eINSTANCE.createIntegerType()
+		intType
+	}
+}
+
 class CombinedTupleVarDeclaration extends Action {
 	contains Expression tuple
 	contains TupleVarDeclarationComponent[] decls

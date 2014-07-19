@@ -32,16 +32,15 @@ Action :
 	| WhileLoop // TODO: solve proc/func conflict without backtracking
 ;
 
-TypedVarDeclaration :
-	(const?=CONST)? type=Type name=ID (OP_ASSIGN value=Expression)?
+InferredVarDeclaration :
+	(const?=CONST | VAR) name=ID OP_ASSIGN value=Expression
 ;
 
-InferredVarDeclaration :
-	(const?=CONST)? 'var' name=ID OP_ASSIGN value=Expression
+TypedVarDeclaration :
+	(const?=CONST | VAR) name=ID OP_COLON type=Type (OP_ASSIGN value=Expression)?
 ;
 
 CombinedTupleVarDeclaration :
-	'var'
 	'('
 		decls+=(TupleVarDeclaration|EmptyTupleVarDeclarationComponent)
 		(',' decls+=(TupleVarDeclaration|EmptyTupleVarDeclarationComponent))+
@@ -51,7 +50,7 @@ CombinedTupleVarDeclaration :
 ;
 
 TupleVarDeclaration :
-	(const?=CONST)? (type=Type)? name=ID
+	(const?=CONST | VAR) name=ID (OP_COLON type=Type)?
 ;
 
 EmptyTupleVarDeclarationComponent :
@@ -114,27 +113,31 @@ IfElse :
 
 // I. b) Function and proc declarations
 FuncDeclaration :
-	(internal?=INTERNAL)? DEF name=ID ':' params=ParameterList '->' returnType=Type body=Block
+	(internal?=INTERNAL)? DEF name=ID OP_COLON params=ParameterList '->' returnType=Type body=Block
 ;
 
 ProcDeclaration :
-	(internal?=INTERNAL)? PROC name=PROC_NAME ':' params=ParameterList body=Block
+	(internal?=INTERNAL)? PROC name=PROC_NAME OP_COLON params=ParameterList body=Block
 ;
 
 ParameterList :
-	{ParameterList} '(' (params+=TypedVarDeclaration (',' params+=TypedVarDeclaration)*)? ')'
+	{ParameterList} '(' (params+=ParamDeclaration (',' params+=ParamDeclaration)*)? ')'
+;
+
+ParamDeclaration :
+	name=ID OP_COLON type=Type
 ;
 
 // II. types
 MathematicalType :
 	{IntegerType} INT
-	| {IntegerType} 'ℤ' '∋'
+	| {IntegerType} 'ℤ'
 	| {RationalType} 'rational'
-	| {RationalType} 'ℚ' '∋'
+	| {RationalType} 'ℚ'
 	| {RealType} 'real'
-	| {RealType} 'ℝ' '∋'
+	| {RealType} 'ℝ'
 	| {ComplexType} 'complex'
-	| {ComplexType} 'ℂ' '∋'
+	| {ComplexType} 'ℂ'
 	| {GenericType} name=GENERIC_TYPE
 ;
 
@@ -174,7 +177,11 @@ MathematicalLiteral :
 
 // III. a) (i) Matrix literals
 MatrixInit :
-	'init' entryType=MathematicalType? '(' line=TypedVarDeclaration '..' lineMax=(POSITIVE_INTEGER|GENERIC_VAR) ',' column=TypedVarDeclaration '..' colMax=(POSITIVE_INTEGER|GENERIC_VAR) ')' '~>' entry=Expression
+	'init' entryType=MathematicalType? '(' line=MatrixInitVarDeclaration '..' lineMax=(POSITIVE_INTEGER|GENERIC_VAR) ',' column=MatrixInitVarDeclaration '..' colMax=(POSITIVE_INTEGER|GENERIC_VAR) ')' '~>' entry=Expression
+;
+
+MatrixInitVarDeclaration :
+	VAR name=ID
 ;
 
 MultiLineMatrixLiteral hidden(WHITESPACE, SL_COMMENT, ML_COMMENT) :
@@ -317,7 +324,7 @@ LogicalAndOr returns Expression:
 ;
 
 Ternary returns Expression :
-	LogicalAndOr ({Ternary.cond=current} '?' ifTrue=Ternary ':' ifFalse=Ternary)?
+	LogicalAndOr ({Ternary.cond=current} '?' ifTrue=Ternary OP_COLON ifFalse=Ternary)?
 ;
 
 Expression returns Expression :
@@ -350,6 +357,7 @@ ID :
 
 // IV. terminals
 terminal OP_ASSIGN : ':=';
+terminal OP_COLON  : ':';
 
 // IV. a) keywords:
 terminal IF             : 'if';
@@ -362,6 +370,7 @@ terminal DEF            : 'def';
 terminal PROC           : 'proc';
 terminal DOT            : 'dot';
 terminal CONST          : 'const';
+terminal VAR            : 'var';
 terminal TRANSPOS       : 'T';
 terminal IMAGINARY_UNIT : 'i';
 terminal X              : 'x';
