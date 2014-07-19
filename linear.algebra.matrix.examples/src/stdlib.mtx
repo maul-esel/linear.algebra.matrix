@@ -34,11 +34,12 @@ def exp : (%t($n ° $n) A, int exp) -> %t($n ° $n) {
 §		A := invert(A); TODO
 		exp := -exp;
 	}
+	%t($n ° $n) result := A;
 	int i;
 	from i=2 to exp {
-		A := A * A;
+		result := result * A;
 	}
-	return A;
+	return result;
 }
 
 def scalar_mult : (%t($n ° $m) A, %t scalar) -> %t($n ° $m) {
