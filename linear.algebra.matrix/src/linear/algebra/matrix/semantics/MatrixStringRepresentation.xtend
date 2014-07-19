@@ -31,6 +31,6 @@ public class MatrixStringRepresentation extends StringRepresentation {
 	}
 
 	protected def stringRep(MatrixType t) {
-		String.format('%s (%s x %s)', string(t.realEntryType), t.height, t.width)
+		String.format('%s(%s x %s)', string(t.realEntryType), t.height, t.width)
 	}
 }

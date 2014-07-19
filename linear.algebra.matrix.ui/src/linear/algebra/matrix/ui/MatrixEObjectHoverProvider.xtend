@@ -29,11 +29,11 @@ public class MatrixEObjectHoverProvider extends DefaultEObjectHoverProvider {
 	}
 
 	protected def dispatch String firstLine(TypedVarDeclaration decl) {
-		(if (decl.const) 'const ' else '') + str.string(decl.type) + " <b>" + decl.name + "</b>"
+		(if (decl.const) 'const ' else 'var ') + " <b>" + decl.name + "</b> : " + str.string(decl.type)
 	}
 
 	protected def dispatch String firstLine(InferredVarDeclaration decl) {
-		(if (decl.const) 'const ' else '') + str.string(typeProvider.vartype(decl).value) + " <b>" + decl.name + "</b>"
+		(if (decl.const) 'const ' else 'var') + " <b>" + decl.name + "</b> : " + str.string(typeProvider.vartype(decl).value)
 	}
 
 	protected def dispatch String firstLine(Variable variable) {
@@ -49,6 +49,6 @@ public class MatrixEObjectHoverProvider extends DefaultEObjectHoverProvider {
 	}
 
 	private def String params(ParameterList params) {
-		params.params.map [ str.string(type) + ' ' + name ].join(', ')
+		params.params.map [ name + ' : ' + str.string(type) ].join(', ')
 	}
 }
