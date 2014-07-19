@@ -1,28 +1,28 @@
-int myvar := 4 * 5;
-int other := 4 + 5 * myvar;
+var myvar : int := 4 * 5;
+var other : int := 4 + 5 * myvar;
 
-boolean b := true;
-boolean cd := false;
-int d := 0;
-bool e := b;
+var b : boolean := true;
+var cd : boolean := false;
+var d : int := 0;
+var e : bool := b;
 
 var test := false;
 
-const int wert := 3;
+const wert : int := 3;
 
-int ef := 4;
+var ef : int := 4;
 e := true;
 
 if (e) {
-	int e := 4;
+	var e : int := 4;
 	e := 2;
 } else if (e) {
 } else {
 	if (b) {}
 }
 
-boolean c0 := false;
-int d_ := 5;
+var c0 : boolean := false;
+var d_ : int := 5;
 
 var A := (dot 0) {
 	5 5 5 . .
@@ -39,18 +39,18 @@ var B := int (dot 3) {
 	2 . 4  5
 };
 
-(1 ° 1) J := int {
+var J : (1 ° 1) := int {
 	1
 };
 
-(1 ° 1) HGF := J;
-(1 ° 1) HGF2 := J * J;
+var HGF : (1 ° 1) := J;
+var HGF2 : (1 ° 1) := J * J;
 
-(4 ° 5) L := B^T;
-const boolean zzf := !(A ~ A);
+var L : (4 ° 5) := B^T;
+const zzf : boolean := !(A ~ A);
 
-int c := A[1, 2^2];
-int fgh;
+var c : int := A[1, 2^2];
+var fgh : int;
 A[1,1] := 0;
 
 if (2 > 2) {}
@@ -58,23 +58,23 @@ if (2 > 2) {}
 if (B*A == B*A) {}
 if (A == 2*A) {}
 
-boolean b1 := A == A && 2 == 2;
-boolean c1 := b == b;
+var b1 : boolean := A == A && 2 == 2;
+var c1 : boolean := b == b;
 
 if (b == true) {}
 
-(2 ° 3) C := {
+var C : (2 ° 3) := {
 	1 2 3
 	4 5 6
 };
 
 var tern := 3 == 3 ? 4 : 1 == 2 ? 4 : 5;
 
-var identity := init (int i..10, int j..10) ~> i == j ? 1 : 0;
-var zero := init (int i..10, int j..10) ~> 0;
-var D_init := init (int i..2, int j..3) ~> (i*j);
+var identity := init (var i..10, var j..10) ~> i == j ? 1 : 0;
+var zero := init (var i..10, var j..10) ~> 0;
+var D_init := init (var i..2, var j..3) ~> (i*j);
 
-(2 ° 2) Q := {
+var Q : (2 ° 2) := {
 	1 2 3
 	4 5 3
 } * {
@@ -83,7 +83,7 @@ var D_init := init (int i..2, int j..3) ~> (i*j);
 	1 1
 };
 
-(2 ° 3) Z := {
+var Z : (2 ° 3) := {
 	1 2 3
 	2 3 4
 } * {
@@ -92,32 +92,32 @@ var D_init := init (int i..2, int j..3) ~> (i*j);
 	1 2 3
 };
 
-(4 ° 4) D := A * B;
-(5 ° 5) E := B * A;
+var D : (4 ° 4) := A * B;
+var E : (5 ° 5) := B * A;
 
 E := -E;
 
-(2 ° 3) g := 5 * C + 4 * C;
-int h := (5 * 4)^0;
+var g : (2 ° 3) := 5 * C + 4 * C;
+var h : int := (5 * 4)^0;
 
-(4 ° 4) F := 4 * D;
+var F : (4 ° 4) := 4 * D;
 
-(4 ° 4) G := F^2;
-(4 ° 4) H := F^2 + F;
+var G : (4 ° 4) := F^2;
+var H : (4 ° 4) := F^2 + F;
 
-def is : (int a) -> boolean {
-	int a := 3;
+def is : (a : int) -> boolean {
+	var a : int := 3;
 	return a == a;
 }
 
 proc @print : () {
-	int gh := 9;
+	var gh : int := 9;
 	return;
 }
 
-proc @prints : (boolean quert, ($k ° $l) m, ($l ° $k) n) {
-	($k ° $l) other;
-	int counter;
+proc @prints : (quert : boolean, m : ($k ° $l) , n : ($l ° $k)) {
+	var other : ($k ° $l);
+	var counter : int;
 	from counter=1 to $k {
 	}
 }

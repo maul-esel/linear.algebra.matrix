@@ -1,54 +1,54 @@
-def conjugate : (complex z) -> complex {
+def conjugate : (z : complex) -> complex {
 	return core::re(z) - core::im(z) * 1i;
 }
 
-def add : (%t($n x $m) A, %t($n x $m) B) -> %t($n x $m) {
-	return init (int i..$n, int j..$m) ~> A[i,j] + B[i,j];
+def add : (A : %t($n x $m), B : %t($n x $m)) -> %t($n x $m) {
+	return init (var i..$n, var j..$m) ~> A[i,j] + B[i,j];
 }
 
-def mult : (%t($n ° $m) A, %t($m ° $k) B) -> %t($n ° $k) {
-	return init (int i..$n, int j..$k) ~> mult_vectors(A, B, i, j);
+def mult : (A : %t($n ° $m), B : %t($m ° $k)) -> %t($n ° $k) {
+	return init (var i..$n, var j..$k) ~> mult_vectors(A, B, i, j);
 }
 
-internal def mult_vectors : (%t($n ° $m) A, %t($m ° $k) B, int line, int column) -> %t {
-	int i;
-	%t sum := 0;
+internal def mult_vectors : (A : %t($n ° $m), B : %t($m ° $k), line : int, column : int) -> %t {
+	var i : int;
+	var sum : %t := 0;
 	from i=1 to $m {
 		sum := sum + A[line,i] * B[i,column];
 	}
 	return sum;
 }
 
-def minus : (%t($n ° $m) A) -> %t($n ° $m) {
-	return init (int i..$n, int j..$m) ~> -A[i,j];
+def minus : (A : %t($n ° $m)) -> %t($n ° $m) {
+	return init (var i..$n, var j..$m) ~> -A[i,j];
 }
 
-def transpose : (%t($n ° $m) A) -> %t($m ° $n) {
-	return init (int i..$m, int j..$n) ~> A[j,i];
+def transpose : (A : %t($n ° $m)) -> %t($m ° $n) {
+	return init (var i..$m, var j..$n) ~> A[j,i];
 }
 
-def exp : (%t($n ° $n) A, int exp) -> %t($n ° $n) {
+def exp : (A : %t($n ° $n), exp : int) -> %t($n ° $n) {
 	if (exp == 0) § identity matrix
-		return init (int i..$n, int j..$n) ~> i == j ? 1 : 0;
+		return init (var i..$n, var j..$n) ~> i == j ? 1 : 0;
 	if (exp < 0) {
 §		A := invert(A); TODO
 		exp := -exp;
 	}
-	%t($n ° $n) result := A;
-	int i;
+	var result : %t($n ° $n) := A;
+	var i : int;
 	from i=2 to exp {
 		result := result * A;
 	}
 	return result;
 }
 
-def scalar_mult : (%t($n ° $m) A, %t scalar) -> %t($n ° $m) {
-	return init (int i..$n, int j..$m) ~> scalar * A[i,j];
+def scalar_mult : (A : %t($n ° $m), scalar : %t) -> %t($n ° $m) {
+	return init (var i..$n, var j..$m) ~> scalar * A[i,j];
 }
 
-def diagonal : (%t($n ° $m) A) -> boolean {
-	boolean diagonal := true;
-	int i; int j;
+def diagonal : (A : %t($n ° $m)) -> boolean {
+	var diagonal : boolean := true;
+	var i : int; var j : int;
 	from i=1 to $n {
 		from j=1 to $m {
 			diagonal := diagonal && (i == j || A[i,j] == 0);
@@ -57,9 +57,9 @@ def diagonal : (%t($n ° $m) A) -> boolean {
 	return diagonal;
 }
 
-def diagonalize : (%t($n ° $m) A) -> %t($n ° $m) {
+def diagonalize : (A : %t($n ° $m)) -> %t($n ° $m) {
 	while !(diagonal(A)) {
-		int i := 1; int j := $m;
+		var i : int := 1; var j : int := $m;
 		while i = j || A[i,j] = 0 { § find highest priority index
 			if (j > i) § currently walking from right to left...
 				j := j - 1; § go further left
@@ -78,42 +78,42 @@ def diagonalize : (%t($n ° $m) A) -> %t($n ° $m) {
 	return A;
 }
 
-internal def columnDiagonalizeHelper : (%t($n ° $m) A, int l, int c) -> %t($n ° $m) {
-	($m ° $m) Tilt;
+internal def columnDiagonalizeHelper : (A : %t($n ° $m), l : int, c : int) -> %t($n ° $m) {
+	var Tilt : ($m ° $m);
 	if (A[l,c] = A[l,c - 1])
-		Tilt := init (int i..$m, int j..$m) ~> i = j ? 1 : ((i = c - 1 && j = c) ? -1 : 0);
+		Tilt := init (var i..$m, var j..$m) ~> i = j ? 1 : ((i = c - 1 && j = c) ? -1 : 0);
 	else if (A[l,c] <= 0 && A[l,c - 1] > 0)
-		Tilt := init (int i..$m, int j..$m) ~> i = j ? 1 : ((i = c - 1 && j = c) ? 1 : 0);
+		Tilt := init (var i..$m, var j..$m) ~> i = j ? 1 : ((i = c - 1 && j = c) ? 1 : 0);
 	else if (A[l,c] > 0 && A[l,c - 1] <= 0)
-		Tilt := init (int i..$m, int j..$m) ~> i = j ? 1 : ((i = c && j = c - 1) ? 1 : 0);
+		Tilt := init (var i..$m, var j..$m) ~> i = j ? 1 : ((i = c && j = c - 1) ? 1 : 0);
 	else if (A[l,c - 1] < A[l,c])
-		Tilt := init (int i..$m, int j..$m) ~> i = j ? 1 : ((i = c - 1 && j = c) ? -1 : 0);
+		Tilt := init (var i..$m, var j..$m) ~> i = j ? 1 : ((i = c - 1 && j = c) ? -1 : 0);
 	else §if (A[l,c] < A[l,c - 1])
-		Tilt := init (int i..$m, int j..$m) ~> i = j ? 1 : ((i = c && j = c - 1) ? -1 : 0);
+		Tilt := init (var i..$m, var j..$m) ~> i = j ? 1 : ((i = c && j = c - 1) ? -1 : 0);
 	return mult(A, Tilt);
 }
 
-def strictly_diagonalize : (($n ° $m) A) -> ($n ° $m) {
+def strictly_diagonalize : (A : ($n ° $m)) -> ($n ° $m) {
 	A := diagonalize(A);
-	int i;
+	var i : int;
 
 	from i=2 to min($n,$m) {
 		if (!is_multiple(A[i - 1,i - 1], A[i,i])) {
-			var Tilt := init (int k..$n, int l..$n) ~> k = l ? 1 : ((k = i - 1 && l = i) ? 1 : 0); § add line i on line i-1
+			var Tilt := init (var k..$n, var l..$n) ~> k = l ? 1 : ((k = i - 1 && l = i) ? 1 : 0); § add line i on line i-1
 			return strictly_diagonalize(diagonalize(mult(Tilt, A)));
 		}
 	}
 
 	from i=1 to min($n,$m) {
 		if (A[i,i] < 0 && i < $m) { § negative entry except last column
-			var Tilt := init (int k..$m, int l..$m) ~> k = l ? 1 : ((k = i && l = i + 1) ? -1 : 0); § subtract column i from column i + 1
+			var Tilt := init (var k..$m, var l..$m) ~> k = l ? 1 : ((k = i && l = i + 1) ? -1 : 0); § subtract column i from column i + 1
 			return strictly_diagonalize(diagonalize(mult(A, Tilt)));
 		}
 	}
 
 	from i=1 to min($n,$m) {
 		if (A[i,i] < 0 && i < $n) { § negative entry except last line
-			var Tilt := init (int k..$n, int l..$n) ~> k = l ? 1 : ((k = i + 1 && l = i) ? -1 : 0); § subtract line i from line i + 1
+			var Tilt := init (var k..$n, var l..$n) ~> k = l ? 1 : ((k = i + 1 && l = i) ? -1 : 0); § subtract line i from line i + 1
 			return strictly_diagonalize(diagonalize(mult(Tilt, A)));
 		}
 	}
@@ -121,10 +121,10 @@ def strictly_diagonalize : (($n ° $m) A) -> ($n ° $m) {
 	return A;
 }
 
-internal def min : (int a, int b) -> int { return a < b ? a : b; }
+internal def min : (a : int, b : int) -> int { return a < b ? a : b; }
 
-internal def is_multiple : (int factor, int product) -> boolean {
-	int i;
+internal def is_multiple : (factor : int, product : int) -> boolean {
+	var i : int;
 	factor := abs(factor);
 	product := abs(product);
 	from i=0 to product {
@@ -134,56 +134,56 @@ internal def is_multiple : (int factor, int product) -> boolean {
 	return false;
 }
 
-internal def abs : (int i) -> int { return i >= 0 ? i : -i; }
+internal def abs : (i : int) -> int { return i >= 0 ? i : -i; }
 
-def equivalent : (($n ° $m) A, ($n ° $m) B) -> boolean {
+def equivalent : (A : ($n ° $m), B : ($n ° $m)) -> boolean {
 	return strictly_diagonalize(A) == strictly_diagonalize(B);
 }
 
-§§def similar : (($n ° $m) A, ($n ° $m) B) -> boolean {
+§§def similar : (A : ($n ° $m), B : ($n ° $m)) -> boolean {
 	§ TODO
 }§§
 
-def det : (%t($n ° $n) A) -> %t {
+def det : (A : %t($n ° $n)) -> %t {
 	A := diagonalize(A);
-	%t d := 1; int i;
+	var d : %t := 1; var i : int;
 	from i=1 to $n {
 		d := d * A[i,i];
 	}
 	return d;
 }
 
-def tr : (%t($n ° $m) A) -> %t {
+def tr : (A : %t($n ° $m)) -> %t {
 	A := diagonalize(A);
-	%t t := 0; int i;
+	var t : %t := 0; var i : int;
 	from i=1 to min($n,$m) {
 		t := t + A[i,i];
 	}
 	return t;
 }
 
-def rk : (%t($n ° $m) A) -> int {
+def rk : (A : %t($n ° $m)) -> int {
 	A := diagonalize(A);
-	int r := 0; int i;
+	var r : int := 0; var i : int;
 	from i=1 to min($n,$m) {
 		r := r + (A[i,i] == 0 ? 0 : 1);
 	}
 	return r;
 }
 
-def column : (%t($n ° $m) A, int c) -> %t($n ° 1) {
-	return init (int i..$n, int j..1) ~> A[i,c];
+def column : (A : %t($n ° $m), c : int) -> %t($n ° 1) {
+	return init (var i..$n, var j..1) ~> A[i,c];
 }
 
-def line : (%t($n ° $m) A, int l) -> %t(1 ° $m) {
-	return init (int i..1, int j..$m) ~> A[l, j];
+def line : (A : %t($n ° $m), l : int) -> %t(1 ° $m) {
+	return init (var i..1, var j..$m) ~> A[l, j];
 }
 
-§§def rational_canonical : (($n ° $m) A) -> ($n ° $m) {
+§§def rational_canonical : (A : ($n ° $m)) -> ($n ° $m) {
 	§ TODO
 }§§
 
-§§def invert : (($n ° $n) A) -> ($n ° $n) {
+§§def invert : (A : ($n ° $n)) -> ($n ° $n) {
 	§ TODO
 }§§
 

@@ -1,37 +1,37 @@
-int myvar := 5;
-(2 ° 3) matr := (dot 0) {
+var myvar : int := 5;
+var matr : (2 ° 3) := (dot 0) {
 	1 . .
 	0 1 0
 };
 
-(int, complex, (1 x 2)) t := (2,3i, {
+var t : (int, complex, (1 x 2)) := (2, 3i, {
 	1 1
 });
-int i;
-(1 x 2) n;
+var i : int;
+var n : (1 x 2);
 
 (i,, n) := t;
-var (const rational ii,, nn) := t;
-rational ratio := ii;
+(const ii : rational,, var nn) := t;
+var ratio : rational := ii;
 
-var matr2 := init (int i..2, int j..2) ~> i + j;
+var matr2 := init (var i..2, var j..2) ~> i + j;
 
-(2 ° 3) mult := matr;
+var mult : (2 ° 3) := matr;
 
-ℤ ∋ other := myvar * 4;
-int e := matr[1,1];
+var other : ℤ := myvar * 4;
+var e : int := matr[1,1];
 e := 4;
-ℚ ∋ r := e / (1/2);
+var r : ℚ := e / (1/2);
 
 var x := 7;
-int zl;
+var zl : int;
 var zl_m := {
 	zl := 5 5
 };
-@printNumber(zl_m[1,1]);
-@printNumber(zl);
+core::@printNumber(zl_m[1,1]);
+core::@printNumber(zl);
 
-(3 x 4) CROSSED := {
+var CROSSED : (3 x 4) := {
 	1 2 3 4
 	1 2 3 4
 	1 2 3 4
@@ -39,16 +39,16 @@ var zl_m := {
 
 var test_im := 6i;
 
-rational cde := 4 + 3/2;
+var cde : rational := 4 + 3/2;
 var gre := 4/2 < 4;
 var equ := 4 ≠ 4/1;
 
 if (true) {
-	boolean e;
+	var e : boolean;
 	e := ¬true ∨ false;
 }
 
-internal def test : (($n ° $m) A ) -> int {
+internal def test : (A : ($n ° $m)) -> int {
 	return $n;
 }
 
