@@ -273,9 +273,9 @@ public class InterpreterImpl implements Interpreter {
 		val generic = new GenericRegister()
 		// replace callers own generics with value:
 		for (number : computed.numbers)
-			generic.addNumber(number, genericVariableOrValue(computed.getNumber(number)) as String)
+			generic.putNumber(number, genericVariableOrValue(computed.getNumber(number)) as String)
 		for (typeName : computed.types)
-			generic.addType(typeName, genericVariableOrValue(computed.getType(typeName)) as MathematicalType)
+			generic.putType(typeName, genericVariableOrValue(computed.getType(typeName)) as MathematicalType)
 		generics.push(generic)
 
 		var Object retVal = null;

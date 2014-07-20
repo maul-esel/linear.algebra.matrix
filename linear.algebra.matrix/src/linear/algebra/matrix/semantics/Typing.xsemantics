@@ -77,7 +77,7 @@ auxiliary checkGenericMatrixType(GenericRegister genReg, MatrixType paramType, M
 auxiliary genericVarMatches(GenericRegister genReg, String variable, String value) {
 	if (isGeneric(variable)) {
 		if (!genReg.existsNumber(variable)) {
-			genReg.addNumber(variable, value)
+			genReg.putNumber(variable, value)
 			true
 		} else
 			(genReg.getNumber(variable) == value)
@@ -86,7 +86,7 @@ auxiliary genericVarMatches(GenericRegister genReg, String variable, String valu
 
 auxiliary genericTypeMatches(GenericRegister genReg, GenericType generic, MathematicalType value) {
 	if (!genReg.existsType(generic.name)) {
-		genReg.addType(generic, value)
+		genReg.putType(generic, value)
 		true
 	} else {
 		empty |- value <: genReg.getType(generic)

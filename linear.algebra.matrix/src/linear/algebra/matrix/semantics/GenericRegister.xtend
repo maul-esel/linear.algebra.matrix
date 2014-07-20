@@ -25,11 +25,11 @@ class GenericRegister {
 		numberMap.keySet
 	}
 
-	def void addType(GenericType key, MathematicalType value) {
+	def void putType(GenericType key, MathematicalType value) {
 		typeMap.put(key, value)
 	}
 
-	def void addNumber(String key, String value) {
+	def void putNumber(String key, String value) {
 		if (!key.startsWith("$"))
 			throw new UnsupportedOperationException("Invalid generic variable")
 		numberMap.put(key, value)
