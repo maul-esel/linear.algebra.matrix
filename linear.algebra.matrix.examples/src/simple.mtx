@@ -4,6 +4,17 @@ var matr : (2 ° 3) := (dot 0) {
 	0 1 0
 };
 
+test_generic(8, 8);
+test_generic(3+1i, 3+2i);
+test_generic(3+2i, 7);
+test_generic(7, 3+1i);
+
+def test_generic : (a : %t, b : %t) -> int {
+	core::@printNumber(a);
+	core::@printNumber(b);
+	return 5;
+}
+
 var t : (int, complex, (1 x 2)) := (2, 3i, {
 	1 1
 });
