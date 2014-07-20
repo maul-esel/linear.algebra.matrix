@@ -260,15 +260,14 @@ public class InterpreterImpl implements Interpreter {
 		return variables.peek()
 	}
 
-	def private Object executeWithParams(List<TypedVarDeclaration> declared,
+	def private Object executeWithParams(List<ParamDeclaration> declared,
 		List<Expression> supplied, Block exec, Type retType) {
 		val execScope = new VariableRegister()
 		for (i : 0..<supplied.size)
 			execScope.add(declared.get(i).name, evaluate(supplied.get(i))) // set the params
 		variables.push(execScope) // add exec scope
 
-		val computed = new GenericRegister()
-		exprInterpreter.checkParamTypes(computed, declared, supplied) // call only to compute generics
+		val computed = exprInterpreter.paramTypes(environment(), declared, supplied).value // call only to compute generics
 
 		val generic = new GenericRegister()
 		// replace callers own generics with value:

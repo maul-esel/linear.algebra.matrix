@@ -482,8 +482,7 @@ from {
 	or fail error "Proc call has invalid number of parameters (expected " + call.proc.ref.params.params.size + ", found " + call.params.size + ")"
 		source call
 
-	val genReg = new GenericRegister();
-	{ checkParamTypes(genReg, call.proc.ref.params.params, call.params) }
+	empty |= call.proc.ref.params.params <~! call.params |> var GenericRegister genReg
 }
 
 checkrule CProcDeclarationHasNoDefaultValues

@@ -6,7 +6,6 @@ import java.util.List
 
 auxiliary {
 	genericVarMatches(GenericRegister genReg, String variable, String value) : Boolean
-	checkParamTypes(GenericRegister genReg, List<TypedVarDeclaration> declaredParams, List<Expression> suppliedParams)
 	checkGenericMatrixType(GenericRegister genReg, MatrixType paramType, MatrixType valueType, Expression param)
 	genericTypeMatches(GenericRegister genReg, GenericType generic, MathematicalType value) : Boolean
 	isGeneric(String size) : Boolean
@@ -22,6 +21,7 @@ judgments {
 		error "Cannot type " + stringRep(expr)
 		source expr
     vartype ||- VarDeclaration decl : output Type
+    paramTypes |= List<ParamDeclaration> params <~! List<Expression> values |> output GenericRegister
 }
 
 auxiliary multipliedMatrixType(MatrixType left, MatrixType right) {
@@ -35,30 +35,6 @@ auxiliary transpose(MatrixType type) {
 
 auxiliary isGeneric(String variable) {
 	variable.startsWith('$')
-}
-
-auxiliary checkParamTypes(GenericRegister genReg, List<TypedVarDeclaration> declaredParams, List<Expression> suppliedParams) {
-	{ (suppliedParams.size() == declaredParams.size) }
-
-	for (i : 0 ..< suppliedParams.size) {
-		empty |- suppliedParams.get(i) : var Type valueType
-		empty ||- declaredParams.get(i) : var Type paramType
-
-		if (valueType instanceof MatrixType && paramType instanceof MatrixType && (paramType as MatrixType).isGeneric())
-			checkGenericMatrixType(genReg,
-				paramType as MatrixType,
-				valueType as MatrixType,
-				suppliedParams.get(i))
-		else if (paramType instanceof GenericType && valueType instanceof MathematicalType) {
-			genericTypeMatches(genReg, paramType as GenericType, valueType as MathematicalType)
-			or fail error "generic param type does not match"
-				source suppliedParams.get(i)
-		} else {
-			empty |- valueType <: paramType
-			or fail error "type " + stringRep(valueType) + " does not match param of type " + stringRep(paramType)
-				source suppliedParams.get(i)
-		}
-	}
 }
 
 auxiliary checkGenericMatrixType(GenericRegister genReg, MatrixType paramType, MatrixType valueType, Expression param) {
@@ -127,6 +103,33 @@ auxiliary makeExactFromGeneric(GenericRegister generics, MatrixType matrType) {
 	)
 }
 
+/* PARAM TYPES */
+rule PTParamTypes
+	G |= List<ParamDeclaration> params <~! List<Expression> values |> GenericRegister reg
+from {
+	{ params.size == values.size }
+
+	reg = new GenericRegister()
+
+	val paramIterator = params.iterator()
+	for (value : values) {
+		G ||- paramIterator.next : var Type paramType
+		G |- value : var Type valueType
+
+		if (valueType instanceof MatrixType && paramType instanceof MatrixType && (paramType as MatrixType).isGeneric())
+			checkGenericMatrixType(reg, paramType as MatrixType, valueType as MatrixType, value)
+		else if (paramType instanceof GenericType && valueType instanceof MathematicalType) {
+			genericTypeMatches(reg, paramType as GenericType, valueType as MathematicalType)
+			or fail error "generic param type does not match"
+				source value
+		} else {
+			empty |- valueType <: paramType
+			or fail error "type " + stringRep(valueType) + " does not match param of type " + stringRep(paramType)
+				source value
+		}
+	}
+}
+
 /* TYPING */
 axiom TTypedVarDecl
 	G ||- TypedVarDeclaration variable : variable.type
@@ -184,8 +187,7 @@ from {
 rule TFunctionCall
 	G |- FunctionCall call : Type type
 from {
-	val genericRegister = new GenericRegister();
-	checkParamTypes(genericRegister, call.func.ref.params.params, call.params)
+	G |= call.func.ref.params.params <~! call.params |> var GenericRegister genericRegister
 
 	val retType = call.func.ref.returnType
 	type = if (retType instanceof MatrixType) {
