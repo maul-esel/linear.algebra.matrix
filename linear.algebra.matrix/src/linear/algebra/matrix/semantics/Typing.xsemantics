@@ -89,7 +89,11 @@ auxiliary genericTypeMatches(GenericRegister genReg, GenericType generic, Mathem
 		genReg.putType(generic, value)
 		true
 	} else {
-		empty |- value <: genReg.getType(generic)
+		try {
+			empty |- genReg.getType(generic) ~~ value |> var MathematicalType common
+			genReg.putType(generic, common)
+			true
+		} catch (Exception e) { false }
 	}
 }
 
