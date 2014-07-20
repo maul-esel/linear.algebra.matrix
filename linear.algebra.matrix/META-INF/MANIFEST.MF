@@ -36,4 +36,5 @@ Export-Package: linear.algebra.matrix,
  linear.algebra.matrix.generator,
  linear.algebra.matrix.formatting
 Bundle-ClassPath: jsr305-1.3.9.jar,
- .
+ .,
+ guice-assistedinject-3.0.jar
