@@ -208,13 +208,8 @@ public class InterpreterImpl implements Interpreter {
 	}
 
 	def dispatch Object evaluate(Expression expr) {
-		val env = new RuleEnvironment()
-		env.add("variables", currentScope)
-		env.add("generics", generics.peek())
-		env.add("interpreter", this)
-
 		trace.enter(expr)
-		val result = exprInterpreter.interpret(env, expr)
+		val result = exprInterpreter.interpret(environment(), expr)
 		if (result.failed) {
 			switch (cause : originalRuleFailure(result.ruleFailedException).cause) {
 				MatrixException:
@@ -312,6 +307,14 @@ public class InterpreterImpl implements Interpreter {
 		while (current.previous != null)
 			current = current.previous
 		current
+	}
+
+	def private environment() {
+		val env = new RuleEnvironment()
+		env.add("variables", currentScope)
+		env.add("generics", generics.peek())
+		env.add("interpreter", this)
+		env
 	}
 }
 
