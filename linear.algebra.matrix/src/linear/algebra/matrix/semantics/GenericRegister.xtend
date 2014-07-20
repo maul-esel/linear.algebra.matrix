@@ -9,8 +9,8 @@ class GenericRegister {
 	val typeMap = new HashMap<GenericType, MathematicalType>()
 	val numberMap = new HashMap<String, String>()
 
-	def existsType(String name) {
-		typeMap.containsKey(name)
+	def existsType(GenericType key) {
+		typeMap.containsKey(key)
 	}
 
 	def existsNumber(String variable) {

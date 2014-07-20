@@ -85,7 +85,7 @@ auxiliary genericVarMatches(GenericRegister genReg, String variable, String valu
 }
 
 auxiliary genericTypeMatches(GenericRegister genReg, GenericType generic, MathematicalType value) {
-	if (!genReg.existsType(generic.name)) {
+	if (!genReg.existsType(generic)) {
 		genReg.putType(generic, value)
 		true
 	} else {
