@@ -137,7 +137,7 @@ class ProcDeclaration extends Line {
 }
 
 class ParameterList extends MatrixSyntaxElement {
-	contains TypedVarDeclaration[] params
+	contains ParamDeclaration[] params
 }
 
 /* TYPES */

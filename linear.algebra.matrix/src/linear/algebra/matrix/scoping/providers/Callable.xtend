@@ -14,7 +14,7 @@ import linear.algebra.matrix.matrix.Type
 		val paramList = MatrixFactory.eINSTANCE.createParameterList()
 		context.contents.add(paramList)
 		for (i : 0..<params.size) {
-			val paramDecl = MatrixFactory.eINSTANCE.createTypedVarDeclaration()
+			val paramDecl = MatrixFactory.eINSTANCE.createParamDeclaration()
 			context.contents.add(paramDecl)
 			paramDecl.const = false
 			paramDecl.name  = "__param__" + i
