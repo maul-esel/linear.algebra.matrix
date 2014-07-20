@@ -4,9 +4,7 @@ import java.util.ArrayList
 
 import linear.algebra.matrix.matrix.*
 
-import linear.algebra.matrix.interpreter.VariableRegister
-import linear.algebra.matrix.interpreter.Interpreter
-import linear.algebra.matrix.interpreter.CompareUtil
+import linear.algebra.matrix.semantics.GenericRegister
 
 import linear.algebra.matrix.core.Tuple
 import linear.algebra.matrix.core.Matrix
@@ -17,24 +15,24 @@ import static extension linear.algebra.matrix.core.NumberHelper.*
 inject StdlibUtil util
 
 auxiliary {
-	makeTypeExact(Type type, VariableRegister generics) : Type
-	evalFuncWithException(FunctionCall call, Interpreter interpreter, VariableRegister variables, VariableRegister generics) : Object
+	makeTypeExact(Type type, GenericRegister generics) : Type
+	evalFuncWithException(FunctionCall call, Interpreter interpreter, VariableRegister variables, GenericRegister generics) : Object
 }
 
 judgments {
     interpret |- Expression expr ~> output Object
 }
 
-auxiliary makeTypeExact(Type type, VariableRegister generics) {
+auxiliary makeTypeExact(Type type, GenericRegister generics) {
 	switch (type) {
-		GenericType : generics.get(type.name) as Type
+		GenericType : generics.getType(type)
 		MatrixType  : makeExactFromGeneric(generics, type)
 		default     : type
 	}
 }
 
 // dummy function for IFunctionCall
-auxiliary evalFuncWithException(FunctionCall call, Interpreter interpreter, VariableRegister variables, VariableRegister generics) {
+auxiliary evalFuncWithException(FunctionCall call, Interpreter interpreter, VariableRegister variables, GenericRegister generics) {
 	interpreter.evaluate(call, variables, generics)
 }
 
@@ -42,7 +40,7 @@ axiom IVariable
 	G |- Variable variable ~> env(G, 'variables', VariableRegister).get(variable.ref.name)
 
 axiom IGenericVariable
-	G |- GenericVariable variable ~> Integer.parseInt(env(G, 'generics', VariableRegister).get(variable.name) as String)
+	G |- GenericVariable variable ~> Integer.parseInt(env(G, 'generics', GenericRegister).getNumber(variable.name))
 
 axiom IIntegerLiteral
 	G |- IntLiteral lit ~> Integer.parseInt(lit.value)
@@ -74,7 +72,7 @@ from {
 rule IVariableAssignment
 	G |- VariableAssignment assign ~> Object value
 from {
-	val generics = env(G, "generics", VariableRegister)
+	val generics = env(G, "generics", GenericRegister)
 
 	G |- assign.value ~> value
 
@@ -116,7 +114,7 @@ from {
 rule IEquals
 	G |- Equals eq ~> Boolean value
 from {
-	val generics = env(G, "generics", VariableRegister)
+	val generics = env(G, "generics", GenericRegister)
 
 	G |- eq.left ~> var Object left
 	G |- eq.right ~> var Object right
@@ -155,7 +153,7 @@ from {
 rule IEntryAssignment
 	G |- MatrixEntryAssignment assign ~> Object result
 from {
-	val generics = env(G, "generics", VariableRegister)
+	val generics = env(G, "generics", GenericRegister)
 
 	G |- assign.matr ~> var Matrix<?> mat
 	G |- assign.line ~> var Integer line
@@ -178,7 +176,7 @@ from {
 rule IMultiLineMatrixLiteral
 	G |- MultiLineMatrixLiteral lit ~> Matrix<?> m
 from {
-	val generics = env(G, 'generics', VariableRegister)
+	val generics = env(G, 'generics', GenericRegister)
 
 	G |- lit : var MatrixType matrType
 	if (matrType.isGeneric())
@@ -214,7 +212,7 @@ from {
 rule IMatrixInit
 	G |- MatrixInit init ~> Matrix<?> m
 from {
-	val generics = env(G, 'generics', VariableRegister)
+	val generics = env(G, 'generics', GenericRegister)
 
 	G |- init : var MatrixType matrType
 	if (matrType.isGeneric())
@@ -359,7 +357,7 @@ from {
 	// use auxiliary function, otherwise XSemantics generates code with undeclared checked exceptions
 	result = evalFuncWithException(call, env(G, "interpreter", Interpreter),
 		env(G, 'variables', VariableRegister),
-		env(G, 'generics', VariableRegister)
+		env(G, 'generics', GenericRegister)
 	)
 }
 

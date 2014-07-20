@@ -2,20 +2,19 @@ system linear.algebra.matrix.semantics.Typing
 	extends linear.algebra.matrix.semantics.CommonType
 
 import linear.algebra.matrix.matrix.*
-import linear.algebra.matrix.interpreter.VariableRegister
 import java.util.List
 
 auxiliary {
-	genericVarMatches(VariableRegister genReg, String variable, String value) : Boolean
-	checkParamTypes(VariableRegister genReg, List<TypedVarDeclaration> declaredParams, List<Expression> suppliedParams)
-	checkGenericMatrixType(VariableRegister genReg, MatrixType paramType, MatrixType valueType, Expression param)
-	genericTypeMatches(VariableRegister genReg, GenericType generic, MathematicalType value) : Boolean
+	genericVarMatches(GenericRegister genReg, String variable, String value) : Boolean
+	checkParamTypes(GenericRegister genReg, List<TypedVarDeclaration> declaredParams, List<Expression> suppliedParams)
+	checkGenericMatrixType(GenericRegister genReg, MatrixType paramType, MatrixType valueType, Expression param)
+	genericTypeMatches(GenericRegister genReg, GenericType generic, MathematicalType value) : Boolean
 	isGeneric(String size) : Boolean
 	multipliedMatrixType(MatrixType left, MatrixType right) : MatrixType
 	transpose(MatrixType type) : MatrixType
 	scalarMultType(MathematicalType scalar, MatrixType matr) : MatrixType
 	createMatrixType(String height, String width, MathematicalType entryType) : MatrixType
-	makeExactFromGeneric(VariableRegister generics, MatrixType matrType) : MatrixType
+	makeExactFromGeneric(GenericRegister generics, MatrixType matrType) : MatrixType
 }
 
 judgments {
@@ -38,7 +37,7 @@ auxiliary isGeneric(String size) {
 	size.charAt(0).toString() == '$'
 }
 
-auxiliary checkParamTypes(VariableRegister genReg, List<TypedVarDeclaration> declaredParams, List<Expression> suppliedParams) {
+auxiliary checkParamTypes(GenericRegister genReg, List<TypedVarDeclaration> declaredParams, List<Expression> suppliedParams) {
 	{ (suppliedParams.size() == declaredParams.size) }
 
 	for (i : 0 ..< suppliedParams.size) {
@@ -62,7 +61,7 @@ auxiliary checkParamTypes(VariableRegister genReg, List<TypedVarDeclaration> dec
 	}
 }
 
-auxiliary checkGenericMatrixType(VariableRegister genReg, MatrixType paramType, MatrixType valueType, Expression param) {
+auxiliary checkGenericMatrixType(GenericRegister genReg, MatrixType paramType, MatrixType valueType, Expression param) {
 	(genericVarMatches(genReg, paramType.height, valueType.height)
 		&& genericVarMatches(genReg, paramType.width, valueType.width))
 	 or fail error "generic param matrix type dimensions do not match"
@@ -75,22 +74,22 @@ auxiliary checkGenericMatrixType(VariableRegister genReg, MatrixType paramType, 
 	}
 }
 
-auxiliary genericVarMatches(VariableRegister genReg, String variable, String value) {
+auxiliary genericVarMatches(GenericRegister genReg, String variable, String value) {
 	if (isGeneric(variable)) {
-		if (!genReg.exists(variable)) {
-			genReg.add(variable, value, true)
+		if (!genReg.existsNumber(variable)) {
+			genReg.addNumber(variable, value)
 			true
 		} else
-			(genReg.get(variable) == value)
+			(genReg.getNumber(variable) == value)
 	} else true
 }
 
-auxiliary genericTypeMatches(VariableRegister genReg, GenericType generic, MathematicalType value) {
-	if (!genReg.exists(generic.name)) {
-		genReg.add(generic.name, value, true)
+auxiliary genericTypeMatches(GenericRegister genReg, GenericType generic, MathematicalType value) {
+	if (!genReg.existsType(generic.name)) {
+		genReg.addType(generic, value)
 		true
 	} else {
-		empty |- value <: genReg.get(generic.name) as MathematicalType
+		empty |- value <: genReg.getType(generic)
 	}
 }
 
@@ -114,12 +113,12 @@ auxiliary createMatrixType(String height, String width, MathematicalType entryTy
 	newType
 }
 
-auxiliary makeExactFromGeneric(VariableRegister generics, MatrixType matrType) {
+auxiliary makeExactFromGeneric(GenericRegister generics, MatrixType matrType) {
 	createMatrixType(
-		if (isGeneric(matrType.height)) generics.get(matrType.height).toString() else matrType.height,
-		if (isGeneric(matrType.width))  generics.get(matrType.width).toString()  else matrType.width,
+		if (isGeneric(matrType.height)) generics.getNumber(matrType.height) else matrType.height,
+		if (isGeneric(matrType.width))  generics.getNumber(matrType.width)  else matrType.width,
 		if (matrType.realEntryType instanceof GenericType)
-			generics.get((matrType.realEntryType as GenericType).name) as MathematicalType
+			generics.getType(matrType.realEntryType as GenericType)
 		else matrType.realEntryType
 	)
 }
@@ -181,7 +180,7 @@ from {
 rule TFunctionCall
 	G |- FunctionCall call : Type type
 from {
-	val genericRegister = new VariableRegister();
+	val genericRegister = new GenericRegister();
 	checkParamTypes(genericRegister, call.func.ref.params.params, call.params)
 
 	val retType = call.func.ref.returnType
@@ -191,7 +190,7 @@ from {
 		else
 			retType
 	} else if (retType instanceof GenericType)
-		genericRegister.get(retType.name) as MathematicalType
+		genericRegister.getType(retType)
 	else
 		retType
 }

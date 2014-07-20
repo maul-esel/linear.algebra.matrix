@@ -7,6 +7,8 @@ import java.util.List
 
 import linear.algebra.matrix.core.Tuple
 
+import linear.algebra.matrix.semantics.GenericRegister
+
 import linear.algebra.matrix.scoping.providers.CodeProvider
 import linear.algebra.matrix.scoping.providers.InterpretationMethod
 
@@ -32,7 +34,7 @@ public class InterpreterImpl implements Interpreter {
 
 	private StackTrace trace = new StackTrace()
 	private Stack<VariableRegister> variables = new Stack<VariableRegister>()
-	private Stack<VariableRegister> generics = new Stack<VariableRegister>()
+	private Stack<GenericRegister> generics = new Stack<GenericRegister>()
 
 	@Inject
 	new(@Assisted Resource res, Diagnostician doc) {
@@ -42,7 +44,7 @@ public class InterpreterImpl implements Interpreter {
 
 		resource = res;
 		variables.push(new VariableRegister())
-		generics.push(new VariableRegister());
+		generics.push(new GenericRegister());
 	}
 
 	override void interpret() {
@@ -249,7 +251,7 @@ public class InterpreterImpl implements Interpreter {
 		value
 	}
 
-	override Object evaluate(Expression expr, VariableRegister vars, VariableRegister gen) {
+	override Object evaluate(Expression expr, VariableRegister vars, GenericRegister gen) {
 		variables.push(vars)
 		generics.push(gen)
 		val result = evaluate(expr)
@@ -270,12 +272,15 @@ public class InterpreterImpl implements Interpreter {
 			execScope.add(declared.get(i).name, evaluate(supplied.get(i))) // set the params
 		variables.push(execScope) // add exec scope
 
-		val computed = new VariableRegister()
+		val computed = new GenericRegister()
 		exprInterpreter.checkParamTypes(computed, declared, supplied) // call only to compute generics
 
-		val generic = new VariableRegister()
-		for (variable : computed.variables) // replaces callers own generics with value
-			generic.add(variable, genericVariableOrValue(computed.get(variable)), true)
+		val generic = new GenericRegister()
+		// replace callers own generics with value:
+		for (number : computed.numbers)
+			generic.addNumber(number, genericVariableOrValue(computed.getNumber(number)) as String)
+		for (typeName : computed.types)
+			generic.addType(typeName, genericVariableOrValue(computed.getType(typeName)) as MathematicalType)
 		generics.push(generic)
 
 		var Object retVal = null;
@@ -291,9 +296,9 @@ public class InterpreterImpl implements Interpreter {
 
 	def private genericVariableOrValue(Object value) {
 		if (value instanceof String && exprInterpreter.isGeneric(value as String))
-			generics.peek().get(value as String)
+			generics.peek().getNumber(value as String)
 		else if (value instanceof GenericType)
-			generics.peek().get(value.name)
+			generics.peek().getType(value)
 		else
 			value
 	}

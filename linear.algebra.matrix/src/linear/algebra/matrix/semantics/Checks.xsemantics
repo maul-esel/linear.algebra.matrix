@@ -4,7 +4,6 @@ import java.util.List
 import java.util.ArrayList
 
 import linear.algebra.matrix.matrix.*
-import linear.algebra.matrix.interpreter.VariableRegister
 import linear.algebra.matrix.imports.ImportManagerFactory
 import linear.algebra.matrix.scoping.MatrixScopeProvider
 
@@ -483,7 +482,7 @@ from {
 	or fail error "Proc call has invalid number of parameters (expected " + call.proc.ref.params.params.size + ", found " + call.params.size + ")"
 		source call
 
-	val genReg = new VariableRegister();
+	val genReg = new GenericRegister();
 	{ checkParamTypes(genReg, call.proc.ref.params.params, call.params) }
 }
 
