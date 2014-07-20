@@ -33,8 +33,8 @@ auxiliary transpose(MatrixType type) {
 	createMatrixType(type.width, type.height, type.realEntryType)
 }
 
-auxiliary isGeneric(String size) {
-	size.charAt(0).toString() == '$'
+auxiliary isGeneric(String variable) {
+	variable.startsWith('$')
 }
 
 auxiliary checkParamTypes(GenericRegister genReg, List<TypedVarDeclaration> declaredParams, List<Expression> suppliedParams) {
