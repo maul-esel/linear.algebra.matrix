@@ -2,7 +2,23 @@
 @GenModel(fileExtensions="mtx", forceOverwrite="true", updateClasspath="false", modelDirectory="/linear.algebra.matrix/emf-gen")
 package linear.algebra.matrix.matrix
 
+type Iterable<T> wraps Iterable
+type Class<T> wraps Class
+
 abstract class MatrixSyntaxElement {
+	op <T> T findFirstAncestor(Iterable<? extends Class<? extends T>> types) {
+		var cont = eContainer
+		while (cont != null && !cont.instanceOfAny(types))
+			cont = cont.eContainer
+		cont as T
+	}
+
+	op <T> boolean instanceOfAny(Object o, Iterable<? extends Class<? extends T>> types) {
+		for (t : types)
+			if (t.isInstance(o))
+				return true
+		false
+	}
 }
 
 class Code extends MatrixSyntaxElement {
