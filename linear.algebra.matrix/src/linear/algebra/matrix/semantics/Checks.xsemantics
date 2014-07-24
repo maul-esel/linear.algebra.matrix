@@ -22,22 +22,17 @@ auxiliary {
 }
 
 auxiliary isTypeDefinedByParams(Type type, CallableDeclaration callable) {
-	val paramTypes = callable.params.params.map [ param | param.type ] + callable.genericTypes
 
 	val dimensionsDefined = if (type instanceof MatrixType) {
 		(!isGeneric(type.height) || isGenericVariableDefined(type.height, callable))
 			&& (!isGeneric(type.width) || isGenericVariableDefined(type.width, callable))
 	} else true
 
-	val typeDefined = if (type instanceof GenericType
-		|| (type instanceof MatrixType && (type as MatrixType).realEntryType instanceof GenericType)) {
-		val definedTypes = (paramTypes + paramTypes.filter(MatrixType).map [ paramType | paramType.realEntryType ])
-				.filter(GenericType).map [ paramType | paramType.name ].toSet
-		if (type instanceof GenericType)
-			definedTypes.contains(type.name)
-		else
-			definedTypes.contains(((type as MatrixType).realEntryType as GenericType).name)
-	} else true
+	val typeDefined = if (type instanceof GenericType)
+			callable.isGenericTypeDefined(type)
+		else if (type instanceof MatrixType && (type as MatrixType).realEntryType instanceof GenericType)
+			callable.isGenericTypeDefined((type as MatrixType).realEntryType as GenericType)
+		else true
 
 	dimensionsDefined && typeDefined
 }
