@@ -15,7 +15,6 @@ inject MatrixScopeProvider scopeProvider
 
 auxiliary {
 	isTypeDefinedByParams(Type type, CallableDeclaration list) : Boolean
-	isGenericInParamList(MatrixType type, ParameterList list) : Boolean
 	isGenericVariableDefined(String generic, CallableDeclaration list) : Boolean
 	alwaysReturnsOrFails(MatrixSyntaxElement obj) : Boolean
 	alwaysAssigns(VarDeclaration variable, MatrixSyntaxElement action) : Boolean
@@ -41,23 +40,6 @@ auxiliary isTypeDefinedByParams(Type type, CallableDeclaration callable) {
 	} else true
 
 	dimensionsDefined && typeDefined
-}
-
-auxiliary isGenericInParamList(MatrixType type, ParameterList list) {
-	val height = type.height
-	val width = type.width
-
-	var heightFound = !isGeneric(height) // not generic dimensions are assumed to be "found" i.e. valid
-	var widthFound = !isGeneric(width)
-
-	for (param : list.params) {
-		empty ||- param : var Type paramType
-		if (paramType instanceof MatrixType) {
-			heightFound = heightFound || paramType.height == height || paramType.width == height
-			widthFound = widthFound || paramType.height == width || paramType.width == width
-		}
-	}
-	widthFound && heightFound
 }
 
 auxiliary isGenericVariableDefined(String generic, CallableDeclaration callable) {
