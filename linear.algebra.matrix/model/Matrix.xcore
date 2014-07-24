@@ -121,19 +121,18 @@ class IfElse extends Action {
 	contains IfBody ^else
 }
 
-class FuncDeclaration extends Line {
+abstract class CallableDeclaration extends Line {
 	boolean internal
 	String name
 	contains ParameterList params
-	contains Type returnType
 	contains Block body
 }
 
-class ProcDeclaration extends Line {
-	boolean internal
-	String name
-	contains ParameterList params
-	contains Block body
+class FuncDeclaration extends CallableDeclaration {
+	contains Type returnType
+}
+
+class ProcDeclaration extends CallableDeclaration {
 }
 
 class ParameterList extends MatrixSyntaxElement {
