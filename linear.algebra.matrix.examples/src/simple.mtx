@@ -15,6 +15,11 @@ def test_generic : (a : %t, b : %t) -> int {
 	return 5;
 }
 
+def more_generic#[ %s, $n ] : (a : %u) -> %s($n x $n) {
+	var t : %s := $n;
+	return init (var i..$n, var j..$n) ~> 0;
+}
+
 var t : (int, complex, (1 x 2)) := (2, 3i, {
 	1 1
 });

@@ -113,11 +113,23 @@ IfElse :
 
 // I. b) Function and proc declarations
 FuncDeclaration :
-	(internal?=INTERNAL)? DEF name=ID OP_COLON params=ParameterList '->' returnType=Type body=Block
+	(internal?=INTERNAL)? DEF name=ID
+	('#[' (
+		(genericTypes+=GenericType (',' genericTypes+=GenericType)*)
+		| ((genericTypes+=GenericType (',' genericTypes+=GenericType)*) ','(genericVariables+=GenericVariable (',' genericVariables+=GenericVariable)*))
+		| (genericVariables+=GenericVariable (',' genericVariables+=GenericVariable)*)
+	) ']')?
+	OP_COLON params=ParameterList '->' returnType=Type body=Block
 ;
 
 ProcDeclaration :
-	(internal?=INTERNAL)? PROC name=PROC_NAME OP_COLON params=ParameterList body=Block
+	(internal?=INTERNAL)? PROC name=PROC_NAME
+	('#[' (
+		(genericTypes+=GenericType (',' genericTypes+=GenericType)*)
+		| ((genericTypes+=GenericType (',' genericTypes+=GenericType)*) ','(genericVariables+=GenericVariable (',' genericVariables+=GenericVariable)*))
+		| (genericVariables+=GenericVariable (',' genericVariables+=GenericVariable)*)
+	) ']')?
+	OP_COLON params=ParameterList body=Block
 ;
 
 ParameterList :
@@ -129,6 +141,10 @@ ParamDeclaration :
 ;
 
 // II. types
+GenericType:
+	name=GENERIC_TYPE
+;
+
 MathematicalType :
 	{IntegerType} INT
 	| {IntegerType} 'ℤ'
@@ -138,7 +154,7 @@ MathematicalType :
 	| {RealType} 'ℝ'
 	| {ComplexType} 'complex'
 	| {ComplexType} 'ℂ'
-	| {GenericType} name=GENERIC_TYPE
+	| GenericType
 ;
 
 TupleType :

@@ -126,6 +126,8 @@ abstract class CallableDeclaration extends Line {
 	String name
 	contains ParameterList params
 	contains Block body
+	contains GenericType[] genericTypes
+	contains GenericVariable[] genericVariables
 }
 
 class FuncDeclaration extends CallableDeclaration {
