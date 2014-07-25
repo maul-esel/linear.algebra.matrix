@@ -446,7 +446,7 @@ from {
 	or fail error "Proc call has invalid number of parameters (expected " + call.proc.ref.params.params.size + ", found " + call.params.size + ")"
 		source call
 
-	empty |= call.proc.ref.params.params <~! call.params |> var GenericRegister genReg
+	empty |= call.proc.ref <~! call |> var GenericRegister genReg
 }
 
 checkrule CProcDeclarationHasNoDefaultValues
