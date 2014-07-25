@@ -83,13 +83,17 @@ ProcRef hidden() :
 	'('
 ;
 
-GenericArguments hidden(WHITESPACE, SL_COMMENT, ML_COMMENT, NEWLINE) :
+GenericArguments :
 	{GenericArguments}
-	('#[' (
-		(types+=MathematicalType (',' types+=MathematicalType)*)
-		| ((types+=MathematicalType (',' types+=MathematicalType)*) ',' (numbers+=(POSITIVE_INTEGER|GENERIC_VAR) (',' numbers+=(POSITIVE_INTEGER|GENERIC_VAR))*))
-		| (numbers+=(POSITIVE_INTEGER|GENERIC_VAR) (',' numbers+=(POSITIVE_INTEGER|GENERIC_VAR))*)
-	) ']')?
+	('#[' _ (
+		(types+=MathematicalType (_ ',' _ types+=MathematicalType)*)
+		| ((types+=MathematicalType (_ ',' _ types+=MathematicalType)*) _ ',' _ (numbers+=(POSITIVE_INTEGER|GENERIC_VAR) (_ ',' _ numbers+=(POSITIVE_INTEGER|GENERIC_VAR))*))
+		| (numbers+=(POSITIVE_INTEGER|GENERIC_VAR) (_ ',' _ numbers+=(POSITIVE_INTEGER|GENERIC_VAR))*)
+	) _ ']')?
+;
+
+_ :
+	(SL_COMMENT | ML_COMMENT | WHITESPACE | NEWLINE)*
 ;
 
 QualifiedProcName :
