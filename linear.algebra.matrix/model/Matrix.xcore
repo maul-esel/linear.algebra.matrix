@@ -2,7 +2,23 @@
 @GenModel(fileExtensions="mtx", forceOverwrite="true", updateClasspath="false", modelDirectory="/linear.algebra.matrix/emf-gen")
 package linear.algebra.matrix.matrix
 
+type Iterable<T> wraps Iterable
+type Class<T> wraps Class
+
 abstract class MatrixSyntaxElement {
+	op <T> T findFirstAncestor(Iterable<? extends Class<? extends T>> types) {
+		var cont = eContainer
+		while (cont != null && !cont.instanceOfAny(types))
+			cont = cont.eContainer
+		cont as T
+	}
+
+	op <T> boolean instanceOfAny(Object o, Iterable<? extends Class<? extends T>> types) {
+		for (t : types)
+			if (t.isInstance(o))
+				return true
+		false
+	}
 }
 
 class Code extends MatrixSyntaxElement {
@@ -87,13 +103,30 @@ class ExpressionMessageFragment extends MessageFragment {
 	contains Expression expr
 }
 
-class ProcRef extends MatrixSyntaxElement {
-	refers ProcDeclaration ref
+// CALLABLE
+abstract class CallableInvocation<T extends CallableDeclaration> extends MatrixSyntaxElement {
+	contains CallableRef<T> ref
+	contains Expression[] params
 }
 
-class ProcCall extends Action {
-	contains ProcRef proc
-	contains Expression[] params
+abstract class CallableRef<T extends CallableDeclaration> extends MatrixSyntaxElement {
+	refers T ref
+	contains GenericArguments genericArguments
+}
+
+class GenericArguments extends MatrixSyntaxElement {
+	contains MathematicalType[] types
+	String[] numbers
+}
+
+class ProcRef extends CallableRef<ProcDeclaration> {
+}
+
+class ProcCall extends Action, CallableInvocation<ProcDeclaration> {
+	contains readonly derived CallableRef<ProcDeclaration> proc // for compatibility
+		get {
+			ref
+		}
 }
 
 class FromToLoop extends Action {
@@ -121,19 +154,27 @@ class IfElse extends Action {
 	contains IfBody ^else
 }
 
-class FuncDeclaration extends Line {
+abstract class CallableDeclaration extends Line {
 	boolean internal
 	String name
 	contains ParameterList params
-	contains Type returnType
 	contains Block body
+	contains GenericType[] genericTypes
+	contains GenericVariable[] genericVariables
+
+	op boolean isGenericTypeDefined(GenericType t) {
+		val paramTypes = params.params.map [ param | param.^type ]
+		val matrixEntryTypes = paramTypes.filter(MatrixType).map [ paramType | paramType.realEntryType ]
+		val definedTypes = ((paramTypes + matrixEntryTypes).filter(GenericType) + genericTypes).toSet
+		definedTypes.contains(t)
+	}
 }
 
-class ProcDeclaration extends Line {
-	boolean internal
-	String name
-	contains ParameterList params
-	contains Block body
+class FuncDeclaration extends CallableDeclaration {
+	contains Type returnType
+}
+
+class ProcDeclaration extends CallableDeclaration {
 }
 
 class ParameterList extends MatrixSyntaxElement {
@@ -349,13 +390,14 @@ class Variable extends Expression, TupleAssignmentComponent {
 	refers VarDeclaration ref
 }
 
-class Function extends MatrixSyntaxElement {
-	refers FuncDeclaration ref
+class Function extends CallableRef<FuncDeclaration> {
 }
 
-class FunctionCall extends Action , Expression {
-	contains Function func
-	contains Expression[] params
+class FunctionCall extends Action, Expression, CallableInvocation<FuncDeclaration> {
+	contains readonly derived CallableRef<FuncDeclaration> func // for compatibility
+		get {
+			ref
+		}
 }
 
 class TupleExpression extends Expression {

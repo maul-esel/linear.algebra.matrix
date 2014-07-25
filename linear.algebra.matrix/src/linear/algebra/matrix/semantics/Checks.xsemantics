@@ -14,62 +14,32 @@ inject ImportManagerFactory importFactory
 inject MatrixScopeProvider scopeProvider
 
 auxiliary {
-	isTypeDefinedByParams(Type type, ParameterList list) : Boolean
-	isGenericInParamList(MatrixType type, ParameterList list) : Boolean
-	isGenericVariableDefined(String generic, ParameterList list) : Boolean
+	isTypeDefinedByParams(Type type, CallableDeclaration list) : Boolean
+	isGenericVariableDefined(String generic, CallableDeclaration list) : Boolean
 	alwaysReturnsOrFails(MatrixSyntaxElement obj) : Boolean
 	alwaysAssigns(VarDeclaration variable, MatrixSyntaxElement action) : Boolean
 	isAssigned(Variable variable, List<MatrixSyntaxElement> ancestors, Iterable<EObject> elements) : Boolean
 }
 
-auxiliary isTypeDefinedByParams(Type type, ParameterList list) {
-	val paramTypes = list.params.map [ param | param.type ]
+auxiliary isTypeDefinedByParams(Type type, CallableDeclaration callable) {
 
 	val dimensionsDefined = if (type instanceof MatrixType) {
-		val definedDimensions = paramTypes.filter [ paramType | paramType instanceof MatrixType ]
-			.map [ matrType | newArrayList((matrType as MatrixType).height, (matrType as MatrixType).width) ]
-			.flatten.filter [ dim | isGeneric(dim) ].toSet()
-		(!isGeneric(type.height) || definedDimensions.contains(type.height))
-			&& (!isGeneric(type.width) || definedDimensions.contains(type.width))
+		(!isGeneric(type.height) || isGenericVariableDefined(type.height, callable))
+			&& (!isGeneric(type.width) || isGenericVariableDefined(type.width, callable))
 	} else true
 
-	val typeDefined = if (type instanceof GenericType
-		|| (type instanceof MatrixType && (type as MatrixType).realEntryType instanceof GenericType)) {
-		val definedTypes = (paramTypes.filter [ paramType | paramType instanceof GenericType ]
-				.map [ paramType | (paramType as GenericType).name ]
-			+ paramTypes.filter [ paramType | paramType instanceof MatrixType ]
-				.map [ paramType | (paramType as MatrixType).realEntryType ]
-				.filter [ entryType | entryType instanceof GenericType ]
-				.map [ entryType | (entryType as GenericType).name ]).toSet
-		if (type instanceof GenericType)
-			definedTypes.contains(type.name)
-		else
-			definedTypes.contains(((type as MatrixType).realEntryType as GenericType).name)
-	} else true
+	val typeDefined = if (type instanceof GenericType)
+			callable.isGenericTypeDefined(type)
+		else if (type instanceof MatrixType && (type as MatrixType).realEntryType instanceof GenericType)
+			callable.isGenericTypeDefined((type as MatrixType).realEntryType as GenericType)
+		else true
 
 	dimensionsDefined && typeDefined
 }
 
-auxiliary isGenericInParamList(MatrixType type, ParameterList list) {
-	val height = type.height
-	val width = type.width
-
-	var heightFound = !isGeneric(height) // not generic dimensions are assumed to be "found" i.e. valid
-	var widthFound = !isGeneric(width)
-
-	for (param : list.params) {
-		empty ||- param : var Type paramType
-		if (paramType instanceof MatrixType) {
-			heightFound = heightFound || paramType.height == height || paramType.width == height
-			widthFound = widthFound || paramType.height == width || paramType.width == width
-		}
-	}
-	widthFound && heightFound
-}
-
-auxiliary isGenericVariableDefined(String generic, ParameterList list) {
-	var found = false
-	for (param : list.params) {
+auxiliary isGenericVariableDefined(String generic, CallableDeclaration callable) {
+	var found = callable.genericVariables.exists [ name.equals(generic) ]
+	for (param : callable.params.params) {
 		empty ||- param : var Type paramType
 		if (paramType instanceof MatrixType)
 			found = found || paramType.height == generic || paramType.width == generic
@@ -351,17 +321,14 @@ checkrule CGenericVarDeclarationDefined
 from {
 	empty ||- variable : var Type vartype
 
-	var container = variable.eContainer;
-	while (container != null && !(container instanceof FuncDeclaration) && !(container instanceof ProcDeclaration))
-		container = container.eContainer;
-
 	if (vartype instanceof GenericType || ((vartype instanceof MatrixType) && (vartype as MatrixType).isGeneric())) {
-		(container != null)
+		val container = variable.findFirstAncestor(#[FuncDeclaration, ProcDeclaration])
+
+		{ container != null }
 		or fail error "Generic variable definitions may only occur in functions and procs"
 			source variable
 
-		{ (container instanceof FuncDeclaration && (isTypeDefinedByParams(vartype, (container as FuncDeclaration).params))) }
-		or { (container instanceof ProcDeclaration && (isTypeDefinedByParams(vartype, (container as ProcDeclaration).params))) }
+		{ isTypeDefinedByParams(vartype, container) }
 		or fail error "Variable definition references unknown generic type"
 			source variable
 	}
@@ -370,15 +337,14 @@ from {
 checkrule CGenericVariable
 	for GenericVariable gen
 from {
-	var container = gen.eContainer;
-	while (container != null && !(container instanceof FuncDeclaration) && !(container instanceof ProcDeclaration))
-		container = container.eContainer;
+	val container = gen.findFirstAncestor(#[FuncDeclaration, ProcDeclaration])
 
-	(container != null) && (
-		(container instanceof FuncDeclaration && (isGenericVariableDefined(gen.name, (container as FuncDeclaration).params)))
-		|| (container instanceof ProcDeclaration && (isGenericVariableDefined(gen.name, (container as ProcDeclaration).params)))
-	)
-	or fail error "References undefined generic variable"
+	{ container != null }
+	or fail error "Generic variables must only be used inside a proc or function"
+		source gen
+
+	{ isGenericVariableDefined(gen.name, container) }
+	or fail error "Reference to undefined generic variable"
 		source gen
 }
 
@@ -433,7 +399,7 @@ from {
 checkrule CFuncDeclarationGenericReturnTypeDefined
 	for FuncDeclaration func
 from {
-	(isTypeDefinedByParams(func.returnType, func.params))
+	(isTypeDefinedByParams(func.returnType, func))
 	or fail error "Generic return type " + stringRep(func.returnType) + " is not defined"
 		source func.returnType
 }
@@ -449,11 +415,9 @@ from {
 checkrule CReturnStatement
 	for ReturnStatement ret
 from {
-	var container = ret.eContainer
-	while (container != null && !(container instanceof FuncDeclaration) && !(container instanceof ProcDeclaration))
-		container = container.eContainer
+	val container = ret.findFirstAncestor(#[FuncDeclaration, ProcDeclaration])
 
-	{ (container != null) }
+	{ container != null }
 	or fail error "Return must be inside a function or proc declaration"
 		source ret
 
@@ -469,7 +433,7 @@ from {
 			source ret.value
 	}
 	else if (container instanceof ProcDeclaration) {
-		ret.value == null
+		{ ret.value == null }
 		or fail error "Proc cannot return a value"
 			source ret.value
 	}
@@ -482,7 +446,7 @@ from {
 	or fail error "Proc call has invalid number of parameters (expected " + call.proc.ref.params.params.size + ", found " + call.params.size + ")"
 		source call
 
-	empty |= call.proc.ref.params.params <~! call.params |> var GenericRegister genReg
+	empty |= call.proc.ref <~! call |> var GenericRegister genReg
 }
 
 checkrule CProcDeclarationHasNoDefaultValues

@@ -64,11 +64,12 @@ class StdlibUtil {
 
 	def private createFunctionCall(Resource res, QualifiedName name, Expression[] params) {
 		val func = MatrixFactory.eINSTANCE.createFunction()
+		func.genericArguments = MatrixFactory.eINSTANCE.createGenericArguments()
 		func.ref = query(res, MatrixPackage.eINSTANCE.funcDeclaration, name) as FuncDeclaration
 
 		val call = MatrixFactory.eINSTANCE.createFunctionCall()
 		res.contents.add(call) // so it and it's children elements know the resource
-		call.func = func;
+		call.ref = func;
 
 		params.forEach [ p | call.params.add(EcoreUtil.copy(p) as Expression) ]
 

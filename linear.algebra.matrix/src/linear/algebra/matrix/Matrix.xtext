@@ -78,7 +78,18 @@ ExpressionMessageFragment :
 ;
 
 ProcRef hidden() :
-	ref=[ProcDeclaration|QualifiedProcName] '('
+	ref=[ProcDeclaration|QualifiedProcName]
+	genericArguments=GenericArguments
+	'('
+;
+
+GenericArguments hidden(WHITESPACE, SL_COMMENT, ML_COMMENT, NEWLINE) :
+	{GenericArguments}
+	('#[' (
+		(types+=MathematicalType (',' types+=MathematicalType)*)
+		| ((types+=MathematicalType (',' types+=MathematicalType)*) ',' (numbers+=(POSITIVE_INTEGER|GENERIC_VAR) (',' numbers+=(POSITIVE_INTEGER|GENERIC_VAR))*))
+		| (numbers+=(POSITIVE_INTEGER|GENERIC_VAR) (',' numbers+=(POSITIVE_INTEGER|GENERIC_VAR))*)
+	) ']')?
 ;
 
 QualifiedProcName :
@@ -86,7 +97,7 @@ QualifiedProcName :
 ;
 
 ProcCall :
-	proc=ProcRef (params+=Expression (',' params+=Expression)*)? ')' ';'
+	ref=ProcRef (params+=Expression (',' params+=Expression)*)? ')' ';'
 ;
 
 FromToLoop :
@@ -113,11 +124,23 @@ IfElse :
 
 // I. b) Function and proc declarations
 FuncDeclaration :
-	(internal?=INTERNAL)? DEF name=ID OP_COLON params=ParameterList '->' returnType=Type body=Block
+	(internal?=INTERNAL)? DEF name=ID
+	('#[' (
+		(genericTypes+=GenericType (',' genericTypes+=GenericType)*)
+		| ((genericTypes+=GenericType (',' genericTypes+=GenericType)*) ','(genericVariables+=GenericVariable (',' genericVariables+=GenericVariable)*))
+		| (genericVariables+=GenericVariable (',' genericVariables+=GenericVariable)*)
+	) ']')?
+	OP_COLON params=ParameterList '->' returnType=Type body=Block
 ;
 
 ProcDeclaration :
-	(internal?=INTERNAL)? PROC name=PROC_NAME OP_COLON params=ParameterList body=Block
+	(internal?=INTERNAL)? PROC name=PROC_NAME
+	('#[' (
+		(genericTypes+=GenericType (',' genericTypes+=GenericType)*)
+		| ((genericTypes+=GenericType (',' genericTypes+=GenericType)*) ','(genericVariables+=GenericVariable (',' genericVariables+=GenericVariable)*))
+		| (genericVariables+=GenericVariable (',' genericVariables+=GenericVariable)*)
+	) ']')?
+	OP_COLON params=ParameterList body=Block
 ;
 
 ParameterList :
@@ -129,6 +152,10 @@ ParamDeclaration :
 ;
 
 // II. types
+GenericType:
+	name=GENERIC_TYPE
+;
+
 MathematicalType :
 	{IntegerType} INT
 	| {IntegerType} 'ℤ'
@@ -138,7 +165,7 @@ MathematicalType :
 	| {RealType} 'ℝ'
 	| {ComplexType} 'complex'
 	| {ComplexType} 'ℂ'
-	| {GenericType} name=GENERIC_TYPE
+	| GenericType
 ;
 
 TupleType :
@@ -217,7 +244,9 @@ Variable :
 ;
 
 Function hidden() :
-	ref=[FuncDeclaration|QualifiedFunctionName] '('
+	ref=[FuncDeclaration|QualifiedFunctionName]
+	genericArguments=GenericArguments
+	'('
 ;
 
 QualifiedFunctionName :
@@ -225,7 +254,7 @@ QualifiedFunctionName :
 ;
 
 FunctionCall :
-	func=Function (params+=Expression (',' params+=Expression)*)? ')'
+	ref=Function (params+=Expression (',' params+=Expression)*)? ')'
 ;
 
 TupleExpression :

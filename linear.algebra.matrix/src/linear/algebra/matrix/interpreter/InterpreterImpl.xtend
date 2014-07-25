@@ -130,7 +130,7 @@ public class InterpreterImpl implements Interpreter {
 		if (providerProc != null)
 			provider.interpretProc(resource, providerProc, evaluatedParams)
 		else
-			executeWithParams(call.proc.ref.params.params, call.params, call.proc.ref.body, null)
+			executeCallable(call.proc.ref, call)
 		trace.leave()
 		trace.leave()
 	}
@@ -239,7 +239,7 @@ public class InterpreterImpl implements Interpreter {
 		val value = if (providerFunc != null)
 			provider.interpretFunction(resource, providerFunc, evaluatedParams)
 		else
-			executeWithParams(call.func.ref.params.params, call.params, call.func.ref.body, call.func.ref.returnType)
+			executeCallable(call.func.ref, call)
 		trace.leave()
 		trace.leave()
 
@@ -260,14 +260,15 @@ public class InterpreterImpl implements Interpreter {
 		return variables.peek()
 	}
 
-	def private Object executeWithParams(List<ParamDeclaration> declared,
-		List<Expression> supplied, Block exec, Type retType) {
+	def private <T extends CallableDeclaration> Object executeCallable(T decl, CallableInvocation<T> call) {
 		val execScope = new VariableRegister()
-		for (i : 0..<supplied.size)
-			execScope.add(declared.get(i).name, evaluate(supplied.get(i))) // set the params
+
+		val valueIterator = call.params.iterator()
+		for (declaredParam : decl.params.params)
+			execScope.add(declaredParam.name, evaluate(valueIterator.next())) // set the params
 		variables.push(execScope) // add exec scope
 
-		val computed = exprInterpreter.paramTypes(environment(), declared, supplied).value // call only to compute generics
+		val computed = exprInterpreter.invocation(environment(), decl, call).value // call to compute generics
 
 		val generic = new GenericRegister()
 		// replace callers own generics with value:
@@ -278,9 +279,9 @@ public class InterpreterImpl implements Interpreter {
 		generics.push(generic)
 
 		var Object retVal = null;
-		try { interpret(exec) }
+		try { interpret(decl.body) }
 		catch (ReturnEncounteredException e) { // get the return value
-			retVal = implicitCoerce(e.value, resolveType(retType))
+			retVal = implicitCoerce(e.value, resolveType((decl as FuncDeclaration).returnType))
 		}
 
 		variables.pop() // remove exec scope

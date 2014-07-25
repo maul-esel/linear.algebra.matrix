@@ -21,19 +21,16 @@ class MatrixScopeProvider extends org.eclipse.xtext.scoping.impl.AbstractDeclara
 	@Inject MatrixGlobalScopeFactory globalScopeFactory
 	@Inject MatrixLocalScopeFactory localScopeFactory
 
-	private val funcScopeCache = new Cache<EObject, IScope>()
-	private val procScopeCache = new Cache<EObject, IScope>()
+	private val callableScopeCache = new Cache<EObject, IScope>()
 	private val varScopeCache  = new Cache<Pair<EObject, EObject>, IScope>()
 
-	def scope_Function_ref(Code code, EReference ref) {
-		funcScopeCache.get(code, [ t |
-			localScopeFactory.create(MatrixPackage.eINSTANCE.funcDeclaration, code, null, globalFuncScope(code), #[])
-		])
+	override IScope getScope(EObject context, EReference reference) {
+		super.getScope(context, reference)
 	}
 
-	def scope_ProcRef_ref(Code code, EReference ref) {
-		procScopeCache.get(code, [ t |
-			localScopeFactory.create(MatrixPackage.eINSTANCE.procDeclaration, code, null, globalProcScope(code), #[])
+	def scope_CallableRef_ref(Code code, EReference ref) {
+		callableScopeCache.get(code, [ t |
+			localScopeFactory.create(MatrixPackage.eINSTANCE.callableDeclaration, code, null, globalCallableScope(code), #[])
 		])
 	}
 
@@ -79,11 +76,7 @@ class MatrixScopeProvider extends org.eclipse.xtext.scoping.impl.AbstractDeclara
 		new Pair<EObject, EObject>(a, b)
 	}
 
-	def private globalFuncScope(EObject obj) {
-		globalScopeFactory.create(obj.eResource, MatrixPackage.eINSTANCE.funcDeclaration)
-	}
-
-	def private globalProcScope(EObject obj) {
-		globalScopeFactory.create(obj.eResource, MatrixPackage.eINSTANCE.procDeclaration)
+	def private globalCallableScope(EObject obj) {
+		globalScopeFactory.create(obj.eResource, MatrixPackage.eINSTANCE.callableDeclaration)
 	}
 }

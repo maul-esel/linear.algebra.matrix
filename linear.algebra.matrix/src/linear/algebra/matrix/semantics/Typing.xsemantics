@@ -2,12 +2,12 @@ system linear.algebra.matrix.semantics.Typing
 	extends linear.algebra.matrix.semantics.CommonType
 
 import linear.algebra.matrix.matrix.*
-import java.util.List
 
 auxiliary {
 	genericVarMatches(GenericRegister genReg, String variable, String value) : Boolean
 	checkGenericMatrixType(GenericRegister genReg, MatrixType paramType, MatrixType valueType, Expression param)
 	genericTypeMatches(GenericRegister genReg, GenericType generic, MathematicalType value) : Boolean
+	genericTypeArgumentMatches(GenericRegister genReg, GenericType generic, MathematicalType value) : Boolean
 	isGeneric(String size) : Boolean
 	multipliedMatrixType(MatrixType left, MatrixType right) : MatrixType
 	transpose(MatrixType type) : MatrixType
@@ -21,7 +21,7 @@ judgments {
 		error "Cannot type " + stringRep(expr)
 		source expr
     vartype ||- VarDeclaration decl : output Type
-    paramTypes |= List<ParamDeclaration> params <~! List<Expression> values |> output GenericRegister
+    invocation |= CallableDeclaration decl <~! CallableInvocation<?> call |> output GenericRegister
 }
 
 auxiliary multipliedMatrixType(MatrixType left, MatrixType right) {
@@ -73,6 +73,19 @@ auxiliary genericTypeMatches(GenericRegister genReg, GenericType generic, Mathem
 	}
 }
 
+auxiliary genericTypeArgumentMatches(GenericRegister genReg, GenericType generic, MathematicalType value) {
+	if (!genReg.existsType(generic)) {
+		genReg.putType(generic, value)
+		true
+	} else {
+		try {
+			empty |- genReg.getType(generic) <: value
+			genReg.putType(generic, value)
+			true
+		} catch (Exception e) { false }
+	}
+}
+
 auxiliary scalarMultType(MathematicalType scalar, MatrixType matr) {
 	var MatrixType result
 	{
@@ -103,16 +116,17 @@ auxiliary makeExactFromGeneric(GenericRegister generics, MatrixType matrType) {
 	)
 }
 
-/* PARAM TYPES */
-rule PTParamTypes
-	G |= List<ParamDeclaration> params <~! List<Expression> values |> GenericRegister reg
+/* INVOCATION */
+rule IVCallable
+	G |= CallableDeclaration decl <~! CallableInvocation<?> call |> GenericRegister reg
 from {
-	{ params.size == values.size }
+	{ decl.params.params.size == call.params.size }
 
 	reg = new GenericRegister()
 
-	val paramIterator = params.iterator()
-	for (value : values) {
+	// check parameters and infer generic types
+	val paramIterator = decl.params.params.iterator()
+	for (value : call.params) {
 		G ||- paramIterator.next : var Type paramType
 		G |- value : var Type valueType
 
@@ -128,6 +142,38 @@ from {
 				source value
 		}
 	}
+
+	// add generic type arguments
+	val typeIterator = call.ref.genericArguments.types.iterator()
+	for (t : call.ref.ref.genericTypes) {
+		if (typeIterator.hasNext()) {
+			{ genericTypeArgumentMatches(reg, t, typeIterator.next()) }
+			or fail error "Invalid type argument for '" + t.name + "'"
+				source call
+		} else if (!reg.existsType(t)) { // no more specified, not inferred by arguments
+			fail error "Not all generic type arguments are specified or inferred: missing '" + t.name + "'"
+				source call
+		}
+	}
+	{ !typeIterator.hasNext() }
+	or fail error "Too many type arguments"
+		source call
+
+	// add generic number arguments
+	val numberIterator = call.ref.genericArguments.numbers.iterator()
+	for (v : call.ref.ref.genericVariables) {
+		if (numberIterator.hasNext()) {
+			{ genericVarMatches(reg, v.name, numberIterator.next()) }
+			or fail error "Invalid number argument for '" + v.name + "'"
+				source call
+		} else if (!reg.existsNumber(v.name)) {
+			fail error "Not all generic number arguments are specified or inferred: missing '" + v.name + "'"
+				source call
+		}
+	}
+	{ !numberIterator.hasNext() }
+	or fail error "Too many number arguments"
+		source call
 }
 
 /* TYPING */
@@ -187,7 +233,7 @@ from {
 rule TFunctionCall
 	G |- FunctionCall call : Type type
 from {
-	G |= call.func.ref.params.params <~! call.params |> var GenericRegister genericRegister
+	G |= call.func.ref <~! call |> var GenericRegister genericRegister
 
 	val retType = call.func.ref.returnType
 	type = if (retType instanceof MatrixType) {
