@@ -97,7 +97,7 @@ QualifiedProcName :
 ;
 
 ProcCall :
-	proc=ProcRef (params+=Expression (',' params+=Expression)*)? ')' ';'
+	ref=ProcRef (params+=Expression (',' params+=Expression)*)? ')' ';'
 ;
 
 FromToLoop :
@@ -254,7 +254,7 @@ QualifiedFunctionName :
 ;
 
 FunctionCall :
-	func=Function (params+=Expression (',' params+=Expression)*)? ')'
+	ref=Function (params+=Expression (',' params+=Expression)*)? ')'
 ;
 
 TupleExpression :

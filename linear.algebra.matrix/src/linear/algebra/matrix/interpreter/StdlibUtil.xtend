@@ -68,7 +68,7 @@ class StdlibUtil {
 
 		val call = MatrixFactory.eINSTANCE.createFunctionCall()
 		res.contents.add(call) // so it and it's children elements know the resource
-		call.func = func;
+		call.ref = func;
 
 		params.forEach [ p | call.params.add(EcoreUtil.copy(p) as Expression) ]
 

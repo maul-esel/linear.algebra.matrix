@@ -103,19 +103,30 @@ class ExpressionMessageFragment extends MessageFragment {
 	contains Expression expr
 }
 
+// CALLABLE
+abstract class CallableInvocation<T extends CallableDeclaration> extends MatrixSyntaxElement {
+	contains CallableRef<T> ref
+	contains Expression[] params
+}
+
+abstract class CallableRef<T extends CallableDeclaration> extends MatrixSyntaxElement {
+	refers T ref
+	contains GenericArguments genericArguments
+}
+
 class GenericArguments extends MatrixSyntaxElement {
 	contains MathematicalType[] types
 	String[] numbers
 }
 
-class ProcRef extends MatrixSyntaxElement {
-	refers ProcDeclaration ref
-	contains GenericArguments genericArguments
+class ProcRef extends CallableRef<ProcDeclaration> {
 }
 
-class ProcCall extends Action {
-	contains ProcRef proc
-	contains Expression[] params
+class ProcCall extends Action, CallableInvocation<ProcDeclaration> {
+	contains readonly derived CallableRef<ProcDeclaration> proc // for compatibility
+		get {
+			ref
+		}
 }
 
 class FromToLoop extends Action {
@@ -379,14 +390,14 @@ class Variable extends Expression, TupleAssignmentComponent {
 	refers VarDeclaration ref
 }
 
-class Function extends MatrixSyntaxElement {
-	refers FuncDeclaration ref
-	contains GenericArguments genericArguments
+class Function extends CallableRef<FuncDeclaration> {
 }
 
-class FunctionCall extends Action , Expression {
-	contains Function func
-	contains Expression[] params
+class FunctionCall extends Action, Expression, CallableInvocation<FuncDeclaration> {
+	contains readonly derived CallableRef<FuncDeclaration> func // for compatibility
+		get {
+			ref
+		}
 }
 
 class TupleExpression extends Expression {
