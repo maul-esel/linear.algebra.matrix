@@ -78,7 +78,18 @@ ExpressionMessageFragment :
 ;
 
 ProcRef hidden() :
-	ref=[ProcDeclaration|QualifiedProcName] '('
+	ref=[ProcDeclaration|QualifiedProcName]
+	genericArguments=GenericArguments
+	'('
+;
+
+GenericArguments hidden(WHITESPACE, SL_COMMENT, ML_COMMENT, NEWLINE) :
+	{GenericArguments}
+	('#[' (
+		(types+=MathematicalType (',' types+=MathematicalType)*)
+		| ((types+=MathematicalType (',' types+=MathematicalType)*) ',' (numbers+=(POSITIVE_INTEGER|GENERIC_VAR) (',' numbers+=(POSITIVE_INTEGER|GENERIC_VAR))*))
+		| (numbers+=(POSITIVE_INTEGER|GENERIC_VAR) (',' numbers+=(POSITIVE_INTEGER|GENERIC_VAR))*)
+	) ']')?
 ;
 
 QualifiedProcName :
@@ -233,7 +244,9 @@ Variable :
 ;
 
 Function hidden() :
-	ref=[FuncDeclaration|QualifiedFunctionName] '('
+	ref=[FuncDeclaration|QualifiedFunctionName]
+	genericArguments=GenericArguments
+	'('
 ;
 
 QualifiedFunctionName :

@@ -103,8 +103,14 @@ class ExpressionMessageFragment extends MessageFragment {
 	contains Expression expr
 }
 
+class GenericArguments extends MatrixSyntaxElement {
+	contains MathematicalType[] types
+	String[] numbers
+}
+
 class ProcRef extends MatrixSyntaxElement {
 	refers ProcDeclaration ref
+	contains GenericArguments genericArguments
 }
 
 class ProcCall extends Action {
@@ -375,6 +381,7 @@ class Variable extends Expression, TupleAssignmentComponent {
 
 class Function extends MatrixSyntaxElement {
 	refers FuncDeclaration ref
+	contains GenericArguments genericArguments
 }
 
 class FunctionCall extends Action , Expression {
