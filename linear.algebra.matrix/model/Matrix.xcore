@@ -23,6 +23,10 @@ abstract class MatrixSyntaxElement {
 	op boolean alwaysReturnsOrFails() {
 		false
 	}
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		false
+	}
 }
 
 class Code extends MatrixSyntaxElement {
@@ -44,6 +48,10 @@ abstract class VarDeclaration extends Action {
 	boolean const
 	String name
 	contains Expression value
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		(value != null) && (this == variable || value.alwaysAssigns(variable))
+	}
 }
 
 class TypedVarDeclaration extends VarDeclaration {
@@ -90,6 +98,10 @@ class ReturnStatement extends Action {
 	op boolean alwaysReturnsOrFails() {
 		true
 	}
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		value != null && value.alwaysAssigns(variable)
+	}
 }
 
 class FailureStatement extends Action {
@@ -119,6 +131,10 @@ class ExpressionMessageFragment extends MessageFragment {
 abstract class CallableInvocation<T extends CallableDeclaration> extends MatrixSyntaxElement {
 	contains CallableRef<T> ref
 	contains Expression[] params
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		params.exists [ alwaysAssigns(variable) ]
+	}
 }
 
 abstract class CallableRef<T extends CallableDeclaration> extends MatrixSyntaxElement {
@@ -150,6 +166,10 @@ class FromToLoop extends Action {
 	op boolean alwaysReturnsOrFails() {
 		body.alwaysReturnsOrFails()
 	}
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		init.alwaysAssigns(variable) || end.alwaysAssigns(variable)
+	}
 }
 
 class WhileLoop extends Action {
@@ -159,6 +179,10 @@ class WhileLoop extends Action {
 	op boolean alwaysReturnsOrFails() {
 		body.alwaysReturnsOrFails()
 	}
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		cond.alwaysAssigns(variable)
+	}
 }
 
 class Block extends IfBody {
@@ -166,6 +190,10 @@ class Block extends IfBody {
 
 	op boolean alwaysReturnsOrFails() {
 		lines.exists [ alwaysReturnsOrFails() ]
+	}
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		lines.exists [ alwaysAssigns(variable) ]
 	}
 }
 
@@ -180,6 +208,11 @@ class IfElse extends Action {
 	op boolean alwaysReturnsOrFails() {
 		if (^else == null) false
 		else ifTrue.alwaysReturnsOrFails() && ^else.alwaysReturnsOrFails()
+	}
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		cond.alwaysAssigns(variable)
+		|| (ifTrue.alwaysAssigns(variable) && ^else.alwaysAssigns(variable))
 	}
 }
 
@@ -381,6 +414,10 @@ class MatrixInit extends Expression {
 	contains TypedVarDeclaration column
 	String colMax
 	contains Expression entry
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		entry.alwaysAssigns(variable)
+	}
 }
 
 class MultiLineMatrixLiteral extends Expression {
@@ -394,6 +431,10 @@ class MultiLineMatrixLiteral extends Expression {
 
 	op boolean hasConsistentLineWidth() {
 		lines.map [ entries.size ].toSet.size == 1
+	}
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		lines.exists [ entries.exists [ alwaysAssigns(variable) ] ]
 	}
 }
 
@@ -431,6 +472,10 @@ class FunctionCall extends Action, Expression, CallableInvocation<FuncDeclaratio
 
 class TupleExpression extends Expression {
 	contains Expression[] entries
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		entries.exists [ alwaysAssigns(variable) ]
+	}
 }
 
 abstract class Expression extends MatrixEntry {
@@ -438,6 +483,10 @@ abstract class Expression extends MatrixEntry {
 
 abstract class UnaryExpression extends Expression {
 	contains Expression expr
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		expr.alwaysAssigns(variable)
+	}
 }
 
 class DeterminantOrAbsoluteValue extends UnaryExpression {
@@ -462,6 +511,10 @@ class UnaryMinus extends UnaryExpression {
 abstract class BinaryExpression extends Expression {
 	contains Expression left
 	contains Expression right
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		left.alwaysAssigns(variable) || right.alwaysAssigns(variable)
+	}
 }
 
 class Exponentiation extends BinaryExpression {
@@ -497,6 +550,10 @@ class Equals extends BinaryExpression {
 
 class LogicalAndOr extends BinaryExpression {
 	LogicalOp ^op
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		left.alwaysAssigns(variable) && right.alwaysAssigns(variable)
+	}
 }
 
 abstract class Assignment extends Action , Expression {
@@ -505,17 +562,30 @@ abstract class Assignment extends Action , Expression {
 
 class VariableAssignment extends Assignment {
 	contains Variable variable
+
+	op boolean alwaysAssigns(VarDeclaration ^var) {
+		variable.ref == ^var || value.alwaysAssigns(^var)
+	}
 }
 
 class MatrixEntryAssignment extends Assignment {
 	contains Expression matr
 	contains Expression line
 	contains Expression column
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		matr.alwaysAssigns(variable) || line.alwaysAssigns(variable)
+		|| column.alwaysAssigns(variable) || value.alwaysAssigns(variable)
+	}
 }
 
 class TupleAssignment extends Assignment {
 	contains TupleAssignmentComponent[] variables
 	contains Expression tuple
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		variables.contains(variable) || tuple.alwaysAssigns(variable)
+	}
 }
 
 abstract class TupleAssignmentComponent {
@@ -550,10 +620,19 @@ class EntryAccess extends Expression {
 	contains Expression matr
 	contains Expression line
 	contains Expression column
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		matr.alwaysAssigns(variable) || line.alwaysAssigns(variable) || column.alwaysAssigns(variable)
+	}
 }
 
 class Ternary extends Expression {
 	contains Expression cond
 	contains Expression ifTrue
 	contains Expression ifFalse
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		cond.alwaysAssigns(variable)
+		|| (ifTrue.alwaysAssigns(variable) && ifFalse.alwaysAssigns(variable))
+	}
 }

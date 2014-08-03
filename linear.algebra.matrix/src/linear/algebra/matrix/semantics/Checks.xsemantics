@@ -16,7 +16,6 @@ inject MatrixScopeProvider scopeProvider
 auxiliary {
 	isTypeDefinedByParams(Type type, CallableDeclaration list) : Boolean
 	isGenericVariableDefined(String generic, CallableDeclaration list) : Boolean
-	alwaysAssigns(VarDeclaration variable, MatrixSyntaxElement action) : Boolean
 	isAssigned(Variable variable, List<MatrixSyntaxElement> ancestors, Iterable<EObject> elements) : Boolean
 }
 
@@ -46,94 +45,11 @@ auxiliary isGenericVariableDefined(String generic, CallableDeclaration callable)
 	found
 }
 
-auxiliary alwaysAssigns(VarDeclaration variable, MatrixSyntaxElement action) {
-	false
-}
-
-auxiliary alwaysAssigns(VarDeclaration variable, VariableAssignment action) {
-	action.variable.ref == variable || alwaysAssigns(variable, action.value)
-}
-
-auxiliary alwaysAssigns(VarDeclaration variable, TupleAssignment action) {
-	action.variables.filter(Variable).exists[ ref == variable ] || alwaysAssigns(variable, action.tuple)
-}
-
-auxiliary alwaysAssigns(VarDeclaration variable, MatrixEntryAssignment action) {
-	alwaysAssigns(variable, action.matr) || alwaysAssigns(variable, action.line)
-	|| alwaysAssigns(variable, action.column) || alwaysAssigns(variable, action.value)
-}
-
-auxiliary alwaysAssigns(VarDeclaration variable, VarDeclaration action) {
-	(action.value != null) && (action == variable || alwaysAssigns(variable, action.value))
-}
-
-auxiliary alwaysAssigns(VarDeclaration variable, UnaryExpression action) {
-	alwaysAssigns(variable, action.expr)
-}
-
-auxiliary alwaysAssigns(VarDeclaration variable, BinaryExpression action) {
-	alwaysAssigns(variable, action.left) || alwaysAssigns(variable, action.right)
-}
-
-auxiliary alwaysAssigns(VarDeclaration variable, LogicalAndOr action) {
-	alwaysAssigns(variable, action.left) && alwaysAssigns(variable, action.right)
-}
-
-auxiliary alwaysAssigns(VarDeclaration variable, FunctionCall action) {
-	action.params.exists [ param | alwaysAssigns(variable, param) ]
-}
-
-auxiliary alwaysAssigns(VarDeclaration variable, ProcCall action) {
-	action.params.exists [ param | alwaysAssigns(variable, param) ]
-}
-
-auxiliary alwaysAssigns(VarDeclaration variable, TupleExpression action) {
-	action.entries.exists [ entry | alwaysAssigns(variable, entry) ]
-}
-
-auxiliary alwaysAssigns(VarDeclaration variable, Block action) {
-	action.lines.exists [ line | alwaysAssigns(variable, line) ]
-}
-
-auxiliary alwaysAssigns(VarDeclaration variable, IfElse action) {
-	alwaysAssigns(variable, action.cond)
-	|| (alwaysAssigns(variable, action.ifTrue) && alwaysAssigns(variable, action.getElse))
-}
-
-auxiliary alwaysAssigns(VarDeclaration variable, Ternary action) {
-	alwaysAssigns(variable, action.cond)
-	|| (alwaysAssigns(variable, action.ifTrue) && alwaysAssigns(variable, action.ifFalse))
-}
-
-auxiliary alwaysAssigns(VarDeclaration variable, MatrixInit action) {
-	alwaysAssigns(variable, action.entry)
-}
-
-auxiliary alwaysAssigns(VarDeclaration variable, EntryAccess action) {
-	alwaysAssigns(variable, action.matr) || alwaysAssigns(variable, action.line) || alwaysAssigns(variable, action.column)
-}
-
-auxiliary alwaysAssigns(VarDeclaration variable, ReturnStatement action) {
-	action.value != null && alwaysAssigns(variable, action.value)
-}
-
-auxiliary alwaysAssigns(VarDeclaration variable, WhileLoop action) {
-	alwaysAssigns(variable, action.cond)
-}
-
-auxiliary alwaysAssigns(VarDeclaration variable, FromToLoop action) {
-	alwaysAssigns(variable, action.init) || alwaysAssigns(variable, action.end)
-}
-
-auxiliary alwaysAssigns(VarDeclaration variable, MultiLineMatrixLiteral action) {
-	action.lines.map [ entries ].flatten.exists [ e | alwaysAssigns(variable, e) ]
-}
-
 auxiliary isAssigned(Variable variable, List<MatrixSyntaxElement> ancestors, Iterable<EObject> elements) {
 	var i = 0
 	var initialized = false
 	while (!ancestors.contains(elements.get(i)) && !initialized)
-		initialized = alwaysAssigns(variable.ref, elements.get(i++) as MatrixSyntaxElement)
+		initialized = (elements.get(i++) as MatrixSyntaxElement).alwaysAssigns(variable.ref)
 
 	// if neither an initialization was found nor the end (the variable itself) was reached, recurse!
 	if (!initialized && elements.get(i) != variable)
