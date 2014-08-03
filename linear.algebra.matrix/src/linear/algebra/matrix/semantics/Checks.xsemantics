@@ -401,7 +401,7 @@ checkrule CImportIsValid
 	for Import imp
 from {
 	val manager = importFactory.create(imp.eResource)
-	if (!manager.isValidImport(imp.getSource)) {
+	if (!manager.isValidImport(imp.name)) {
 		fail error "Import is not valid"
 			source imp
 			feature MatrixPackage.eINSTANCE.import_Source

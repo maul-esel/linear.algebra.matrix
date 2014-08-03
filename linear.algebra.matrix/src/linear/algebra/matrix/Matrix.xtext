@@ -9,7 +9,7 @@ Code hidden(WHITESPACE, NEWLINE, SL_COMMENT, ML_COMMENT) :
 ;
 
 Import :
-	'import' source=ID ';'
+	'import' source=ID ('as' alias=ID)? ';'
 ;
 
 Line :

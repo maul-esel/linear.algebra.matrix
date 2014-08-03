@@ -32,10 +32,11 @@ class MatrixGlobalScope extends MatrixScope {
 		providedElements + importManager.getImports().map [ descr | filterType(descr.exportedObjects) ].flatten
 	}
 
-	override _getElements(QualifiedName name) {
+	override _getElements(QualifiedName qname) {
+		val name = importManager.translateQualifiedName(qname)
 		var list = providedElements
-		if (name.segments.length == 2 && importManager.isValidImport(name.firstSegment))
-			list = list + filterType(importManager.getImport(name.firstSegment).exportedObjects)
+		if (name.segments.length == 2 && importManager.isValidImport(qname.firstSegment))
+			list = list + filterType(importManager.getImport(qname.firstSegment).exportedObjects)
 		list.filter [ obj | obj.name.equals(name) ]
 	}
 

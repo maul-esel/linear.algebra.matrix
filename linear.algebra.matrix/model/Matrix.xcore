@@ -36,6 +36,15 @@ class Code extends MatrixSyntaxElement {
 
 class Import extends MatrixSyntaxElement {
 	String source
+	String alias
+
+	derived String name
+	get {
+		if (alias != null)
+			alias
+		else
+			source
+	}
 }
 
 abstract class Line extends MatrixSyntaxElement {

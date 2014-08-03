@@ -5,6 +5,7 @@ import java.util.HashMap
 import linear.algebra.matrix.matrix.Code
 
 import org.eclipse.emf.ecore.resource.Resource
+import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.emf.common.util.URI
 import org.eclipse.xtext.resource.IResourceDescription
 
@@ -13,6 +14,7 @@ import com.google.inject.assistedinject.Assisted
 
 class ImportManagerImpl implements ImportManager {
 	val Resource resource
+	val names = new HashMap<String, String>();
 	val imports = new HashMap<String, IResourceDescription>()
 
 	@Inject
@@ -25,26 +27,26 @@ class ImportManagerImpl implements ImportManager {
 	}
 
 	def private readImportNames() {
-		(resource.contents.get(0) as Code).imports.forEach [ imp | imports.put(imp.source, null) ]
+		(resource.contents.get(0) as Code).imports.forEach [ imp | names.put(imp.name, imp.source) ]
 	}
 
-	def protected importURI(String name) {
+	def protected importURI(String source) {
 		val segments = resource.URI.segments.clone
-		segments.set(segments.length - 1, name + ".mtx")
+		segments.set(segments.length - 1, source + ".mtx")
 		URI.createHierarchicalURI(resource.URI.scheme, resource.URI.authority, resource.URI.device, segments, null, null)
 	}
 
 	def private load(String name) {
-		val res = resource.resourceSet.getResource(importURI(name), true)
+		val res = resource.resourceSet.getResource(importURI(names.get(name)), true)
 		imports.put(name, descrManager.getResourceDescription(res))
 	}
 
 	def private isLoaded(String name) {
-		imports.get(name) != null
+		imports.containsKey(name)
 	}
 
 	override getImportNames() {
-		imports.keySet
+		names.keySet
 	}
 
 	override getImports() {
@@ -67,7 +69,7 @@ class ImportManagerImpl implements ImportManager {
 	}
 
 	override existsImport(String name) {
-		imports.containsKey(name)
+		names.containsKey(name)
 	}
 
 	override isValidImport(String name) {
@@ -81,5 +83,11 @@ class ImportManagerImpl implements ImportManager {
 
 	override getResource() {
 		resource
+	}
+
+	override translateQualifiedName(QualifiedName name) {
+		if (name.segmentCount == 2 && names.containsKey(name.firstSegment))
+			QualifiedName.create(names.get(name.firstSegment), name.lastSegment)
+		else name
 	}
 }
