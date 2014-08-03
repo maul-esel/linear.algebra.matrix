@@ -19,6 +19,10 @@ abstract class MatrixSyntaxElement {
 				return true
 		false
 	}
+
+	op boolean alwaysReturnsOrFails() {
+		false
+	}
 }
 
 class Code extends MatrixSyntaxElement {
@@ -82,10 +86,18 @@ class EmptyTupleVarDeclarationComponent extends TupleVarDeclarationComponent {
 
 class ReturnStatement extends Action {
 	contains Expression value
+
+	op boolean alwaysReturnsOrFails() {
+		true
+	}
 }
 
 class FailureStatement extends Action {
 	contains FailureMessage msg
+
+	op boolean alwaysReturnsOrFails() {
+		true
+	}
 }
 
 class FailureMessage extends MatrixSyntaxElement {
@@ -134,15 +146,27 @@ class FromToLoop extends Action {
 	contains Expression init
 	contains Expression end
 	contains Block body
+
+	op boolean alwaysReturnsOrFails() {
+		body.alwaysReturnsOrFails()
+	}
 }
 
 class WhileLoop extends Action {
 	contains Expression cond
 	contains Block body
+
+	op boolean alwaysReturnsOrFails() {
+		body.alwaysReturnsOrFails()
+	}
 }
 
 class Block extends IfBody {
 	contains Action[] lines
+
+	op boolean alwaysReturnsOrFails() {
+		lines.exists [ alwaysReturnsOrFails() ]
+	}
 }
 
 abstract class IfBody extends MatrixSyntaxElement {
@@ -152,6 +176,11 @@ class IfElse extends Action {
 	contains Expression cond
 	contains IfBody ifTrue
 	contains IfBody ^else
+
+	op boolean alwaysReturnsOrFails() {
+		if (^else == null) false
+		else ifTrue.alwaysReturnsOrFails() && ^else.alwaysReturnsOrFails()
+	}
 }
 
 abstract class CallableDeclaration extends Line {

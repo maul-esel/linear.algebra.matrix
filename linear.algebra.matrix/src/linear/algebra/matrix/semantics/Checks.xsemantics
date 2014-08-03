@@ -16,7 +16,6 @@ inject MatrixScopeProvider scopeProvider
 auxiliary {
 	isTypeDefinedByParams(Type type, CallableDeclaration list) : Boolean
 	isGenericVariableDefined(String generic, CallableDeclaration list) : Boolean
-	alwaysReturnsOrFails(MatrixSyntaxElement obj) : Boolean
 	alwaysAssigns(VarDeclaration variable, MatrixSyntaxElement action) : Boolean
 	isAssigned(Variable variable, List<MatrixSyntaxElement> ancestors, Iterable<EObject> elements) : Boolean
 }
@@ -45,40 +44,6 @@ auxiliary isGenericVariableDefined(String generic, CallableDeclaration callable)
 			found = found || paramType.height == generic || paramType.width == generic
 	}
 	found
-}
-
-auxiliary alwaysReturnsOrFails(MatrixSyntaxElement obj) {
-	false
-}
-
-auxiliary alwaysReturnsOrFails(ReturnStatement ret) {
-	true
-}
-
-auxiliary alwaysReturnsOrFails(FailureStatement stat) {
-	true
-}
-
-auxiliary alwaysReturnsOrFails(Block block) {
-	var returns = false
-	for (line : block.lines)
-		returns = returns || alwaysReturnsOrFails(line)
-	returns
-}
-
-auxiliary alwaysReturnsOrFails(IfElse ifElse) {
-	if (ifElse.getElse == null)
-		false
-	else
-		alwaysReturnsOrFails(ifElse.ifTrue) && alwaysReturnsOrFails(ifElse.getElse)
-}
-
-auxiliary alwaysReturnsOrFails(FromToLoop loop) {
-	alwaysReturnsOrFails(loop.body)
-}
-
-auxiliary alwaysReturnsOrFails(WhileLoop loop) {
-	alwaysReturnsOrFails(loop.body)
 }
 
 auxiliary alwaysAssigns(VarDeclaration variable, MatrixSyntaxElement action) {
@@ -407,7 +372,7 @@ from {
 checkrule CFuncDeclarationAlwaysReturns
 	for FuncDeclaration func
 from {
-	alwaysReturnsOrFails(func.body)
+	func.body.alwaysReturnsOrFails()
 	or fail error "Not all code paths return a value"
 		source func
 }
@@ -491,7 +456,7 @@ from {
 		{ reachable }
 		or fail error "Unreachable code detected"
 			source line
-		if (alwaysReturnsOrFails(line))
+		if (line.alwaysReturnsOrFails())
 			reachable = false
 	}
 }
