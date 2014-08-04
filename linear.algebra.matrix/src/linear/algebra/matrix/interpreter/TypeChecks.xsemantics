@@ -6,8 +6,11 @@ import linear.algebra.matrix.core.Complex
 import linear.algebra.matrix.core.Matrix
 import linear.algebra.matrix.core.Tuple
 
+import linear.algebra.matrix.semantics.GenericRegister
+
 import linear.algebra.matrix.matrix.MatrixFactory
 import linear.algebra.matrix.matrix.Type
+import linear.algebra.matrix.matrix.GenericType
 import linear.algebra.matrix.matrix.BooleanType
 import linear.algebra.matrix.matrix.IntegerType
 import linear.algebra.matrix.matrix.RationalType
@@ -23,6 +26,13 @@ judgments {
 // default to false
 axiom ITDefault
 	G |~ Object obj <| Type type ~> false
+
+rule ITGeneric
+	G |~ Object obj <| GenericType type ~> Boolean result
+from {
+	var actualType = env(G, 'generics', GenericRegister).getType(type)
+	G |~ obj <| actualType ~> result
+}
 
 axiom ITBoolean
 	G |~ Object b <| BooleanType type ~> b instanceof Boolean
@@ -58,7 +68,7 @@ rule ITComplexRational
 from {
 	G |~ z <| MatrixFactory.eINSTANCE.createRealType() ~> b // no imaginary part
 	if (b) {
-		G |~ z.doubleValue() <| type ~> b // real part must be rational
+		G |~ z.realPart <| type ~> b // real part must be rational
 	}
 }
 
