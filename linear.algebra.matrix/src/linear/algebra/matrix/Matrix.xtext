@@ -340,8 +340,12 @@ Addition returns Expression :
 	Multiplication ({Addition.left=current} op=AdditionOp right=Multiplication)*
 ;
 
+CastExpression returns Expression :
+	Addition ({CastExpression.expr=current} 'as' type=Type)?
+;
+
 Equivalency returns Expression :
-	Addition ({Equivalency.left=current} '~' right=Addition)*
+	CastExpression ({Equivalency.left=current} '~' right=CastExpression)*
 ;
 
 Comparison returns Expression :
