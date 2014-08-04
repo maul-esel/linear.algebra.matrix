@@ -181,7 +181,7 @@ MatrixType :
 ;
 
 Type :
-	MathematicalType | {BooleanType} BOOL | MatrixType | TupleType
+	MatrixType | TupleType | MathematicalType | {BooleanType} BOOL
 ;
 
 // III. Expressions
