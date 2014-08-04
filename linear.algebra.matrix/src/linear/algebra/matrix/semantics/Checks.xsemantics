@@ -397,6 +397,15 @@ from {
 	}
 }
 
+checkrule CCastIsPossible
+	for CastExpression cast
+from {
+	empty |- cast.expr : var Type exprType
+	empty |- exprType !>> cast.type
+	or fail error "Cannot cast " + stringRep(exprType) + " to " + stringRep(cast.type)
+		source cast
+}
+
 checkrule CImportIsValid
 	for Import imp
 from {

@@ -1,5 +1,5 @@
 system linear.algebra.matrix.semantics.Typing
-	extends linear.algebra.matrix.semantics.CommonType
+	extends linear.algebra.matrix.semantics.Casting
 
 import linear.algebra.matrix.matrix.*
 

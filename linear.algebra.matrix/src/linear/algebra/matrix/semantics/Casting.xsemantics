@@ -1,0 +1,38 @@
+system linear.algebra.matrix.semantics.Casting
+	extends linear.algebra.matrix.semantics.CommonType
+
+import linear.algebra.matrix.matrix.Type
+import linear.algebra.matrix.matrix.MathematicalType
+import linear.algebra.matrix.matrix.MatrixType
+import linear.algebra.matrix.matrix.TupleType
+
+judgments {
+	canCast |- Type exprType !>> Type castType
+}
+
+rule CCDefault
+	derives G |- Type exprType !>> Type castType
+from {
+	{ G |- exprType <: castType }
+	or { G |- castType <: exprType }
+}
+
+axiom CCMathematicalType // numbers can be converted into any number type
+	G |- MathematicalType exprType !>> MathematicalType castType
+
+rule CCMatrixType
+	derives G |- MatrixType exprType !>> MatrixType castType
+from {
+	exprType.dimensionsEqual(castType)
+}
+
+rule CCTupleType // tuples can be casted if each component can be casted
+	derives G |- TupleType exprType !>> TupleType castType
+from {
+	(exprType.types.length == castType.types.length)
+
+	val iterator = castType.types.iterator()
+	for (t : exprType.types) {
+		G |- t !>> iterator.next()
+	}
+}
