@@ -273,10 +273,6 @@ ParenthesizedExpression :
 	'(' expr=Expression ')'
 ;
 
-TypeCheckExpression :
-	type=Type '?(' + expr=Expression ')'
-;
-
 AtomExpression returns Expression :
 	MathematicalLiteral
 	| BooleanLiteral
@@ -287,7 +283,6 @@ AtomExpression returns Expression :
 	| GenericVariable
 	| ParenthesizedExpression
 	| DeterminantOrAbsoluteValue
-	| TypeCheckExpression
 	| TupleExpression
 ;
 
@@ -344,8 +339,12 @@ CastExpression returns Expression :
 	Addition ({CastExpression.expr=current} 'as' type=Type)?
 ;
 
+TypeCheckExpression returns Expression :
+	CastExpression ({TypeCheckExpression.expr=current} 'is' type=Type)?
+;
+
 Equivalency returns Expression :
-	CastExpression ({Equivalency.left=current} '~' right=CastExpression)*
+	TypeCheckExpression ({Equivalency.left=current} '~' right=TypeCheckExpression)*
 ;
 
 Comparison returns Expression :
