@@ -487,6 +487,11 @@ class TupleExpression extends Expression {
 abstract class Expression extends MatrixEntry {
 }
 
+class TypeComparisonExpression extends Expression {
+	contains Type sub
+	contains Type sup
+}
+
 abstract class UnaryExpression extends Expression {
 	contains Expression expr
 

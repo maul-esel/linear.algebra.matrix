@@ -255,6 +255,21 @@ from {
 	G |~ value <| check.type ~> b
 }
 
+rule ITypeComparisonExpression
+	G |- TypeComparisonExpression comp ~> Boolean b
+from {
+	val generics = env(G, 'generics', GenericRegister)
+	val actualSub = if (comp.sub instanceof GenericType)
+			generics.getType(comp.sub as GenericType)
+		else comp.sub
+	val actualSup = if(comp.sup instanceof GenericType)
+			generics.getType(comp.sup as GenericType)
+		else comp.sup
+
+	b = true
+	{ G |- actualSub <: actualSup } or { b = false }
+}
+
 rule ICastExpression
 	G |- CastExpression cast ~> Object result
 from {

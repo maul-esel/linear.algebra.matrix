@@ -273,6 +273,10 @@ ParenthesizedExpression :
 	'(' expr=Expression ')'
 ;
 
+TypeComparisonExpression :
+	sub=Type 'is' sup=Type
+;
+
 AtomExpression returns Expression :
 	MathematicalLiteral
 	| BooleanLiteral
@@ -284,6 +288,7 @@ AtomExpression returns Expression :
 	| ParenthesizedExpression
 	| DeterminantOrAbsoluteValue
 	| TupleExpression
+	| TypeComparisonExpression
 ;
 
 // III. c) complex expressions

@@ -214,6 +214,9 @@ axiom TImaginaryLiteral
 axiom TTypeCheckExpression
 	G |- TypeCheckExpression check : MatrixFactory.eINSTANCE.createBooleanType()
 
+axiom TTypeComparisonExpression
+	G |- TypeComparisonExpression comp : MatrixFactory.eINSTANCE.createBooleanType()
+
 axiom TCastExpression
 	G |- CastExpression cast : cast.type
 
