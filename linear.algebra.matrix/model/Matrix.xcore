@@ -40,10 +40,7 @@ class Import extends MatrixSyntaxElement {
 
 	derived String name
 	get {
-		if (alias != null)
-			alias
-		else
-			source
+		alias ?: source
 	}
 }
 
