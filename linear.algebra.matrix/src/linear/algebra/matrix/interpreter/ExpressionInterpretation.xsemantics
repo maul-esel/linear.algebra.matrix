@@ -255,6 +255,13 @@ from {
 	G |~ value <| check.type ~> b
 }
 
+rule ICastExpression
+	G |- CastExpression cast ~> Object result
+from {
+	G |- cast.expr ~> var Object value
+	G |~ value !>> cast.type |> result
+}
+
 rule IEntryAccess
 	G |- EntryAccess acc ~> Object entry
 from {

@@ -1,5 +1,5 @@
 system linear.algebra.matrix.semantics.Typing
-	extends linear.algebra.matrix.semantics.CommonType
+	extends linear.algebra.matrix.semantics.Casting
 
 import linear.algebra.matrix.matrix.*
 
@@ -213,6 +213,9 @@ axiom TImaginaryLiteral
 
 axiom TTypeCheckExpression
 	G |- TypeCheckExpression check : MatrixFactory.eINSTANCE.createBooleanType()
+
+axiom TCastExpression
+	G |- CastExpression cast : cast.type
 
 rule TVariable
 	G |- Variable variable : Type type

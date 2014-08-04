@@ -29,6 +29,7 @@ auxiliary {
 
 judgments {
 	implicitCoerce |~ Object value >> Type type |> output Object
+	explicitCast |~ Object value !>> Type type |> output Object
 }
 
 auxiliary createMatrix(MathematicalType entries, Integer lines, Integer columns) {
@@ -112,4 +113,61 @@ from {
 		values.add(entry)
 	}
 	out = new Tuple(values.toArray)
+}
+
+rule ECDefault // fallback to implicit coercion (explicit casts are a superset of implicit coercions)
+	G |~ Object value !>> Type type |> Object out
+from {
+	G |~ value >> type |> out
+}
+
+// ... !>> int
+axiom ECNumberInteger
+	G |~ Number value !>> IntegerType type |> value.intValue()
+
+// ... !>> rational
+axiom ECRealRational
+	G |~ Double value !>> RationalType type |> Rational.approximate(value)
+
+rule ECComplexRational
+	G |~ Complex value !>> RationalType type |> Rational result
+from {
+	switch (re : value.realPart) {
+		Integer  : new Rational(re, 1)
+		Rational : re
+		Double   : Rational.approximate(re)
+		default  : Rational.approximate(re.doubleValue)
+	}
+}
+
+// ... !>> real
+axiom ECComplexReal
+	G |~ Complex value !>> RealType type |> value.realPart.doubleValue
+
+rule ECTuple
+	G |~ Tuple value !>> TupleType type |> Tuple result
+from {
+	(value.length == type.types.size)
+
+	val entries = new LinkedList<Object>()
+	val iterator = type.types.iterator()
+	for (e : value.entries) {
+		G |~ e !>> iterator.next() |> var Object casted
+		entries.add(casted)
+	}
+
+	result = new Tuple(entries.toArray)
+}
+
+rule ECMatrix
+	G |~ Matrix<?> value !>> MatrixType type |> Matrix<?> result
+from {
+	(value.width.toString().equals(type.width) && value.height.toString().equals(type.height))
+
+	result = createMatrix(type.entryType, value.height, value.width)
+	for (i : 1..value.height)
+		for (j : 1..value.width) {
+			G |~ value.getEntry(i, j) !>> type.entryType |> var Number entry
+			setMatrixEntry(result, i, j, entry)
+		}
 }
