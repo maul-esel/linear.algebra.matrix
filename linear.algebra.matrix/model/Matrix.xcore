@@ -70,6 +70,9 @@ class InferredVarDeclaration extends VarDeclaration {
 class ParamDeclaration extends TypedVarDeclaration {
 }
 
+class ImplicitVarDeclaration extends VarDeclaration {
+}
+
 class MatrixInitVarDeclaration extends TypedVarDeclaration {
 	contains derived Type intType // private
 
@@ -185,11 +188,8 @@ class WhileLoop extends Loop {
 	}
 }
 
-class ForLoopVarDeclaration extends VarDeclaration {
-}
-
 class ForLoop extends Loop {
-	contains ForLoopVarDeclaration variable
+	contains ImplicitVarDeclaration variable
 	contains Expression listOrSet
 
 	op boolean alwaysAssigns(VarDeclaration variable) {
@@ -520,7 +520,7 @@ class SetLiteralExpression extends Expression {
 
 class SubsetExpression extends Expression {
 	contains Expression superSet
-	String entryID
+	contains ImplicitVarDeclaration entry
 	contains Expression entryExpression
 	contains Expression condition
 
@@ -531,7 +531,7 @@ class SubsetExpression extends Expression {
 
 class TypeSetExpression extends Expression {
 	contains Type entryType
-	String entryID
+	contains ImplicitVarDeclaration entry
 	contains Expression condition
 
 	op boolean alwaysAssigns(VarDeclaration variable) {
