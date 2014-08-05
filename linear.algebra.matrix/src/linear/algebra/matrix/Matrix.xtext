@@ -180,8 +180,12 @@ MatrixType :
 	entryType=MathematicalType? '(' height=(POSITIVE_INTEGER|GENERIC_VAR) ('°'|X) width=(POSITIVE_INTEGER|GENERIC_VAR) ')'
 ;
 
-Type :
+SimpleType returns Type :
 	MatrixType | TupleType | MathematicalType | {BooleanType} BOOL
+;
+
+Type :
+	SimpleType (({SetType.entryType=current} '{' isFinite?='finite'? '}') | ({ListType.entryType=current} '[]'))*
 ;
 
 // III. Expressions
