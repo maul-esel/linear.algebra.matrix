@@ -163,28 +163,22 @@ class ProcCall extends Action, CallableInvocation<ProcDeclaration> {
 		}
 }
 
-class FromToLoop extends Action {
+abstract class Loop extends Action {
+	contains Block body
+}
+
+class FromToLoop extends Loop {
 	contains Variable ^var
 	contains Expression init
 	contains Expression end
-	contains Block body
-
-	op boolean alwaysReturnsOrFails() {
-		body.alwaysReturnsOrFails()
-	}
 
 	op boolean alwaysAssigns(VarDeclaration variable) {
 		init.alwaysAssigns(variable) || end.alwaysAssigns(variable)
 	}
 }
 
-class WhileLoop extends Action {
+class WhileLoop extends Loop {
 	contains Expression cond
-	contains Block body
-
-	op boolean alwaysReturnsOrFails() {
-		body.alwaysReturnsOrFails()
-	}
 
 	op boolean alwaysAssigns(VarDeclaration variable) {
 		cond.alwaysAssigns(variable)
