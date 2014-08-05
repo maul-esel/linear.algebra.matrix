@@ -185,6 +185,18 @@ class WhileLoop extends Loop {
 	}
 }
 
+class ForLoopVarDeclaration extends VarDeclaration {
+}
+
+class ForLoop extends Loop {
+	contains ForLoopVarDeclaration variable
+	contains Expression listOrSet
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		listOrSet.alwaysAssigns(variable)
+	}
+}
+
 class Block extends IfBody {
 	contains Action[] lines
 
@@ -388,6 +400,15 @@ class MatrixType extends Type {
 	}
 }
 
+class SetType extends Type {
+	contains Type entryType
+	boolean isFinite
+}
+
+class ListType extends Type {
+	contains Type entryType
+}
+
 class BooleanLiteral extends Expression {
 	String value
 }
@@ -479,6 +500,50 @@ class TupleExpression extends Expression {
 }
 
 abstract class Expression extends MatrixEntry {
+}
+
+class ListLiteralExpression extends Expression {
+	contains Expression[] entries
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		entries.exists [ alwaysAssigns(variable) ]
+	}
+}
+
+class SetLiteralExpression extends Expression {
+	contains Expression[] entries
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		entries.exists [ alwaysAssigns(variable) ]
+	}
+}
+
+class SubsetExpression extends Expression {
+	contains Expression superSet
+	String entryID
+	contains Expression entryExpression
+	contains Expression condition
+}
+
+class TypeSetExpression extends Expression {
+	contains Type entryType
+	String entryID
+	contains Expression condition
+}
+
+class IsElementExpression extends Expression {
+	contains Expression element
+	contains Expression elementContainer
+}
+
+class ListIndexAccess extends Expression {
+	contains Expression list
+	contains Expression index
+}
+
+class ListIndexAssignment extends Assignment {
+	contains Expression list
+	contains Expression index
 }
 
 class TypeComparisonExpression extends Expression {
