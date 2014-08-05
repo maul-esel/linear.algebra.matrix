@@ -23,13 +23,15 @@ Action :
 	| (VariableAssignment ';')
 	| (MatrixEntryAssignment ';')
 	| (TupleAssignment ';')
+	| (ListIndexAssignment ';')
 	| (FunctionCall ';')
 	| ReturnStatement
 	| FailureStatement
 	| IfElse
 	| ProcCall
 	| FromToLoop
-	| WhileLoop // TODO: solve proc/func conflict without backtracking
+	| WhileLoop
+	| ForLoop // TODO: solve proc/func conflict without backtracking
 ;
 
 InferredVarDeclaration :
@@ -55,6 +57,10 @@ TupleVarDeclaration :
 
 EmptyTupleVarDeclarationComponent :
 	{EmptyTupleVarDeclarationComponent}
+;
+
+ImplicitVarDeclaration :
+	name=ID
 ;
 
 ReturnStatement :
@@ -110,6 +116,10 @@ FromToLoop :
 
 WhileLoop :
 	'while' cond=Expression body=Block
+;
+
+ForLoop :
+	'for' variable=ImplicitVarDeclaration 'in' listOrSet=Expression body=Block
 ;
 
 Block: 
@@ -210,6 +220,14 @@ MathematicalLiteral :
 	ImaginaryLiteral | IntLiteral | RealLiteral
 ;
 
+ListLiteralExpression :
+	{ListLiteralExpression} '[' (entries+=Expression (',' entries+=Expression)*)? ']'
+;
+
+SetLiteralExpression :
+	{SetLiteralExpression} '{' (entries+=Expression (',' entries+=Expression)*)? '}'
+;
+
 // III. a) (i) Matrix literals
 MatrixInit :
 	'init' entryType=MathematicalType? '(' line=MatrixInitVarDeclaration '..' lineMax=(POSITIVE_INTEGER|GENERIC_VAR) ',' column=MatrixInitVarDeclaration '..' colMax=(POSITIVE_INTEGER|GENERIC_VAR) ')' '~>' entry=Expression
@@ -281,10 +299,20 @@ TypeComparisonExpression :
 	sub=Type 'is' sup=Type
 ;
 
+SubsetExpression :
+	'{' (entryExpression=Expression 'for')? entry=ImplicitVarDeclaration 'in' superSet=Expression OP_COLON condition=Expression '}'
+;
+
+TypeSetExpression :
+	'{' entry=ImplicitVarDeclaration 'in' entryType=Type OP_COLON condition=Expression '}'
+;
+
 AtomExpression returns Expression :
 	MathematicalLiteral
 	| BooleanLiteral
+	| ListLiteralExpression
 	| MultiLineMatrixLiteral
+	| SetLiteralExpression
 	| MatrixInit
 	| FunctionCall
 	| Variable
@@ -293,6 +321,8 @@ AtomExpression returns Expression :
 	| DeterminantOrAbsoluteValue
 	| TupleExpression
 	| TypeComparisonExpression
+	| SubsetExpression
+	| TypeSetExpression
 ;
 
 // III. c) complex expressions
@@ -302,6 +332,10 @@ VariableAssignment :
 
 MatrixEntryAssignment :
 	matr=AtomExpression '[' line=Expression ',' column=Expression ']' OP_ASSIGN value=Expression
+;
+
+ListIndexAssignment :
+	list=AtomExpression '[' index=Expression ']' OP_ASSIGN value=Expression
 ;
 
 TupleAssignment :
@@ -316,8 +350,12 @@ EntryAccess returns Expression :
 	AtomExpression ({EntryAccess.matr=current} '[' line=Expression ',' column=Expression ']')*
 ;
 
+ListIndexAccess returns Expression :
+	EntryAccess ({ListIndexAccess.list=current} '[' index=Expression ']')*
+;
+
 Negation returns Expression :
-	EntryAccess | ({Negation} ('!'|'¬') expr=EntryAccess)
+	ListIndexAccess | ({Negation} ('!'|'¬') expr=ListIndexAccess)
 ;
 
 Transposition returns Expression :
@@ -364,8 +402,12 @@ Equals returns Expression :
 	Comparison ({Equals.left=current} op=EqualsOp right=Comparison)*
 ;
 
+IsElementExpression returns Expression :
+	Equals ({IsElementExpression.element=current} ('is'|'∈') elementContainer=Expression)*
+;
+
 LogicalAndOr returns Expression:
-	Equals ({LogicalAndOr.left=current} op=LogicalOp right=Equals)*
+	IsElementExpression ({LogicalAndOr.left=current} op=LogicalOp right=IsElementExpression)*
 ;
 
 Ternary returns Expression :
@@ -377,6 +419,7 @@ Expression returns Expression :
 	| Ternary
 	| MatrixEntryAssignment
 	| TupleAssignment
+	| ListIndexAssignment
 ;
 
 // III. d) operator enums
