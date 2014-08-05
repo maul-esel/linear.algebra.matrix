@@ -523,27 +523,47 @@ class SubsetExpression extends Expression {
 	String entryID
 	contains Expression entryExpression
 	contains Expression condition
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		superSet.alwaysAssigns(variable)
+	}
 }
 
 class TypeSetExpression extends Expression {
 	contains Type entryType
 	String entryID
 	contains Expression condition
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		condition.alwaysAssigns(variable)
+	}
 }
 
 class IsElementExpression extends Expression {
 	contains Expression element
 	contains Expression elementContainer
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		element.alwaysAssigns(variable) || elementContainer.alwaysAssigns(variable)
+	}
 }
 
 class ListIndexAccess extends Expression {
 	contains Expression list
 	contains Expression index
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		list.alwaysAssigns(variable) || index.alwaysAssigns(variable)
+	}
 }
 
 class ListIndexAssignment extends Assignment {
 	contains Expression list
 	contains Expression index
+
+	op boolean alwaysAssigns(VarDeclaration variable) {
+		list.alwaysAssigns(variable) || index.alwaysAssigns(variable) || value.alwaysAssigns(variable)
+	}
 }
 
 class TypeComparisonExpression extends Expression {
