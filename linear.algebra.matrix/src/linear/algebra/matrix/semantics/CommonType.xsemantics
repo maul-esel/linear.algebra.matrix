@@ -3,6 +3,8 @@ system linear.algebra.matrix.semantics.CommonType
 
 import linear.algebra.matrix.matrix.Type
 import linear.algebra.matrix.matrix.TupleType
+import linear.algebra.matrix.matrix.SetType
+import linear.algebra.matrix.matrix.ListType
 import linear.algebra.matrix.matrix.MatrixFactory
 
 judgments {
@@ -33,4 +35,34 @@ from {
 	}
 }
 
-// That's all there is with the current types. More will come when more types are introduced.
+rule ASetTypes
+	G |- SetType first ~~ SetType second |> SetType common
+from {
+	G |- first.entryType ~~ second.entryType |> var Type commonEntryType
+	common = MatrixFactory.eINSTANCE.createSetType()
+	common.entryType = commonEntryType
+	common.isFinite = first.isFinite && second.isFinite
+}
+
+rule AListTypes
+	G |- ListType first ~~ ListType second |> ListType common
+from {
+	G |- first.entryType ~~ second.entryType |> var Type commonEntryType
+	common = MatrixFactory.eINSTANCE.createListType()
+	common.entryType = commonEntryType
+}
+
+rule ASetListTypes
+	G |- SetType first ~~ ListType second |> SetType common
+from {
+	G |- first.entryType ~~ second.entryType |> var Type commonEntryType
+	common = MatrixFactory.eINSTANCE.createSetType()
+	common.entryType = commonEntryType
+	common.isFinite = first.isFinite // lists are always finite
+}
+
+rule AListSetTypes
+	G |- ListType first ~~ SetType second |> SetType common
+from {
+	G |- second ~~ first |> common
+}

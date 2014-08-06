@@ -5,6 +5,8 @@ import linear.algebra.matrix.matrix.Type
 import linear.algebra.matrix.matrix.MathematicalType
 import linear.algebra.matrix.matrix.MatrixType
 import linear.algebra.matrix.matrix.TupleType
+import linear.algebra.matrix.matrix.SetType
+import linear.algebra.matrix.matrix.ListType
 
 judgments {
 	canCast |- Type exprType !>> Type castType
@@ -35,4 +37,18 @@ from {
 	for (t : exprType.types) {
 		G |- t !>> iterator.next()
 	}
+}
+
+rule CCSetType
+	derives G |- SetType exprType !>> SetType castType
+from {
+	G |- exprType.entryType !>> castType.entryType
+	!castType.isFinite || exprType.isFinite // castType.isFinite => exprType.isFinite
+}
+
+rule CCSetListType
+	derives G |- SetType exprType !>> ListType castType
+from {
+	G |- exprType.entryType !>> castType.entryType
+	exprType.isFinite
 }

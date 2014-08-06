@@ -11,6 +11,8 @@ import linear.algebra.matrix.matrix.RealType
 import linear.algebra.matrix.matrix.ComplexType
 import linear.algebra.matrix.matrix.GenericType
 import linear.algebra.matrix.matrix.TupleType
+import linear.algebra.matrix.matrix.SetType
+import linear.algebra.matrix.matrix.ListType
 
 judgments {
 	subtype |- Type sub <: Type sup
@@ -48,6 +50,25 @@ from {
 	for (i : 0..<sub.types.size) {
 		G |- sub.types.get(i) <: sup.types.get(i)
 	}
+}
+
+rule SSetType
+	derives G |- SetType sub <: SetType sup
+from {
+	G |- sub.entryType <: sup.entryType
+	!sup.isFinite || sub.isFinite // sup.isFinite => sub.isFinite // only a finite set can be used in place of a finite set 
+}
+
+rule SListType
+	derives G |- ListType sub <: ListType sup
+from {
+	G |- sub.entryType <: sup.entryType
+}
+
+rule SListSetType // lists can be passed for sets
+	derives G |- ListType sub <: SetType sup
+from {
+	G |- sub.entryType <: sup.entryType
 }
 
 rule SDefault
