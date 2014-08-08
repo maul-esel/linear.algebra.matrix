@@ -2,6 +2,8 @@
 @GenModel(fileExtensions="mtx", forceOverwrite="true", updateClasspath="false", modelDirectory="/linear.algebra.matrix/emf-gen")
 package linear.algebra.matrix.matrix
 
+import org.eclipse.emf.common.util.BasicEList
+
 type Iterable<T> wraps Iterable
 type Class<T> wraps Class
 
@@ -71,6 +73,17 @@ class ParamDeclaration extends TypedVarDeclaration {
 }
 
 class ImplicitVarDeclaration extends VarDeclaration {
+	contains derived ImplicitVarContainer variableContainer
+	get {
+		var c = eContainer
+		while (c != null && !(c instanceof ImplicitVarContainer && (c as ImplicitVarContainer).implicitVariables.contains(this)))
+			c = c.eContainer
+		c as ImplicitVarContainer
+	}
+}
+
+interface ImplicitVarContainer extends MatrixSyntaxElement {
+	op ImplicitVarDeclaration[] getImplicitVariables()
 }
 
 class MatrixInitVarDeclaration extends TypedVarDeclaration {
@@ -188,12 +201,16 @@ class WhileLoop extends Loop {
 	}
 }
 
-class ForLoop extends Loop {
+class ForLoop extends Loop, ImplicitVarContainer {
 	contains ImplicitVarDeclaration variable
 	contains Expression listOrSet
 
 	op boolean alwaysAssigns(VarDeclaration variable) {
 		listOrSet.alwaysAssigns(variable)
+	}
+
+	op ImplicitVarDeclaration[] getImplicitVariables() {
+		new BasicEList(#[variable])
 	}
 }
 
@@ -520,7 +537,7 @@ class SetLiteralExpression extends Expression {
 	}
 }
 
-class SubsetExpression extends Expression {
+class SubsetExpression extends Expression, ImplicitVarContainer {
 	contains Expression superSet
 	contains ImplicitVarDeclaration entry
 	contains Expression entryExpression
@@ -529,15 +546,23 @@ class SubsetExpression extends Expression {
 	op boolean alwaysAssigns(VarDeclaration variable) {
 		superSet.alwaysAssigns(variable)
 	}
+
+	op ImplicitVarDeclaration[] getImplicitVariables() {
+		new BasicEList(#[entry])
+	}
 }
 
-class TypeSetExpression extends Expression {
+class TypeSetExpression extends Expression, ImplicitVarContainer {
 	contains Type entryType
 	contains ImplicitVarDeclaration entry
 	contains Expression condition
 
 	op boolean alwaysAssigns(VarDeclaration variable) {
 		condition.alwaysAssigns(variable)
+	}
+
+	op ImplicitVarDeclaration[] getImplicitVariables() {
+		new BasicEList(#[entry])
 	}
 }
 
