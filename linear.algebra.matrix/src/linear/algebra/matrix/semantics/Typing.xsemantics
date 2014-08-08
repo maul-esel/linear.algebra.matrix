@@ -186,6 +186,26 @@ from {
 	G |- decl.value : type
 }
 
+rule TImplicitVarDecl
+	G ||- ImplicitVarDeclaration decl : Type type
+from {
+	switch (c : decl.variableContainer) {
+		TypeSetExpression : type = c.entryType
+		SubsetExpression : {
+			G |- c.superSet : var ContainerType containerType
+			type = containerType.entryType
+		}
+		ForLoop : {
+			G |- c.listOrSet : var ContainerType containerType
+			type = containerType.entryType
+		}
+		default : {
+			fail error "Unsupported ImplicitVarContainer: " + c
+				source decl
+		}
+	}
+}
+
 rule TTupleVarDeclaration
 	G ||- TupleVarDeclaration decl : Type type
 from {
