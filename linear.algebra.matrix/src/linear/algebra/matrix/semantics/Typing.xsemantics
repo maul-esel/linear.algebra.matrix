@@ -243,11 +243,68 @@ axiom TRealLiteral
 axiom TImaginaryLiteral
 	G |- ImaginaryLiteral im : MatrixFactory.eINSTANCE.createComplexType()
 
+rule TListLiteral
+	G |- ListLiteralExpression list : ListType type
+from {
+	var Type entryType
+
+	G |- list.entries --> var Iterable<Type> types
+	G |- types |> entryType
+	or fail error "Cannot type list: no common entry type found"
+		source list
+
+	type = MatrixFactory.eINSTANCE.createListType()
+	type.entryType = entryType
+}
+
+rule TSetLiteral
+	G |- SetLiteralExpression set : SetType type
+from {
+	var Type entryType
+
+	G |- set.entries --> var Iterable<Type> types
+	G |- types |> entryType
+	or fail error "Cannot type list: no common entry type found"
+		source set
+
+	type = MatrixFactory.eINSTANCE.createSetType()
+	type.entryType = entryType
+	type.isFinite = true
+}
+
+rule TSubsetExpression
+	G |- SubsetExpression subset : SetType type
+from {
+	G |- subset.superSet : var ContainerType superSetType
+
+	var Type entryType
+	if (subset.entryExpression != null) {
+		G |- subset.entryExpression : entryType
+	} else {
+		entryType = superSetType.entryType
+	}
+
+	type = MatrixFactory.eINSTANCE.createSetType()
+	type.entryType = entryType
+	type.isFinite = if (superSetType instanceof SetType) superSetType.isFinite else false
+}
+
+rule TTypeSetExpression
+	G |- TypeSetExpression typeSet : SetType type
+from {
+	type = MatrixFactory.eINSTANCE.createSetType()
+	type.entryType = typeSet.entryType
+	type.isFinite = false
+}
+
 axiom TTypeCheckExpression
 	G |- TypeCheckExpression check : MatrixFactory.eINSTANCE.createBooleanType()
 
 axiom TTypeComparisonExpression
 	G |- TypeComparisonExpression comp : MatrixFactory.eINSTANCE.createBooleanType()
+
+axiom TIsElementExpression
+	G |- IsElementExpression expr : MatrixFactory.eINSTANCE.createBooleanType()
 
 axiom TCastExpression
 	G |- CastExpression cast : cast.type
@@ -289,16 +346,21 @@ rule TDeterminantOrAbsoluteValue
 from {
 	G |- expr.expr : var Type innerType
 
-	if (innerType instanceof MatrixType) {
-		{ innerType.isSquare }
-		or fail error "Matrix determinant is only defined for square matrices" source expr
-		type = innerType.entryType
-	} else if (innerType instanceof ComplexType)
-		type = MatrixFactory.eINSTANCE.createRealType()
-	else if (innerType instanceof MathematicalType)
-		type = innerType
-	else {
-		fail error "Cannot type determinant or absolute value of type " + stringRep(innerType) source expr
+	switch (innerType) {
+		MatrixType : {
+			{ innerType.isSquare }
+			or fail error "Matrix determinant is only defined for square matrices" source expr
+			type = innerType.entryType
+		}
+		ComplexType :
+			type = MatrixFactory.eINSTANCE.createRealType()
+		MathematicalType :
+			type = innerType
+		SetType, ListType :
+			type = MatrixFactory.eINSTANCE.createIntegerType()
+		default : {
+			fail error "Cannot type determinant or absolute value of type " + stringRep(innerType) source expr
+		}
 	}
 }
 
@@ -356,6 +418,20 @@ from {
 	G |- assign.value : var Type valType
 	G |- valType <: matrType.realEntryType or fail error "entry cannot be assigned" source assign.value
 	type = matrType.realEntryType
+}
+
+rule TListIndexAssignment
+	G |- ListIndexAssignment assign : Type type
+from {
+	G |- assign.list : var ListType listType
+	type = listType.entryType
+}
+
+rule TListIndexAccess
+	G  |- ListIndexAccess access : Type type
+from {
+	G |- access.list : var ListType listType
+	type = listType.entryType
 }
 
 rule TTupleAssignment
