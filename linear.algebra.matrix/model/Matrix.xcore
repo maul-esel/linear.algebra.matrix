@@ -400,13 +400,15 @@ class MatrixType extends Type {
 	}
 }
 
-class SetType extends Type {
+abstract class ContainerType extends Type {
 	contains Type entryType
+}
+
+class SetType extends ContainerType {
 	boolean isFinite
 }
 
-class ListType extends Type {
-	contains Type entryType
+class ListType extends ContainerType {
 }
 
 class BooleanLiteral extends Expression {
