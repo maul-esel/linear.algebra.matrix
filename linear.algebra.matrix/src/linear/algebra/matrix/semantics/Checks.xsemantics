@@ -364,6 +364,95 @@ from {
 		source loop.cond
 }
 
+checkrule CForLoop
+	for ForLoop loop
+from {
+	{
+		empty |- loop.listOrSet : var SetType setType
+		setType.isFinite
+	} or {
+		empty |- loop.listOrSet : var ListType listType
+	} or fail error "For-Loop can only traverse finite sets and lists"
+		source loop
+		feature MatrixPackage.eINSTANCE.forLoop_ListOrSet
+}
+
+checkrule CSubsetExpressionSuperset
+	for SubsetExpression subset
+from {
+	{
+		empty |- subset.superSet : var ListType listType
+	} or {
+		empty |- subset.superSet : var SetType setType
+		setType.isFinite || subset.entryExpression == null
+		or fail error "Entry expression not allowed for infinite supersets"
+			source subset
+			feature MatrixPackage.eINSTANCE.subsetExpression_EntryExpression
+	} or fail error "Subsets can only be created from lists and sets"
+		source subset
+		feature MatrixPackage.eINSTANCE.subsetExpression_SuperSet
+}
+
+checkrule CSubsetExpressionConditionIsBoolean
+	for SubsetExpression subset
+from {
+	{ empty |- subset.getCondition() : var BooleanType b }
+	or fail error "Entry condition must be boolean"
+		source subset
+		feature MatrixPackage.eINSTANCE.subsetExpression_Condition
+}
+
+checkrule CTypeSetExpressionConditionIsBoolean
+	for TypeSetExpression typeset
+from {
+	empty |- typeset.getCondition() : var BooleanType b
+	or fail error "Entry condition must be boolean"
+		source typeset
+		feature MatrixPackage.eINSTANCE.typeSetExpression_Condition
+}
+
+checkrule CListIndexAssignmentIndexIsInteger
+	for ListIndexAssignment assign
+from {
+	empty |- assign.index : var IntegerType i
+	or fail error "List index must be integer"
+		source assign
+		feature MatrixPackage.eINSTANCE.listIndexAssignment_Index
+}
+
+checkrule CListIndexAccessIndexIsInteger
+	for ListIndexAccess access
+from {
+	empty |- access.index : var IntegerType i
+	or fail error "List index must be integer"
+		source access
+		feature MatrixPackage.eINSTANCE.listIndexAccess_Index
+}
+
+checkrule CIsElementExpressionElementContainerIsListOrSet
+	for IsElementExpression expr
+from {
+	{ empty |- expr.elementContainer : var ListType list }
+	or { empty |- expr.elementContainer : var SetType set }
+	or fail error "Must be a set or list"
+		source expr
+		feature MatrixPackage.eINSTANCE.isElementExpression_ElementContainer
+}
+
+checkrule CIsElementExpressionTypesMatch
+	for IsElementExpression expr
+from {
+	{
+		empty |- expr.elementContainer : var ContainerType container
+		empty |- expr.element : var Type element
+
+		empty |- element <: container.entryType
+		or fail error "Element has incompatible type"
+			source expr
+			feature MatrixPackage.eINSTANCE.isElementExpression_Element
+	} or { true }
+}
+
 checkrule CBlockHasNoUnreachableCode
 	for Block block
 from {

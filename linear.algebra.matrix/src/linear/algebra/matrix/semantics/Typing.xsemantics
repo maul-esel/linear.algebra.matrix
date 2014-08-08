@@ -424,6 +424,13 @@ rule TListIndexAssignment
 	G |- ListIndexAssignment assign : Type type
 from {
 	G |- assign.list : var ListType listType
+	G |- assign.value : var Type valType
+
+	G |- valType <: listType.entryType
+	or fail error "list index cannot be assigned"
+		source assign
+		feature MatrixPackage.eINSTANCE.assignment_Value
+
 	type = listType.entryType
 }
 
