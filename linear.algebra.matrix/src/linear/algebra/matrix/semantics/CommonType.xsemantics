@@ -10,6 +10,21 @@ import linear.algebra.matrix.matrix.MatrixFactory
 judgments {
 	generalType |- Type first ~~ Type second |> output Type
 		error "No common super type for types " + stringRep(first) + " and " + stringRep(second)
+	commonType |- Iterable<Type> types |> output Type
+}
+
+rule CTDefault
+	G |- Iterable<Type> types |> Type common
+from  {
+	if (types.length == 0)
+		common = null
+	else {
+		val iterator = types.iterator()
+		common = iterator.next()
+		while (iterator.hasNext()) {
+			G |- iterator.next() ~~ common |> common
+		}
+	}
 }
 
 rule ADefault

@@ -22,6 +22,7 @@ judgments {
 		source expr
     vartype ||- VarDeclaration decl : output Type
     invocation |= CallableDeclaration decl <~! CallableInvocation<?> call |> output GenericRegister
+    typeList |- Iterable<Expression> exprs --> output Iterable<Type>
 }
 
 auxiliary multipliedMatrixType(MatrixType left, MatrixType right) {
@@ -176,6 +177,17 @@ from {
 		source call
 }
 
+rule TLDefault
+	G |- Iterable<Expression> exprs --> Iterable<Type> types
+from {
+	exprs.map [ expr |
+		try {
+			G |- expr : var Type t
+			t
+		} catch (Exception e) { null }
+	]
+}
+
 /* TYPING */
 axiom TTypedVarDecl
 	G ||- TypedVarDeclaration variable : variable.type
@@ -249,11 +261,10 @@ from {
 rule TTuple
 	G |- TupleExpression tuple : TupleType type
 from {
+	G |- tuple.entries --> var Iterable<Type> entryTypes
+
 	type = MatrixFactory.eINSTANCE.createTupleType()
-	for (entry : tuple.entries) {
-		G |- entry : var Type entryType
-		type.types.add(entryType)
-	}
+	type.types.addAll(entryTypes)
 }
 
 rule TFunctionCall
