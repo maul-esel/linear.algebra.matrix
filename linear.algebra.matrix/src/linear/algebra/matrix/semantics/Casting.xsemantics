@@ -42,13 +42,17 @@ from {
 rule CCSetType
 	derives G |- SetType exprType !>> SetType castType
 from {
-	G |- exprType.entryType !>> castType.entryType
+	{ exprType.entryType == null }
+	or { G |- exprType.entryType !>> castType.entryType }
+
 	!castType.isFinite || exprType.isFinite // castType.isFinite => exprType.isFinite
 }
 
 rule CCSetListType
 	derives G |- SetType exprType !>> ListType castType
 from {
-	G |- exprType.entryType !>> castType.entryType
+	{ exprType.entryType == null }
+	or { G |- exprType.entryType !>> castType.entryType }
+
 	exprType.isFinite
 }

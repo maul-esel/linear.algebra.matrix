@@ -38,26 +38,35 @@ from {
 rule ASetTypes
 	G |- SetType first ~~ SetType second |> SetType common
 from {
-	G |- first.entryType ~~ second.entryType |> var Type commonEntryType
+	var Type commonEntryType = null
+	try { G |- first.entryType ~~ second.entryType |> commonEntryType }
+	catch (Exception e) {}
+
 	common = MatrixFactory.eINSTANCE.createSetType()
-	common.entryType = commonEntryType
+	common.entryType = commonEntryType ?: first.entryType ?: second.entryType
 	common.isFinite = first.isFinite && second.isFinite
 }
 
 rule AListTypes
 	G |- ListType first ~~ ListType second |> ListType common
 from {
-	G |- first.entryType ~~ second.entryType |> var Type commonEntryType
+	var Type commonEntryType = null
+	try { G |- first.entryType ~~ second.entryType |> commonEntryType }
+	catch (Exception e) {}
+
 	common = MatrixFactory.eINSTANCE.createListType()
-	common.entryType = commonEntryType
+	common.entryType = commonEntryType ?: first.entryType ?: second.entryType
 }
 
 rule ASetListTypes
 	G |- SetType first ~~ ListType second |> SetType common
 from {
-	G |- first.entryType ~~ second.entryType |> var Type commonEntryType
+	var Type commonEntryType = null
+	try { G |- first.entryType ~~ second.entryType |> commonEntryType }
+	catch (Exception e) {}
+
 	common = MatrixFactory.eINSTANCE.createSetType()
-	common.entryType = commonEntryType
+	common.entryType = commonEntryType ?: first.entryType ?: second.entryType
 	common.isFinite = first.isFinite // lists are always finite
 }
 
