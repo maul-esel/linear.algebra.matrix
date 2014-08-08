@@ -180,7 +180,7 @@ from {
 rule TLDefault
 	G |- Iterable<Expression> exprs --> Iterable<Type> types
 from {
-	exprs.map [ expr |
+	types = exprs.map [ expr |
 		try {
 			G |- expr : var Type t
 			t
