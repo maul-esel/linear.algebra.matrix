@@ -2,6 +2,7 @@
 @GenModel(fileExtensions="mtx", forceOverwrite="true", updateClasspath="false", modelDirectory="/linear.algebra.matrix/emf-gen")
 package linear.algebra.matrix.matrix
 
+import java.util.LinkedList
 import org.eclipse.emf.common.util.BasicEList
 
 type Iterable<T> wraps Iterable
@@ -13,6 +14,17 @@ abstract class MatrixSyntaxElement {
 		while (cont != null && !cont.instanceOfAny(types))
 			cont = cont.eContainer
 		cont as T
+	}
+
+	op <S> S[] findAllAncestors(Iterable<? extends Class<? extends S>> types) {
+		val list = new LinkedList<S>()
+		var cont = eContainer;
+		while (cont != null) {
+			if (cont.instanceOfAny(types))
+				list.add(cont as S)
+			cont = cont.eContainer
+		}
+		new BasicEList(list)
 	}
 
 	op <T> boolean instanceOfAny(Object o, Iterable<? extends Class<? extends T>> types) {
