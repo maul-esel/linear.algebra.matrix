@@ -221,7 +221,7 @@ class WhileLoop extends Loop {
 	}
 }
 
-class ForLoop extends Loop, ImplicitlyTypedVarContainer {
+class ForLoop extends Loop, ImplicitlyTypedVarContainer, ImplicitVariableInitializer {
 	contains ImplicitlyTypedVarDeclaration variable
 	contains Expression listOrSet
 
@@ -231,6 +231,10 @@ class ForLoop extends Loop, ImplicitlyTypedVarContainer {
 
 	op ImplicitlyTypedVarDeclaration[] getImplicitVariables() {
 		new BasicEList(#[variable])
+	}
+
+	op boolean isImplicitlyInitialized(VarDeclaration decl) {
+		decl === variable
 	}
 }
 
@@ -565,7 +569,7 @@ class SetLiteralExpression extends Expression {
 	}
 }
 
-class SubsetExpression extends Expression, ImplicitlyTypedVarContainer {
+class SubsetExpression extends Expression, ImplicitlyTypedVarContainer, ImplicitVariableInitializer {
 	contains Expression superSet
 	contains ImplicitlyTypedVarDeclaration entry
 	contains Expression entryExpression
@@ -578,9 +582,13 @@ class SubsetExpression extends Expression, ImplicitlyTypedVarContainer {
 	op ImplicitlyTypedVarDeclaration[] getImplicitVariables() {
 		new BasicEList(#[entry])
 	}
+
+	op boolean isImplicitlyInitialized(VarDeclaration decl) {
+		decl === entry
+	}
 }
 
-class TypeSetExpression extends Expression, ImplicitlyTypedVarContainer {
+class TypeSetExpression extends Expression, ImplicitlyTypedVarContainer, ImplicitVariableInitializer {
 	contains Type entryType
 	contains ImplicitlyTypedVarDeclaration entry
 	contains Expression condition
@@ -591,6 +599,10 @@ class TypeSetExpression extends Expression, ImplicitlyTypedVarContainer {
 
 	op ImplicitlyTypedVarDeclaration[] getImplicitVariables() {
 		new BasicEList(#[entry])
+	}
+
+	op boolean isImplicitlyInitialized(VarDeclaration decl) {
+		decl === entry
 	}
 }
 
