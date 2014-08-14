@@ -59,7 +59,7 @@ EmptyTupleVarDeclarationComponent :
 	{EmptyTupleVarDeclarationComponent}
 ;
 
-ImplicitVarDeclaration :
+ImplicitlyTypedVarDeclaration :
 	name=ID
 ;
 
@@ -119,7 +119,7 @@ WhileLoop :
 ;
 
 ForLoop :
-	'for' variable=ImplicitVarDeclaration 'in' listOrSet=Expression body=Block
+	'for' variable=ImplicitlyTypedVarDeclaration 'in' listOrSet=Expression body=Block
 ;
 
 Block: 
@@ -300,11 +300,11 @@ TypeComparisonExpression :
 ;
 
 SubsetExpression :
-	'{' (entryExpression=Expression 'for')? entry=ImplicitVarDeclaration 'in' superSet=Expression OP_COLON condition=Expression '}'
+	'{' (entryExpression=Expression 'for')? entry=ImplicitlyTypedVarDeclaration 'in' superSet=Expression OP_COLON condition=Expression '}'
 ;
 
 TypeSetExpression :
-	'{' entry=ImplicitVarDeclaration 'in' entryType=Type OP_COLON condition=Expression '}'
+	'{' entry=ImplicitlyTypedVarDeclaration 'in' entryType=Type OP_COLON condition=Expression '}'
 ;
 
 AtomExpression returns Expression :

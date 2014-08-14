@@ -72,18 +72,18 @@ class InferredVarDeclaration extends VarDeclaration {
 class ParamDeclaration extends TypedVarDeclaration {
 }
 
-class ImplicitVarDeclaration extends VarDeclaration {
-	contains derived ImplicitVarContainer variableContainer
+class ImplicitlyTypedVarDeclaration extends VarDeclaration {
+	contains derived ImplicitlyTypedVarContainer variableContainer
 	get {
 		var c = eContainer
-		while (c != null && !(c instanceof ImplicitVarContainer && (c as ImplicitVarContainer).implicitVariables.contains(this)))
+		while (c != null && !(c instanceof ImplicitlyTypedVarContainer && (c as ImplicitlyTypedVarContainer).implicitlyTypedVariables.contains(this)))
 			c = c.eContainer
-		c as ImplicitVarContainer
+		c as ImplicitlyTypedVarContainer
 	}
 }
 
-interface ImplicitVarContainer extends MatrixSyntaxElement {
-	op ImplicitVarDeclaration[] getImplicitVariables()
+interface ImplicitlyTypedVarContainer extends MatrixSyntaxElement {
+	op ImplicitlyTypedVarDeclaration[] getImplicitlyTypedVariables()
 }
 
 class MatrixInitVarDeclaration extends TypedVarDeclaration {
@@ -201,15 +201,15 @@ class WhileLoop extends Loop {
 	}
 }
 
-class ForLoop extends Loop, ImplicitVarContainer {
-	contains ImplicitVarDeclaration variable
+class ForLoop extends Loop, ImplicitlyTypedVarContainer {
+	contains ImplicitlyTypedVarDeclaration variable
 	contains Expression listOrSet
 
 	op boolean alwaysAssigns(VarDeclaration variable) {
 		listOrSet.alwaysAssigns(variable)
 	}
 
-	op ImplicitVarDeclaration[] getImplicitVariables() {
+	op ImplicitlyTypedVarDeclaration[] getImplicitVariables() {
 		new BasicEList(#[variable])
 	}
 }
@@ -537,9 +537,9 @@ class SetLiteralExpression extends Expression {
 	}
 }
 
-class SubsetExpression extends Expression, ImplicitVarContainer {
+class SubsetExpression extends Expression, ImplicitlyTypedVarContainer {
 	contains Expression superSet
-	contains ImplicitVarDeclaration entry
+	contains ImplicitlyTypedVarDeclaration entry
 	contains Expression entryExpression
 	contains Expression condition
 
@@ -547,21 +547,21 @@ class SubsetExpression extends Expression, ImplicitVarContainer {
 		superSet.alwaysAssigns(variable)
 	}
 
-	op ImplicitVarDeclaration[] getImplicitVariables() {
+	op ImplicitlyTypedVarDeclaration[] getImplicitVariables() {
 		new BasicEList(#[entry])
 	}
 }
 
-class TypeSetExpression extends Expression, ImplicitVarContainer {
+class TypeSetExpression extends Expression, ImplicitlyTypedVarContainer {
 	contains Type entryType
-	contains ImplicitVarDeclaration entry
+	contains ImplicitlyTypedVarDeclaration entry
 	contains Expression condition
 
 	op boolean alwaysAssigns(VarDeclaration variable) {
 		condition.alwaysAssigns(variable)
 	}
 
-	op ImplicitVarDeclaration[] getImplicitVariables() {
+	op ImplicitlyTypedVarDeclaration[] getImplicitVariables() {
 		new BasicEList(#[entry])
 	}
 }

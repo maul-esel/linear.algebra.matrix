@@ -198,8 +198,8 @@ from {
 	G |- decl.value : type
 }
 
-rule TImplicitVarDecl
-	G ||- ImplicitVarDeclaration decl : Type type
+rule TImplicitlyTypedVarDecl
+	G ||- ImplicitlyTypedVarDeclaration decl : Type type
 from {
 	switch (c : decl.variableContainer) {
 		TypeSetExpression : type = c.entryType
