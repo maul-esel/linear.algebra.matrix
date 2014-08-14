@@ -229,7 +229,7 @@ class ForLoop extends Loop, ImplicitlyTypedVarContainer, ImplicitVariableInitial
 		listOrSet.alwaysAssigns(variable)
 	}
 
-	op ImplicitlyTypedVarDeclaration[] getImplicitVariables() {
+	op ImplicitlyTypedVarDeclaration[] getImplicitlyTypedVariables() {
 		new BasicEList(#[variable])
 	}
 
@@ -579,7 +579,7 @@ class SubsetExpression extends Expression, ImplicitlyTypedVarContainer, Implicit
 		superSet.alwaysAssigns(variable)
 	}
 
-	op ImplicitlyTypedVarDeclaration[] getImplicitVariables() {
+	op ImplicitlyTypedVarDeclaration[] getImplicitlyTypedVariables() {
 		new BasicEList(#[entry])
 	}
 
@@ -597,7 +597,7 @@ class TypeSetExpression extends Expression, ImplicitlyTypedVarContainer, Implici
 		condition.alwaysAssigns(variable)
 	}
 
-	op ImplicitlyTypedVarDeclaration[] getImplicitVariables() {
+	op ImplicitlyTypedVarDeclaration[] getImplicitlyTypedVariables() {
 		new BasicEList(#[entry])
 	}
 
