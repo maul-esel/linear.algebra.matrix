@@ -64,6 +64,10 @@ abstract class Line extends MatrixSyntaxElement {
 abstract class Action extends Line , IfBody {
 }
 
+interface ImplicitVariableInitializer {
+	op boolean isImplicitlyInitialized(VarDeclaration decl)
+}
+
 abstract class VarDeclaration extends Action {
 	boolean const
 	String name
@@ -195,13 +199,17 @@ abstract class Loop extends Action {
 	contains Block body
 }
 
-class FromToLoop extends Loop {
+class FromToLoop extends Loop, ImplicitVariableInitializer {
 	contains Variable ^var
 	contains Expression init
 	contains Expression end
 
 	op boolean alwaysAssigns(VarDeclaration variable) {
 		init.alwaysAssigns(variable) || end.alwaysAssigns(variable)
+	}
+
+	op boolean isImplicitlyInitalized(VarDeclaration decl) {
+		decl === ^var.ref
 	}
 }
 
@@ -257,7 +265,7 @@ class IfElse extends Action {
 	}
 }
 
-abstract class CallableDeclaration extends Line {
+abstract class CallableDeclaration extends Line, ImplicitVariableInitializer {
 	boolean internal
 	String name
 	contains ParameterList params
@@ -270,6 +278,10 @@ abstract class CallableDeclaration extends Line {
 		val matrixEntryTypes = paramTypes.filter(MatrixType).map [ paramType | paramType.realEntryType ]
 		val definedTypes = ((paramTypes + matrixEntryTypes).filter(GenericType) + genericTypes).toSet
 		definedTypes.contains(t)
+	}
+
+	op boolean isImplicitlyInitialized(VarDeclaration decl) {
+		params.params.contains(decl)
 	}
 }
 
@@ -459,7 +471,7 @@ class ImaginaryLiteral extends MathematicalLiteral {
 abstract class MathematicalLiteral extends Expression {
 }
 
-class MatrixInit extends Expression {
+class MatrixInit extends Expression, ImplicitVariableInitializer {
 	contains MathematicalType entryType
 	contains TypedVarDeclaration line
 	String lineMax
@@ -469,6 +481,10 @@ class MatrixInit extends Expression {
 
 	op boolean alwaysAssigns(VarDeclaration variable) {
 		entry.alwaysAssigns(variable)
+	}
+
+	op boolean isImplicitlyInitialized(VarDeclaration decl) {
+		decl === line || decl === column
 	}
 }
 

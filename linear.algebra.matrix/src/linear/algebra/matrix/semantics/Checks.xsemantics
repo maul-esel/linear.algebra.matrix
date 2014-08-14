@@ -523,29 +523,20 @@ from {
 		&& (variable.eContainer as VariableAssignment).variable == variable)
 		|| (variable.eContainer instanceof TupleAssignment
 		&& (variable.eContainer as TupleAssignment).variables.contains(variable))
-	val initCounter = (variable.ref.eContainer instanceof MatrixInit)
-		&& ((variable.ref.eContainer as MatrixInit).line == variable.ref
-			|| (variable.ref.eContainer as MatrixInit).column == variable.ref)
-	val isParam = variable.ref.eContainer instanceof ParameterList
+	val isDeclaredinTuple = variable.ref instanceof TupleVarDeclaration
 	val isCounter = variable.eContainer instanceof FromToLoop
 		&& (variable.eContainer as FromToLoop).getVar == variable
-	val isDeclaredinTuple = variable.ref instanceof TupleVarDeclaration
+	val implicitlyInitialized = variable.findAllAncestors(#[ImplicitVariableInitializer])
+		.exists [ isImplicitlyInitialized(variable.ref) ]
 
 	// if not initialized on declaration, ensure it's done later (if at all necessary)
-	if (variable.ref.value == null && !inAssignment && !initCounter && !isParam && !isCounter && !isDeclaredinTuple) {
-		// create list of direct ancestors of variable
-		val ancestorList = new ArrayList<MatrixSyntaxElement>()
-		ancestorList.add(variable)
-		var MatrixSyntaxElement current = variable
-		while (current.eContainer != null)
-			ancestorList.add(current = current.eContainer as MatrixSyntaxElement)
+	if (variable.ref.value == null && !isDeclaredinTuple && !inAssignment && !isCounter
+		&& !implicitlyInitialized) {
 
-		val isLoopCounter = ancestorList.filter(FromToLoop).exists [ loop | loop.getVar.ref == variable.ref ]
-		if (!isLoopCounter) {
-			val elements = variable.ref.eContainer.eContents
+		val ancestorList = variable.findAllAncestors(#[MatrixSyntaxElement])
+		val elements = variable.ref.eContainer.eContents
 
-			isAssigned(variable, ancestorList, elements.drop(elements.indexOf(variable.ref) + 1))
-			or fail error "Variable was not initialized before usage" source variable
-		}
+		isAssigned(variable, ancestorList, elements.drop(elements.indexOf(variable.ref) + 1))
+		or fail error "Variable was not initialized before usage" source variable
 	}
 }
