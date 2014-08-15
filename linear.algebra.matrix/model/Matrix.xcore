@@ -208,7 +208,7 @@ class FromToLoop extends Loop, ImplicitVariableInitializer {
 		init.alwaysAssigns(variable) || end.alwaysAssigns(variable)
 	}
 
-	op boolean isImplicitlyInitalized(VarDeclaration decl) {
+	op boolean isImplicitlyInitialized(VarDeclaration decl) {
 		decl === ^var.ref
 	}
 }
